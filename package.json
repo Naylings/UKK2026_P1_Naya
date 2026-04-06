@@ -29,6 +29,8 @@
         "@primeuix/themes": "^2.0.3",
         "@primevue/themes": "^4.5.4",
         "chart.js": "^3.3.2",
+        "dayjs": "^1.11.20",
+        "pinia": "^3.0.4",
         "primeicons": "^7.0.0",
         "primevue": "^4.5.4",
         "tailwindcss-primeui": "^0.6.0",

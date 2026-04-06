@@ -49,6 +49,7 @@ declare module 'vue' {
     Stepper: typeof import('primevue/stepper')['default']
     TabPanel: typeof import('primevue/tabpanel')['default']
     Tag: typeof import('primevue/tag')['default']
+    Textarea: typeof import('primevue/textarea')['default']
     TieredMenu: typeof import('primevue/tieredmenu')['default']
     Timeline: typeof import('primevue/timeline')['default']
     Toolbar: typeof import('primevue/toolbar')['default']

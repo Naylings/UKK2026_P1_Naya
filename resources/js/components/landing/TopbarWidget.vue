@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 function smoothScroll(id) {
     document.body.click();
     const element = document.getElementById(id);

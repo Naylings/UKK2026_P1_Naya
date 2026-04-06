@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import BlockViewer from '@/components/BlockViewer.vue';
 import { ref } from 'vue';
 
@@ -523,9 +523,9 @@ const blocksCode = {
     <div>
         <!-- Page Hero Section -->
         <div
-            class="bg-surface-0 dark:bg-surface-900 border border-surface rounded-xl p-8 bg-[url('/demo/images/blocks/landing-blocks.jpg')] dark:bg-[url('/demo/images/blocks/landing-blocks-dark.jpg')] bg-cover bg-no-repeat h-[440px] flex mb-8"
+            class="bg-surface-0 dark:bg-surface-900 border border-surface rounded-xl p-8 bg-[url('/demo/images/blocks/landing-blocks.jpg')] dark:bg-[url('/demo/images/blocks/landing-blocks-dark.jpg')] bg-cover bg-no-repeat h-110 flex mb-8"
         >
-            <div class="flex flex-col gap-4 items-center sm:items-start justify-center sm:max-w-144">
+            <div class="flex flex-col gap-4 items-center sm:items-start justify-center sm:max-w-xl">
                 <span class="bg-surface-950 text-white px-2 py-1 font-bold rounded-md text-sm">TailwindCSS v4</span>
                 <div class="flex items-center gap-4">
                     <span class="font-bold text-4xl text-surface-950 dark:text-surface-0">PrimeBlocks</span>
@@ -993,7 +993,7 @@ const blocksCode = {
                     <div class="flex flex-col gap-4">
                         <div class="flex flex-col md:flex-row gap-4">
                             <div class="flex items-center gap-4 flex-1">
-                                <div class="w-[140px] text-surface-900 dark:text-surface-0 font-medium text-base leading-tight">Title</div>
+                                <div class="w-35 text-surface-900 dark:text-surface-0 font-medium text-base leading-tight">Title</div>
                                 <div class="flex-1 text-surface-900 dark:text-surface-0 text-base leading-tight">Heat</div>
                             </div>
                             <div class="flex justify-end">
@@ -1005,7 +1005,7 @@ const blocksCode = {
 
                         <div class="flex flex-col md:flex-row gap-4">
                             <div class="flex items-center gap-4 flex-1">
-                                <div class="w-[140px] text-surface-900 dark:text-surface-0 font-medium text-base leading-tight">Genre</div>
+                                <div class="w-35 text-surface-900 dark:text-surface-0 font-medium text-base leading-tight">Genre</div>
                                 <div class="flex-1 flex flex-wrap gap-2">
                                     <Chip label="Crime" severity="secondary" />
                                     <Chip label="Drama" severity="secondary" />
@@ -1021,7 +1021,7 @@ const blocksCode = {
 
                         <div class="flex flex-col md:flex-row gap-4">
                             <div class="flex items-center gap-4 flex-1">
-                                <div class="w-[140px] text-surface-900 dark:text-surface-0 font-medium text-base leading-tight">Director</div>
+                                <div class="w-35 text-surface-900 dark:text-surface-0 font-medium text-base leading-tight">Director</div>
                                 <div class="flex-1 text-surface-900 dark:text-surface-0 text-base leading-tight">Michael Mann</div>
                             </div>
                             <div class="flex justify-end">
@@ -1033,7 +1033,7 @@ const blocksCode = {
 
                         <div class="flex flex-col md:flex-row gap-4">
                             <div class="flex items-center gap-4 flex-1">
-                                <div class="w-[140px] text-surface-900 dark:text-surface-0 font-medium text-base leading-tight">Writer</div>
+                                <div class="w-35 text-surface-900 dark:text-surface-0 font-medium text-base leading-tight">Writer</div>
                                 <div class="flex-1 text-surface-900 dark:text-surface-0 text-base leading-tight">Michael Mann</div>
                             </div>
                             <div class="flex justify-end">
@@ -1045,7 +1045,7 @@ const blocksCode = {
 
                         <div class="flex flex-col md:flex-row gap-4">
                             <div class="flex items-start gap-4 flex-1">
-                                <div class="w-[140px] text-surface-900 dark:text-surface-0 font-medium text-base leading-tight">Plot</div>
+                                <div class="w-35 text-surface-900 dark:text-surface-0 font-medium text-base leading-tight">Plot</div>
                                 <div class="flex-1 text-surface-900 dark:text-surface-0 text-base leading-normal">A group of professional bank robbers start to feel the heat from police when they unknowingly leave a clue at their latest heist.</div>
                             </div>
                             <div class="flex justify-end">
@@ -1070,7 +1070,7 @@ const blocksCode = {
                         </div>
                     </div>
                     <div class="flex flex-1">
-                        <div class="flex-1 border-2 border-dashed border-surface-200 dark:border-surface-700 rounded-lg h-[150px]" />
+                        <div class="flex-1 border-2 border-dashed border-surface-200 dark:border-surface-700 rounded-lg h-37.5" />
                     </div>
                 </div>
             </div>

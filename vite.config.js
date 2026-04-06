@@ -26,7 +26,7 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    noDiscovery: true,
+    include: ["dayjs"],
   },
   css: {
     preprocessorOptions: {

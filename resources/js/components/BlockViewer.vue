@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { reactive, ref } from 'vue';
 
 const props = defineProps({
@@ -93,12 +93,12 @@ async function copyCode(event) {
                         class="relative w-10 h-10 border border-surface-200 dark:border-surface-700 rounded-full hover:bg-surface-100 dark:hover:bg-surface-800 transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-0 dark:focus-visible:ring-offset-surface-900 cursor-pointer disabled:cursor-wait"
                     >
                         <!-- Loading Spinner -->
-                        <span :class="['absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-all duration-300 leading-none', codeCopyLoading ? 'opacity-100 scale-100 z-10' : 'opacity-0 scale-50 -z-[2]']">
+                        <span :class="['absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-all duration-300 leading-none', codeCopyLoading ? 'opacity-100 scale-100 z-10' : 'opacity-0 scale-50 -z-2']">
                             <i class="pi pi-spinner animate-spin text-surface-700 dark:text-surface-300" style="font-size: 1.25rem"></i>
                         </span>
 
                         <!-- Checkmark Icon -->
-                        <span :class="['absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-all duration-300 leading-none', codeCopied && !codeCopyLoading ? 'opacity-100 scale-100 z-10' : 'opacity-0 scale-50 -z-[2]']">
+                        <span :class="['absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-all duration-300 leading-none', codeCopied && !codeCopyLoading ? 'opacity-100 scale-100 z-10' : 'opacity-0 scale-50 -z-2']">
                             <svg class="w-5 h-5 fill-green-600 dark:fill-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                                 <g id="check">
                                     <path d="M9,18.25A.74.74,0,0,1,8.47,18l-5-5A.75.75,0,1,1,4.53,12L9,16.44,19.47,6A.75.75,0,0,1,20.53,7l-11,11A.74.74,0,0,1,9,18.25Z"></path>
@@ -107,7 +107,7 @@ async function copyCode(event) {
                         </span>
 
                         <!-- Copy Icon -->
-                        <span :class="['absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-all duration-300 leading-none', !codeCopied && !codeCopyLoading ? 'opacity-100 scale-100 z-10' : 'opacity-0 scale-50 -z-[2]']">
+                        <span :class="['absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-all duration-300 leading-none', !codeCopied && !codeCopyLoading ? 'opacity-100 scale-100 z-10' : 'opacity-0 scale-50 -z-2']">
                             <svg class="w-5 h-5 fill-surface-700 dark:fill-surface-300" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                                 <g id="clone">
                                     <path

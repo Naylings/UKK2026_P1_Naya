@@ -6,7 +6,7 @@
         </div>
 
         <div class="grid grid-cols-12 gap-4 mt-20 pb-2 md:pb-20">
-            <div class="flex justify-center col-span-12 lg:col-span-6 bg-purple-100 p-0 order-1 lg:order-none" style="border-radius: 8px">
+            <div class="flex justify-center col-span-12 lg:col-span-6 bg-purple-100 p-0 order-1 lg:order-0" style="border-radius: 8px">
                 <img src="@/assets/images/landing/mockup.svg" class="w-11/12" alt="mockup mobile" />
             </div>
 

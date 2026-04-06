@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { useLayout } from '@/layout/composables/layout';
 import { onBeforeUnmount, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
