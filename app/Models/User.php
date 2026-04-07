@@ -2,11 +2,12 @@
 
 namespace App\Models;
 
+use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements JWTSubject
 {
     protected $fillable = [
         'email',
@@ -97,5 +98,22 @@ class User extends Authenticatable
     public function isUser(): bool
     {
         return $this->role === 'User';
+    }
+    
+    // -------------------------------------------------------------------------
+    // JWT
+    // -------------------------------------------------------------------------
+    
+    public function getJWTIdentifier(): mixed
+    {
+        return $this->getKey();
+    }
+
+    public function getJWTCustomClaims(): array
+    {
+        return [
+            'role'  => $this->role,
+            'email' => $this->email,
+        ];
     }
 }

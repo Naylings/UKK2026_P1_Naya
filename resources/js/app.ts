@@ -18,10 +18,11 @@ import "@/assets/styles.scss";
 import { definePreset } from "@primeuix/themes";
 
 // primevue: import only the tooltip directive here; register components individually where needed
-import Tooltip from "primevue/tooltip";
-import { createPinia } from "pinia";
 
 const app = createApp(App);
+import { OverlayBadge, Tooltip, TabPanels, Fluid, ToggleSwitch, Toast, Select, DatePicker, Popover, Drawer, Step, ConfirmPopup, StepList, Tab, TabList, Tabs, AccordionHeader, AccordionContent, AccordionPanel } from 'primevue';
+
+import { createPinia } from "pinia";
 
 const CustomLara = definePreset(Lara, {
   semantic: {
@@ -73,13 +74,25 @@ app.use(ConfirmationService);
 app.directive("styleclass", StyleClass);
 app.directive("tooltip", Tooltip);
 
-// Component registrations have been removed from this global file to avoid TypeScript export errors.
-// Register PrimeVue components individually in the files that need them, or import & register them here
-// one-by-one from their specific paths, for example:
-//
-// import Toast from 'primevue/toast';
-// app.component('Toast', Toast);
-//
-// This prevents named-export resolution issues with the package entrypoint and keeps typing clean.
+// component that still error
+app.component('Fluid', Fluid);
+app.component('TabPanels', TabPanels);
+app.component('Toast', Toast);
+app.component('Select', Select);
+app.component('DatePicker', DatePicker);
+app.component('ToggleSwitch', ToggleSwitch);
+app.component('Popover', Popover);
+app.component('Drawer', Drawer);
+app.component('OverlayBadge', OverlayBadge);
+app.component('Step', Step);
+app.component('ConfirmPopup', ConfirmPopup);
+app.component('StepList', StepList);
+app.component('Tab', Tab);
+app.component('TabList', TabList);
+app.component('Tabs', Tabs);
+app.component('AccordionHeader', AccordionHeader);
+app.component('AccordionContent', AccordionContent);
+app.component('AccordionPanel', AccordionPanel);
+
 
 app.mount("#app");

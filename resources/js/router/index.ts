@@ -1,4 +1,5 @@
 import AppLayout from '@/layout/AppLayout.vue';
+import { useAuthStore } from '@/stores/auth';
 import { createRouter, createWebHistory } from 'vue-router';
 
 const router = createRouter({
@@ -7,170 +8,85 @@ const router = createRouter({
         {
             path: '/',
             component: AppLayout,
+            meta: { auth: true },
             children: [
+                {
+                    path: '/staff',
+                    name: 'dashboard pengelola',
+                    component: () => import('@/pages/Dashboard.vue'),
+                    meta: { title: 'Dashboard Pengelola', roles: ['Admin', 'Employee'] }
+                },
                 {
                     path: '/',
                     name: 'dashboard',
-                    component: () => import('@/views/Dashboard.vue'),
-                    meta: { title: 'Dashboard' }
+                    component: () => import('@/pages/peminjam/Dashboard.vue'),
+                    meta: { title: 'Dashboard Peminjam', roles: ['User'] }
                 },
-                {
-                    path: '/uikit/formlayout',
-                    name: 'formlayout',
-                    component: () => import('@/views/uikit/FormLayout.vue'),
-                    meta: { title: 'Form Layout' }
-                },
-                {
-                    path: '/uikit/input',
-                    name: 'input',
-                    component: () => import('@/views/uikit/InputDoc.vue'),
-                    meta: { title: 'Input' }
-                },
-                {
-                    path: '/uikit/button',
-                    name: 'button',
-                    component: () => import('@/views/uikit/ButtonDoc.vue'),
-                    meta: { title: 'Button' }
-                },
-                {
-                    path: '/uikit/table',
-                    name: 'table',
-                    component: () => import('@/views/uikit/TableDoc.vue'),
-                    meta: { title: 'Table' }
-                },
-                {
-                    path: '/uikit/list',
-                    name: 'list',
-                    component: () => import('@/views/uikit/ListDoc.vue'),
-                    meta: { title: 'List' }
-                },
-                {
-                    path: '/uikit/tree',
-                    name: 'tree',
-                    component: () => import('@/views/uikit/TreeDoc.vue'),
-                    meta: { title: 'Tree' }
-                },
-                {
-                    path: '/uikit/panel',
-                    name: 'panel',
-                    component: () => import('@/views/uikit/PanelsDoc.vue'),
-                    meta: { title: 'Panel' }
-                },
-                {
-                    path: '/uikit/overlay',
-                    name: 'overlay',
-                    component: () => import('@/views/uikit/OverlayDoc.vue'),
-                    meta: { title: 'Overlay' }
-                },
-                {
-                    path: '/uikit/media',
-                    name: 'media',
-                    component: () => import('@/views/uikit/MediaDoc.vue'),
-                    meta: { title: 'Media' }
-                },
-                {
-                    path: '/uikit/message',
-                    name: 'message',
-                    component: () => import('@/views/uikit/MessagesDoc.vue'),
-                    meta: { title: 'Message' }
-                },
-                {
-                    path: '/uikit/file',
-                    name: 'file',
-                    component: () => import('@/views/uikit/FileDoc.vue'),
-                    meta: { title: 'File' }
-                },
-                {
-                    path: '/uikit/menu',
-                    name: 'menu',
-                    component: () => import('@/views/uikit/MenuDoc.vue'),
-                    meta: { title: 'Menu' }
-                },
-                {
-                    path: '/uikit/charts',
-                    name: 'charts',
-                    component: () => import('@/views/uikit/ChartDoc.vue'),
-                    meta: { title: 'Charts' }
-                },
-                {
-                    path: '/uikit/misc',
-                    name: 'misc',
-                    component: () => import('@/views/uikit/MiscDoc.vue'),
-                    meta: { title: 'Misc' }
-                },
-                {
-                    path: '/uikit/timeline',
-                    name: 'timeline',
-                    component: () => import('@/views/uikit/TimelineDoc.vue'),
-                    meta: { title: 'Timeline' }
-                },
-                {
-                    path: '/blocks/free',
-                    name: 'blocks',
-                    component: () => import('@/views/utilities/Blocks.vue'),
-                    meta: { title: 'Prime Blocks' }
-                },
-                {
-                    path: '/pages/empty',
-                    name: 'empty',
-                    component: () => import('@/views/pages/Empty.vue'),
-                    meta: { title: 'Empty Page' }
-                },
-                {
-                    path: '/pages/crud',
-                    name: 'crud',
-                    component: () => import('@/views/pages/Crud.vue'),
-                    meta: { title: 'CRUD' }
-                }
             ]
-        },
-        {
-            path: '/landing',
-            name: 'landing',
-            component: () => import('@/views/pages/Landing.vue'),
-            meta: { title: 'Landing Page' }
         },
         {
             path: '/pages/notfound',
             name: 'notfound',
-            component: () => import('@/views/pages/NotFound.vue'),
+            component: () => import('@/pages/NotFound.vue'),
             meta: { title: 'Not Found' }
         },
         {
             path: '/auth/login',
             name: 'login',
-            component: () => import('@/views/pages/auth/Login.vue'),
-            meta: { title: 'Login' }
-        },
-        {
-            path: '/auth/register',
-            name: 'register',
-            component: () => import('@/views/pages/auth/Register.vue'),
-            meta: { title: 'Register' }
+            component: () => import('@/pages/auth/Login.vue'),
+            meta: { title: 'Login', guest: true }   // ← tambah guest: true
         },
         {
             path: '/auth/access',
             name: 'accessDenied',
-            component: () => import('@/views/pages/auth/Access.vue'),
+            component: () => import('@/pages/auth/Access.vue'),
             meta: { title: 'Access Denied' }
         },
         {
             path: '/auth/error',
             name: 'error',
-            component: () => import('@/views/pages/auth/Error.vue'),
+            component: () => import('@/pages/auth/Error.vue'),
             meta: { title: 'Error' }
+        },
+        {
+            path: '/:pathMatch(.*)*',
+            redirect: { name: 'notfound' }
         }
     ]
 });
 
-const APP_NAME = 'Naya';
+// ── Helper: tentukan dashboard berdasarkan role ───────────────────────────
 
-router.beforeEach((to) => {
-    const pageTitle = to.meta?.title;
-    document.title = pageTitle
-        ? `${APP_NAME} | ${pageTitle}`
-        : APP_NAME;
+function getDashboardByRole(role: string): string {
+    if (role === 'Admin' || role === 'Employee') {
+        return 'dashboard pengelola';
+    }
+    return 'dashboard';
+}
+
+// ── Guard ─────────────────────────────────────────────────────────────────
+
+router.beforeEach(async (to) => {
+    const auth = useAuthStore();
+
+    // Pastikan session sudah dicek sebelum guard berjalan
+    await auth.fetchMe();
+
+    // Halaman guest (login): redirect ke dashboard sesuai role jika sudah login
+    if (to.meta.guest && auth.isLoggedIn && auth.user) {
+        return { name: getDashboardByRole(auth.user.role) };
+    }
+
+    // Halaman protected: redirect ke login jika belum login
+    if (to.meta.auth && !auth.isLoggedIn) {
+        return { name: 'login' };
+    }
+
+    // Role tidak diizinkan: redirect ke accessDenied
+    const allowedRoles = to.meta.roles as string[] | undefined;
+    if (allowedRoles && auth.user && !allowedRoles.includes(auth.user.role)) {
+        return { name: 'accessDenied' };
+    }
 });
-
 
 export default router;

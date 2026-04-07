@@ -15,7 +15,7 @@ return new class extends Migration
 
         Schema::create('app_configs', function (Blueprint $table) {
             $table->integer('id')->primary()->autoIncrement();
-            $table->integer('name')->comment('Kunci konfigurasi. Contoh: app_name  ,   points_per_day_late  ,   points_damaged  ,   points_lost  ,   default_appeal_deduction  ,   max_loan_days');
+            $table->string('name')->comment('nama app/instansi');
             $table->integer('late_point')->comment('poin penalty yang bertambah jika pengembalian alat terlambat');
             $table->integer('broken_point')->comment('poin penalty yang bertambah jika alat rusak');
             $table->integer('lost_point')->comment('poin penalty yang bertambah jika alat hilang');
