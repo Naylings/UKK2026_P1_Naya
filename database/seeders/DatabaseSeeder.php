@@ -13,7 +13,7 @@ class DatabaseSeeder extends Seeder
         [
             'id' => 1,
             'email' => 'admin@ukk2026.com',
-            'password' => Hash::make('admin123'),
+            'password' => Hash::make('123456'),
             'role' => 'Admin',
             'credit_score' => 100,
             'is_restricted' => 0,
@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
         [
             'id' => 2,
             'email' => 'petugas@ukk2026.com',
-            'password' => Hash::make('petugas123'),
+            'password' => Hash::make('123456'),
             'role' => 'Employee',
             'credit_score' => 100,
             'is_restricted' => 0,
@@ -33,7 +33,7 @@ class DatabaseSeeder extends Seeder
         [
             'id' => 3,
             'email' => 'peminjam@ukk2026.com',
-            'password' => Hash::make('peminjam123'),
+            'password' => Hash::make('123456'),
             'role' => 'User',
             'credit_score' => 100,
             'is_restricted' => 0,

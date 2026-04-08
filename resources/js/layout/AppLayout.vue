@@ -4,7 +4,6 @@ import { computed } from 'vue';
 import AppFooter from './AppFooter.vue';
 import AppSidebar from './AppSidebar.vue';
 import AppTopbar from './AppTopbar.vue';
-import { Toast } from 'primevue';
 
 const { layoutConfig, layoutState, hideMobileMenu } = useLayout();
 
@@ -31,5 +30,4 @@ const containerClass = computed(() => {
         </div>
         <div class="layout-mask animate-fadein" @click="hideMobileMenu" />
     </div>
-    <Toast />
 </template>

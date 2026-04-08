@@ -17,15 +17,27 @@ function userMenu(event) {
   op.value.toggle(event);
 }
 
-async function handleLogout()  {
-    await authStore.logout();
+async function handleLogout() {
+    try {
+        const message = await authStore.logout();
 
-//toast
-    
-    setTimeout(() => {
-      router.push({ name: "login" });
-    }, 500);
-    
+        toast.add({ 
+          severity: "success", 
+          summary: "Berhasil", 
+          detail: message,
+          life: 3000 
+        });
+
+        setTimeout(() => {
+            router.push({ name: "login" });
+        }, 500);
+    } catch (error) {
+        toast.add({ 
+          severity: "error", 
+          summary: "Gagal", 
+          detail: error instanceof Error ? error.message : "Logout gagal"
+        });
+    }
 };
 </script>
 
@@ -85,13 +97,11 @@ async function handleLogout()  {
         </button>
       </div>
 
-      <div class="layout-topbar-menu hidden lg:block">
-        <div class="layout-topbar-menu-content">
+      <div class="layout-config-menu">
           <button type="button" class="layout-topbar-action" @click="userMenu">
             <i class="pi pi-user"></i>
             <span>Profile</span>
           </button>
-        </div>
       </div>
       <Popover ref="op" id="overlay_panel" style="width: 300px" append-to="body">
           <button

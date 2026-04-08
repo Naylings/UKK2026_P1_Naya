@@ -5,7 +5,7 @@ namespace App\Exceptions;
 use Exception;
 use Illuminate\Http\JsonResponse;
 
-class AuthException extends Exception
+class UserException extends Exception
 {
     private int $statusCode;
     private string $errorCode;
@@ -21,50 +21,42 @@ class AuthException extends Exception
     // Named constructors — satu tempat untuk semua skenario error auth
     // -------------------------------------------------------------------------
 
-    public static function invalidCredentials(): self
+    public static function notFound(): self
     {
         return new self(
-            message:    'Email atau password salah.',
-            statusCode: 401,
-            errorCode:  'INVALID_CREDENTIALS',
+            message:    'User tidak ditemukan.',
+            statusCode: 404,
+            errorCode:  'USER_NOT_FOUND',
         );
     }
 
-    public static function tokenGenerationFailed(): self
+    public static function emailAlreadyExists(): self
     {
         return new self(
-            message:    'Gagal membuat token. Silakan coba lagi.',
-            statusCode: 500,
-            errorCode:  'TOKEN_GENERATION_FAILED',
+            message:    'Email sudah digunakan oleh user lain.',
+            statusCode: 422,
+            errorCode:  'EMAIL_ALREADY_EXISTS',
         );
     }
 
-    public static function logoutFailed(): self
+    public static function detailNotFound(): self
     {
         return new self(
-            message:    'Logout berhasil. Sesi Anda sudah berakhir.',
-            statusCode: 204,
-            errorCode:  'LOGOUT_FAILED',
+            message:    'Detail user tidak ditemukan.',
+            statusCode: 404,
+            errorCode:  'DETAIL_NOT_FOUND',
         );
     }
 
-    public static function tokenRefreshFailed(): self
+    public static function invalidOperation(): self
     {
         return new self(
-            message:    'Gagal memperbarui token. Silakan login ulang.',
-            statusCode: 401,
-            errorCode:  'TOKEN_REFRESH_FAILED',
+            message:    'Operasi tidak valid.',
+            statusCode: 400,
+            errorCode:  'INVALID_OPERATION',
         );
     }
 
-    public static function unauthenticated(): self
-    {
-        return new self(
-            message:    'Sesi tidak ditemukan. Silakan login ulang.',
-            statusCode: 401,
-            errorCode:  'UNAUTHENTICATED',
-        );
-    }
 
     // -------------------------------------------------------------------------
     // Response builder

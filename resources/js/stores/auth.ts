@@ -14,6 +14,7 @@ export const useAuthStore = defineStore('auth', () => {
   const user    = ref<AuthUser | null>(null);
   const loading = ref(false);
   const error   = ref<string | null>(null);
+  const logoutMessage = ref<string | null>(null);
 
   /**
    * true  → fetchMe sudah pernah dipanggil (berhasil atau gagal)
@@ -54,12 +55,15 @@ export const useAuthStore = defineStore('auth', () => {
   /**
    * Dipanggil saat user klik tombol logout.
    * Selalu bersihkan state meskipun request BE gagal.
+   * Mengembalikan pesan dari backend.
    */
-  async function logout(): Promise<void> {
+  async function logout(): Promise<string> {
     loading.value = true;
 
     try {
-      await authService.logout();
+      const message = await authService.logout();
+      logoutMessage.value = message;
+      return message;
     } finally {
       user.value        = null;
       initialized.value = false;
@@ -103,6 +107,7 @@ export const useAuthStore = defineStore('auth', () => {
     loading,
     error,
     initialized,
+    logoutMessage,
     // getters
     isLoggedIn,
     isAdmin,

@@ -28,28 +28,29 @@ interface LayoutState {
  *
  * This is a TypeScript port of the original JS composable.
  */
+
+const layoutConfig = reactive<LayoutConfig>({
+  preset: "Lara",
+  primary: "orange",
+  surface: "stone",
+  darkTheme: false,
+  menuMode: "static",
+});
+
+const layoutState = reactive<LayoutState>({
+  staticMenuInactive: false,
+  overlayMenuActive: false,
+  profileSidebarVisible: false,
+  configSidebarVisible: false,
+  sidebarExpanded: false,
+  menuHoverActive: false,
+  activeMenuItem: null,
+  activePath: null,
+  mobileMenuActive: false,
+  anchored: false,
+});
+
 export function useLayout() {
-  const layoutConfig = reactive<LayoutConfig>({
-    preset: "Lara",
-    primary: "orange",
-    surface: "stone",
-    darkTheme: false,
-    menuMode: "static",
-  });
-
-  const layoutState = reactive<LayoutState>({
-    staticMenuInactive: false,
-    overlayMenuActive: false,
-    profileSidebarVisible: false,
-    configSidebarVisible: false,
-    sidebarExpanded: false,
-    menuHoverActive: false,
-    activeMenuItem: null,
-    activePath: null,
-    mobileMenuActive: false,
-    anchored: false,
-  });
-
   const executeDarkModeToggle = () => {
     layoutConfig.darkTheme = !layoutConfig.darkTheme;
     document.documentElement.classList.toggle("app-dark");

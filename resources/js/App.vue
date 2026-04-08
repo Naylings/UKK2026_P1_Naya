@@ -2,6 +2,7 @@
 import { onMounted } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import router from '@/router/index';
+import { Toast } from 'primevue';
  
 const authStore = useAuthStore();
  
@@ -17,6 +18,7 @@ window.addEventListener('auth:unauthenticated', () => {
 
 <template>
     <router-view />
+    <Toast />
 </template>
 
 <style scoped></style>

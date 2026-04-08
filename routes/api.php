@@ -26,3 +26,30 @@ Route::prefix('auth')->group(function () {
     });
 
 });
+
+/*
+|--------------------------------------------------------------------------
+| User CRUD Routes
+|--------------------------------------------------------------------------
+|
+| prefix  : /api/users
+| middleware: auth:api (JWT protected)
+|
+*/
+
+Route::prefix('users')->middleware('auth:api')->group(function () {
+    
+    // List & Create
+    Route::get('/',                 [AuthController::class, 'indexUsers']);
+    Route::post('/',                [AuthController::class, 'storeUser']);
+    
+    // Show, Update, Delete
+    Route::get('/{user}',           [AuthController::class, 'showUser']);
+    Route::put('/{user}',           [AuthController::class, 'updateUser']);
+    Route::delete('/{user}',        [AuthController::class, 'destroyUser']);
+    
+    // Update credit only
+    Route::post('/{user}/credit',   [AuthController::class, 'updateUserCredit']);
+    
+});
+

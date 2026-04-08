@@ -2,9 +2,11 @@
 import { reactive } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
+import { useToast } from "primevue/usetoast";
 
 const router    = useRouter();
 const authStore = useAuthStore();
+const toast = useToast();
 
 const form = reactive({ email: "", password: "" });
 
@@ -14,13 +16,22 @@ async function handleLogin() {
   const success = await authStore.login(form);
 
   if (success && authStore.user) {
+    toast.add({ 
+      severity: "success", 
+      summary: "Selamat datang!", 
+      detail: `Login berhasil. Halo ${authStore.user.name || authStore.user.email}`,
+      life: 3000 
+    });
+
     // Redirect berdasarkan role, bukan hardcode satu nama route
     const role = authStore.user.role;
-    if (role === 'Admin' || role === 'Employee') {
-      router.push({ name: 'dashboard pengelola' });
-    } else {
-      router.push({ name: 'dashboard' });
-    }
+    setTimeout(() => {
+      if (role === 'Admin' || role === 'Employee') {
+        router.push({ name: 'dashboard pengelola' });
+      } else {
+        router.push({ name: 'dashboard' });
+      }
+    }, 500);
   }
 }
 </script>

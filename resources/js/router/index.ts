@@ -28,10 +28,16 @@ const router = createRouter({
           meta: { title: "Dashboard Pengelola", roles: ["Admin", "Employee"] },
         },
         {
-          path: "/user",
+          path: "/dashboard",
           name: "dashboard",
           component: () => import("@/pages/peminjam/Dashboard.vue"),
           meta: { title: "Dashboard Peminjam", roles: ["User"] },
+        },
+        {
+          path: "/users",
+          name: "user management",
+          component: () => import("@/pages/admin/users/Index.vue"),
+          meta: { title: "User Management", roles: ["Admin"] },
         },
       ],
     },

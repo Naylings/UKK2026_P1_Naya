@@ -57,15 +57,21 @@ export const authService = {
    * Logout: panggil BE untuk invalidate token → bersihkan storage.
    * Tetap bersihkan storage meskipun request BE gagal
    * (token sudah tidak relevan di sisi FE).
+   * Mengembalikan pesan dari BE jika tersedia.
    */
-  async logout(): Promise<void> {
+  async logout(): Promise<string> {
+    let message = 'Logout berhasil';
     try {
-      await authApi.logout();
+      const response = await authApi.logout();
+      if (response.data.message) {
+        message = response.data.message;
+      }
     } catch {
       // Diabaikan — token mungkin sudah expired di server
     } finally {
       tokenStorage.clear();
     }
+    return message;
   },
 
   /**
