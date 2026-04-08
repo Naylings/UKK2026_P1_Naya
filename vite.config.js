@@ -9,16 +9,20 @@ import { fileURLToPath, URL } from "node:url";
 
 export default defineConfig({
   plugins: [
-    tailwindcss(),
+        vue(),
+      
     Components({
-      resolvers: [PrimeVueResolver()],
+      dirs: ["resources/js/components"],
+      extensions: ["vue"],
+      deep: true,
       dts: "resources/js/components.d.ts", // optional
+      resolvers: [PrimeVueResolver()],
     }),
+    tailwindcss(),
     laravel({
-      input: ["resources/js/app.js"],
+      input: ["resources/js/app.ts"],
       refresh: true,
     }),
-    vue(),
   ],
   resolve: {
     alias: {
