@@ -24,10 +24,10 @@ class UserManagementService
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('email', 'like', "%{$search}%")
-                  ->orWhereHas('detail', function ($q) use ($search) {
-                      $q->where('name', 'like', "%{$search}%")
-                        ->orWhere('nik', 'like', "%{$search}%");
-                  });
+                    ->orWhereHas('detail', function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%")
+                            ->orWhere('nik', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -48,11 +48,11 @@ class UserManagementService
     public function getUserById(int $userId): User
     {
         $user = User::with('detail')->find($userId);
-        
+
         if (!$user) {
             throw UserException::notFound();
         }
-        
+
         return $user;
     }
 
@@ -81,7 +81,7 @@ class UserManagementService
 
         // Cek NIK sudah ada
         if (UserDetail::where('nik', $data['nik'])->exists()) {
-            throw new UserException('NIK sudah terdaftar.');
+            throw UserException::nikAlreadyExists();
         }
 
         try {
@@ -108,7 +108,7 @@ class UserManagementService
         } catch (UserException $e) {
             throw $e;
         } catch (\Exception $e) {
-            throw new UserException('Gagal membuat user: ' . $e->getMessage());
+            throw  UserException::createFailed();
         }
     }
 
@@ -171,7 +171,7 @@ class UserManagementService
         } catch (UserException $e) {
             throw $e;
         } catch (\Exception $e) {
-            throw new UserException('Gagal update user: ' . $e->getMessage());
+            throw UserException::updateFailed();
         }
     }
 
@@ -186,14 +186,14 @@ class UserManagementService
     public function updateUserCredit(User $user, int $creditScore): User
     {
         if ($creditScore < 0) {
-            throw new UserException('Credit score tidak boleh negatif.');
+            throw UserException::creditNegative();
         }
 
         try {
             $user->update(['credit_score' => $creditScore]);
             return $user->load('detail');
         } catch (\Exception $e) {
-            throw new UserException('Gagal update credit: ' . $e->getMessage());
+            throw UserException::updateCreditFailed();
         }
     }
 
@@ -223,9 +223,11 @@ class UserManagementService
         $hasActivityLogs = $user->activityLogs()->exists();
 
         // If any relation exists (except detail), prevent deletion
-        if ($hasLoans || $hasHandledLoans || $hasReturns || $hasViolations || 
-            $hasSettlements || $hasAppeals || $hasReviewedAppeals || $hasActivityLogs) {
-            throw new UserException('User tidak dapat dihapus karena masih memiliki data terkait.');
+        if (
+            $hasLoans || $hasHandledLoans || $hasReturns || $hasViolations ||
+            $hasSettlements || $hasAppeals || $hasReviewedAppeals || $hasActivityLogs
+        ) {
+            throw UserException::hasRelations();
         }
 
         try {
@@ -237,8 +239,7 @@ class UserManagementService
             // Then delete user
             $user->delete();
         } catch (\Exception $e) {
-            throw new UserException('Gagal menghapus user: ' . $e->getMessage());
+            throw UserException::deleteFailed();
         }
     }
 }
-

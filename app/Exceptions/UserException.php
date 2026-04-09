@@ -18,45 +18,93 @@ class UserException extends Exception
     }
 
     // -------------------------------------------------------------------------
-    // Named constructors — satu tempat untuk semua skenario error auth
+    // Named constructors — satu tempat untuk semua skenario error user
     // -------------------------------------------------------------------------
+
+    public static function nikAlreadyExists(): self
+    {
+        return new self(
+            message: 'NIK sudah terdaftar.',
+            statusCode: 422,
+            errorCode: 'NIK_ALREADY_EXISTS',
+        );
+    }
+
+
+
+    
 
     public static function notFound(): self
     {
         return new self(
-            message:    'User tidak ditemukan.',
+            message: 'User tidak ditemukan.',
             statusCode: 404,
-            errorCode:  'USER_NOT_FOUND',
+            errorCode: 'USER_NOT_FOUND',
         );
     }
 
     public static function emailAlreadyExists(): self
     {
         return new self(
-            message:    'Email sudah digunakan oleh user lain.',
+            message: 'Email sudah terdaftar.',
             statusCode: 422,
-            errorCode:  'EMAIL_ALREADY_EXISTS',
+            errorCode: 'EMAIL_ALREADY_EXISTS',
         );
     }
 
-    public static function detailNotFound(): self
+    public static function createFailed(string $reason = ''): self
     {
         return new self(
-            message:    'Detail user tidak ditemukan.',
-            statusCode: 404,
-            errorCode:  'DETAIL_NOT_FOUND',
+            message: 'Gagal membuat user' . ($reason ? ': ' . $reason : '.'),
+            statusCode: 500,
+            errorCode: 'USER_CREATE_FAILED',
         );
     }
 
-    public static function invalidOperation(): self
+    public static function updateFailed(string $reason = ''): self
     {
         return new self(
-            message:    'Operasi tidak valid.',
-            statusCode: 400,
-            errorCode:  'INVALID_OPERATION',
+            message: 'Gagal update user' . ($reason ? ': ' . $reason : '.'),
+            statusCode: 500,
+            errorCode: 'USER_UPDATE_FAILED',
         );
     }
 
+    public static function creditNegative(): self
+    {
+        return new self(
+            message: 'Credit score tidak boleh negatif.',
+            statusCode: 422,
+            errorCode: 'INVALID_CREDIT_SCORE',
+        );
+    }
+
+    public static function updateCreditFailed(string $reason = ''): self
+    {
+        return new self(
+            message: 'Gagal update credit' . ($reason ? ': ' . $reason : '.'),
+            statusCode: 500,
+            errorCode: 'UPDATE_CREDIT_FAILED',
+        );
+    }
+
+    public static function hasRelations(): self
+    {
+        return new self(
+            message: 'User tidak dapat dihapus karena masih memiliki data terkait.',
+            statusCode: 422,
+            errorCode: 'USER_HAS_RELATIONS',
+        );
+    }
+
+    public static function deleteFailed(string $reason = ''): self
+    {
+        return new self(
+            message: 'Gagal menghapus user' . ($reason ? ': ' . $reason : '.'),
+            statusCode: 500,
+            errorCode: 'USER_DELETE_FAILED',
+        );
+    }
 
     // -------------------------------------------------------------------------
     // Response builder

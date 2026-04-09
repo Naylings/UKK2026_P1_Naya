@@ -8,345 +8,376 @@ import { useUserStore } from "@/stores/user";
 import { useToast } from "primevue/usetoast";
 import { useConfirm } from "primevue/useconfirm";
 import type {
-  User,
-  CreateUserPayload,
-  UpdateUserPayload,
-  UpdateUserCreditPayload,
+    User,
+    CreateUserPayload,
+    UpdateUserPayload,
+    UpdateUserCreditPayload,
 } from "@/types/user";
 
-type UserForm = Omit<CreateUserPayload, 'birth_date'> & {
-  birth_date: Date | null;
+type UserForm = Omit<CreateUserPayload, "birth_date"> & {
+    birth_date: Date | null;
 };
 
 export function useUserManagement() {
-  const userStore = useUserStore();
-  const toast = useToast();
-  const confirm = useConfirm();
+    const userStore = useUserStore();
+    const toast = useToast();
+    const confirm = useConfirm();
 
-  // ── Dialog state ──────────────────────────────────────────────────────────
+    // ── Dialog state ──────────────────────────────────────────────────────────
 
-  const formVisible = ref(false);
-  const detailVisible = ref(false);
-  const creditVisible = ref(false);
-  const isEditMode = ref(false);
+    const formVisible = ref(false);
+    const detailVisible = ref(false);
+    const creditVisible = ref(false);
+    const isEditMode = ref(false);
 
-  // ── Form data ─────────────────────────────────────────────────────────────
+    // ── Form data ─────────────────────────────────────────────────────────────
 
-  const form = ref<Partial<UserForm>>({
-    email: "",
-    password: "",
-    role: "User",
-    nik: "",
-    name: "",
-    no_hp: "",
-    address: "",
-    birth_date: null,
-  });
-
-  const creditForm = ref({
-    credit_score: 0,
-  });
-
-  // ── Selected user ─────────────────────────────────────────────────────────
-
-  const selectedUser = ref<User | null>(null);
-  const selectedUserId = ref<number | null>(null);
-
-  // ── Filters ───────────────────────────────────────────────────────────────
-
-  const filters = ref({
-    role: "",
-    search: "",
-  });
-
-  // ── Computed ──────────────────────────────────────────────────────────────
-
-  const dialogTitle = computed(() =>
-    isEditMode.value ? "Edit User" : "Tambah User Baru",
-  );
-
-  const submitButtonLabel = computed(() =>
-    isEditMode.value ? "Update" : "Buat User",
-  );
-
-  // ── Actions ───────────────────────────────────────────────────────────────
-
-  /**
-   * Pagination handler
-   */
-
-  async function onPageChange(event: any) {
-    const page = event.page ;
-    const perPage = event.rows ?? userStore.perPage;
-    await loadUsers({ page, per_page: perPage });
-  }
-
-  /**
-   * Muat semua users
-   */
-  async function loadUsers(params?: { page?: number; per_page?: number }) {
-    const success = await userStore.fetchUsers({
-      page: params?.page ?? userStore.currentPage,
-      per_page: params?.per_page ?? userStore.perPage,
-      search: filters.value.search || undefined,
-      role: filters.value.role || undefined,
+    const form = ref<Partial<UserForm>>({
+        email: "",
+        password: "",
+        role: "User",
+        nik: "",
+        name: "",
+        no_hp: "",
+        address: "",
+        birth_date: null,
     });
 
-    
+    const creditForm = ref({
+        credit_score: 0,
+    });
 
-    if (!success) {
-      toast.add({
-        severity: "error",
-        summary: "Error",
-        detail: userStore.error,
-        life: 3000,
-      });
-    }
-  }
+    // ── Selected user ─────────────────────────────────────────────────────────
 
-  /**
-   * Buka dialog create
-   */
-  function openCreateDialog() {
-    isEditMode.value = false;
-    resetForm();
-    formVisible.value = true;
-  }
+    const selectedUser = ref<User | null>(null);
+    const selectedUserId = ref<number | null>(null);
 
-  /**
-   * Buka dialog edit
-   */
-  function openEditDialog(user: User) {
-    isEditMode.value = true;
-    selectedUser.value = user;
+    // ── Filters ───────────────────────────────────────────────────────────────
 
-    form.value = {
-      email: user.email,
-      role: user.role,
-      nik: user.details?.nik || "",
-      name: user.details?.name || "",
-      no_hp: user.details?.no_hp || "",
-      address: user.details?.address || "",
-      birth_date:  user.details?.birth_date
-        ? new Date(user.details.birth_date)
-        : null,
-    };
+    const filters = ref({
+        role: "",
+        search: "",
+    });
 
-    formVisible.value = true;
-  }
+    // ── Computed ──────────────────────────────────────────────────────────────
 
-  /**
-   * Submit form (create atau update)
-   */
-  async function submitForm() {
-    const formatDate = (date: any) => {
-      if (!date) return "";
-      if (typeof date === "string") return date;
-      const d = new Date(date);
-      const year = d.getFullYear();
-      const month = String(d.getMonth() + 1).padStart(2, "0");
-      const day = String(d.getDate()).padStart(2, "0");
-      return `${year}-${month}-${day}`;
-    };
-
-    if (isEditMode.value && selectedUser.value) {
-      const payload: UpdateUserPayload = {
-        id: selectedUser.value.id,
-        role: form.value.role,
-        nik: form.value.nik,
-        name: form.value.name,
-        no_hp: form.value.no_hp,
-        address: form.value.address,
-        birth_date: formatDate(form.value.birth_date),
-      };
-
-      const success = await userStore.updateUser(
-        selectedUser.value.id,
-        payload,
-      );
-
-      if (success) {
-        toast.add({
-          severity: "success",
-          summary: "Berhasil",
-          detail: "User berhasil diupdate.",
-          life: 3000,
-        });
-        formVisible.value = false;
-        resetForm();
-      } else {
-        toast.add({
-          severity: "error",
-          summary: "Error",
-          detail: userStore.error,
-          life: 3000,
-        });
-      }
-    } else {
-      const payload: CreateUserPayload = {
-        email: form.value.email!,
-        password: form.value.password!,
-        role: form.value.role || "User",
-        nik: form.value.nik!,
-        name: form.value.name!,
-        no_hp: form.value.no_hp!,
-        address: form.value.address!,
-        birth_date: formatDate(form.value.birth_date),
-      };
-
-      const success = await userStore.createUser(payload);
-
-      if (success) {
-        toast.add({
-          severity: "success",
-          summary: "Berhasil",
-          detail: "User berhasil dibuat. (Credit awal: 100)",
-          life: 3000,
-        });
-        formVisible.value = false;
-        resetForm();
-      } else {
-        toast.add({
-          severity: "error",
-          summary: "Error",
-          detail: userStore.error,
-          life: 3000,
-        });
-      }
-    }
-  }
-
-  /**
-   * Buka dialog detail user
-   */
-  function openDetailDialog(user: User) {
-    selectedUser.value = user;
-    detailVisible.value = true;
-  }
-
-  /**
-   * Buka dialog update credit
-   */
-  function openCreditDialog(user: User) {
-    selectedUserId.value = user.id;
-    creditForm.value.credit_score = user.credit_score;
-    creditVisible.value = true;
-  }
-
-  /**
-   * Submit update credit
-   */
-  async function submitCreditForm() {
-    if (!selectedUserId.value) return;
-
-    const payload: UpdateUserCreditPayload = {
-      credit: creditForm.value.credit_score,
-    };
-
-    const success = await userStore.updateUserCredit(
-      selectedUserId.value,
-      payload,
+    const dialogTitle = computed(() =>
+        isEditMode.value ? "Edit User" : "Tambah User Baru",
     );
 
-    if (success) {
-      toast.add({
-        severity: "success",
-        summary: "Berhasil",
-        detail: "Credit berhasil diupdate.",
-        life: 3000,
-      });
-      creditVisible.value = false;
-    } else {
-      toast.add({
-        severity: "error",
-        summary: "Error",
-        detail: userStore.error,
-        life: 3000,
-      });
+    const submitButtonLabel = computed(() =>
+        isEditMode.value ? "Update" : "Buat User",
+    );
+
+    // ── Actions ───────────────────────────────────────────────────────────────
+
+    /**
+     * Pagination handler
+     */
+
+    async function onPageChange(event: any) {
+        const page = event.page;
+        const perPage = event.rows ?? userStore.perPage;
+        await loadUsers({ page, per_page: perPage });
     }
-  }
 
-  /**
-   * Konfirmasi delete
-   */
-  function confirmDelete(user: User) {
-    confirm.require({
-      message: `Apakah Anda yakin ingin menghapus user "${user.details?.name || user.email}"?`,
-      header: "Konfirmasi Hapus",
-      icon: "pi pi-exclamation-triangle",
-      accept: async () => {
-        const success = await userStore.deleteUser(user.id);
+    /**
+     * Muat semua users
+     */
+    async function loadUsers(params?: { page?: number; per_page?: number }) {
+        const success = await userStore.fetchUsers({
+            page: params?.page ?? userStore.currentPage,
+            per_page: params?.per_page ?? userStore.perPage,
+            search: filters.value.search || undefined,
+            role: filters.value.role || undefined,
+        });
 
-        if (success) {
-          toast.add({
-            severity: "success",
-            summary: "Berhasil",
-            detail: "User berhasil dihapus.",
-            life: 3000,
-          });
-        } else {
-          toast.add({
-            severity: "error",
-            summary: "Error",
-            detail: userStore.error,
-            life: 3000,
-          });
+        if (!success) {
+            toast.add({
+                severity: "error",
+                summary: "Error",
+                detail: userStore.error,
+                life: 3000,
+            });
         }
-      },
-    });
-  }
+    }
 
-  /**
-   * Reset form
-   */
-  function resetForm() {
-    form.value = {
-      email: null,
-      password: null,
-      role: "User",
-      nik: null,
-      name: null,
-      no_hp: null,
-      address: null,
-      birth_date: null,
+    /**
+     * Buka dialog create
+     */
+    function openCreateDialog() {
+        isEditMode.value = false;
+        resetForm();
+        formVisible.value = true;
+    }
+
+    /**
+     * Buka dialog edit
+     */
+    function openEditDialog(user: User) {
+        isEditMode.value = true;
+        selectedUser.value = user;
+
+        form.value = {
+            email: user.email,
+            role: user.role,
+            nik: user.details?.nik || "",
+            name: user.details?.name || "",
+            no_hp: user.details?.no_hp || "",
+            address: user.details?.address || "",
+            birth_date: user.details?.birth_date
+                ? new Date(user.details.birth_date)
+                : null,
+        };
+
+        formVisible.value = true;
+    }
+
+    /**
+     * Submit form (create atau update)
+     */
+    async function submitForm() {
+        if (!form.value) return;
+
+        const formatDate = (date: any) => {
+            if (!date) return "";
+            if (typeof date === "string") return date;
+            const d = new Date(date);
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, "0");
+            const day = String(d.getDate()).padStart(2, "0");
+            return `${year}-${month}-${day}`;
+        };
+
+        // Tentukan pesan konfirmasi
+        const action = isEditMode.value ? "update" : "buat";
+        const userName = form.value.name || form.value.email || "";
+        const confirmMessage = `Apakah Anda yakin ingin ${action} user "${userName}"?`;
+
+        confirm.require({
+            message: confirmMessage,
+            header: "Konfirmasi",
+            icon: "pi pi-exclamation-triangle",
+            accept: async () => {
+                if (isEditMode.value && selectedUser.value) {
+                    const payload: UpdateUserPayload = {
+                        id: selectedUser.value.id,
+                        role: form.value.role,
+                        nik: form.value.nik,
+                        name: form.value.name,
+                        no_hp: form.value.no_hp,
+                        address: form.value.address,
+                        birth_date: formatDate(form.value.birth_date),
+                    };
+
+                    const success = await userStore.updateUser(
+                        selectedUser.value.id,
+                        payload,
+                    );
+
+                    if (success) {
+                        toast.add({
+                            severity: "success",
+                            summary: "Berhasil",
+                            detail: "User berhasil diupdate.",
+                            life: 3000,
+                        });
+                        formVisible.value = false;
+                        resetForm();
+                    } else {
+                        toast.add({
+                            severity: "error",
+                            summary: "Error",
+                            detail: userStore.error,
+                            life: 3000,
+                        });
+                    }
+                } else {
+                    const payload: CreateUserPayload = {
+                        email: form.value.email!,
+                        password: form.value.password!,
+                        role: form.value.role || "User",
+                        nik: form.value.nik!,
+                        name: form.value.name!,
+                        no_hp: form.value.no_hp!,
+                        address: form.value.address!,
+                        birth_date: formatDate(form.value.birth_date),
+                    };
+
+                    const success = await userStore.createUser(payload);
+
+                    if (success) {
+                        toast.add({
+                            severity: "success",
+                            summary: "Berhasil",
+                            detail: "User berhasil dibuat. (Credit awal: 100)",
+                            life: 3000,
+                        });
+                        formVisible.value = false;
+                        resetForm();
+                    } else {
+                        toast.add({
+                            severity: "error",
+                            summary: "Error",
+                            detail: userStore.error,
+                            life: 3000,
+                        });
+                    }
+                }
+            },
+        });
+    }
+
+    /**
+     * Buka dialog detail user
+     */
+    function openDetailDialog(user: User) {
+        selectedUser.value = user;
+        detailVisible.value = true;
+    }
+    function handleDetailAction(
+        action: "edit" | "update-credit" | "delete",
+        user: User,
+    ) {
+        detailVisible.value = false;
+        if (action === "edit") openEditDialog(user);
+        if (action === "update-credit") openCreditDialog(user);
+        if (action === "delete") confirmDelete(user);
+    }
+
+    /**
+     * Buka dialog update credit
+     */
+    function openCreditDialog(user: User) {
+        selectedUserId.value = user.id;
+        creditForm.value.credit_score = user.credit_score;
+        creditVisible.value = true;
+    }
+
+    /**
+     * Submit update credit
+     */
+    async function submitCreditForm() {
+        if (!selectedUserId.value) return;
+
+        const confirmMessage = `Apakah Anda yakin ingin mengubah credit user menjadi ${creditForm.value.credit_score}?`;
+
+        confirm.require({
+            message: confirmMessage,
+            header: "Konfirmasi",
+            icon: "pi pi-exclamation-triangle",
+            accept: async () => {
+                const payload: UpdateUserCreditPayload = {
+                    credit: creditForm.value.credit_score,
+                };
+
+                const success = await userStore.updateUserCredit(
+                    selectedUserId.value,
+                    payload,
+                );
+
+                if (success) {
+                    toast.add({
+                        severity: "success",
+                        summary: "Berhasil",
+                        detail: "Credit berhasil diupdate.",
+                        life: 3000,
+                    });
+                    creditVisible.value = false;
+                } else {
+                    toast.add({
+                        severity: "error",
+                        summary: "Error",
+                        detail: userStore.error,
+                        life: 3000,
+                    });
+                }
+            },
+        });
+    }
+
+    /**
+     * Konfirmasi delete
+     */
+    function confirmDelete(user: User) {
+        confirm.require({
+            message: `Apakah Anda yakin ingin menghapus user "${user.details?.name || user.email}"?`,
+            header: "Konfirmasi Hapus",
+            icon: "pi pi-exclamation-triangle",
+            accept: async () => {
+                const success = await userStore.deleteUser(user.id);
+
+                if (success) {
+                    toast.add({
+                        severity: "success",
+                        summary: "Berhasil",
+                        detail: "User berhasil dihapus.",
+                        life: 3000,
+                    });
+                } else {
+                    toast.add({
+                        severity: "error",
+                        summary: "Error",
+                        detail: userStore.error,
+                        life: 3000,
+                    });
+                }
+            },
+        });
+    }
+
+    /**
+     * Reset form
+     */
+    function resetForm() {
+        form.value = {
+            email: null,
+            password: null,
+            role: "User",
+            nik: null,
+            name: null,
+            no_hp: null,
+            address: null,
+            birth_date: null,
+        };
+        selectedUser.value = null;
+    }
+
+    /**
+     * Clear filter
+     */
+    function clearFilter() {
+        filters.value = {
+            role: "",
+            search: "",
+        };
+        loadUsers({ page: 1, per_page: userStore.perPage });
+    }
+
+    return {
+        onPageChange,
+        userStore,
+        formVisible,
+        detailVisible,
+        creditVisible,
+        isEditMode,
+        form,
+        creditForm,
+        selectedUser,
+        selectedUserId,
+        filters,
+        dialogTitle,
+        submitButtonLabel,
+        loadUsers,
+        openCreateDialog,
+        openEditDialog,
+        submitForm,
+        openDetailDialog,
+        openCreditDialog,
+        submitCreditForm,
+        confirmDelete,
+        resetForm,
+        clearFilter,
+        handleDetailAction,
     };
-    selectedUser.value = null;
-  }
-
-  /**
-   * Clear filter
-   */
-  function clearFilter() {
-    filters.value = {
-      role: "",
-      search: "",
-    };
-    loadUsers({ page: 1, per_page: userStore.perPage });
-  }
-
-  return {
-    onPageChange,
-    userStore,
-    formVisible,
-    detailVisible,
-    creditVisible,
-    isEditMode,
-    form,
-    creditForm,
-    selectedUser,
-    selectedUserId,
-    filters,
-    dialogTitle,
-    submitButtonLabel,
-    loadUsers,
-    openCreateDialog,
-    openEditDialog,
-    submitForm,
-    openDetailDialog,
-    openCreditDialog,
-    submitCreditForm,
-    confirmDelete,
-    resetForm,
-    clearFilter,
-  };
 }
