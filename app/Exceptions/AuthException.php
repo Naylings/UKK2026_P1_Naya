@@ -3,20 +3,9 @@
 namespace App\Exceptions;
 
 use Exception;
-use Illuminate\Http\JsonResponse;
 
-class AuthException extends Exception
+class AuthException extends ApiException
 {
-    private int $statusCode;
-    private string $errorCode;
-
-    private function __construct(string $message, int $statusCode, string $errorCode)
-    {
-        parent::__construct($message);
-        $this->statusCode = $statusCode;
-        $this->errorCode  = $errorCode;
-    }
-
     // -------------------------------------------------------------------------
     // Named constructors — satu tempat untuk semua skenario error auth
     // -------------------------------------------------------------------------
@@ -24,45 +13,45 @@ class AuthException extends Exception
     public static function invalidCredentials(): self
     {
         return new self(
-            message:    'Email atau password salah.',
-            statusCode: 401,
-            errorCode:  'INVALID_CREDENTIALS',
+            'Email atau password salah.',
+            401,
+            'INVALID_CREDENTIALS',
         );
     }
 
     public static function tokenGenerationFailed(): self
     {
         return new self(
-            message:    'Gagal membuat token. Silakan coba lagi.',
-            statusCode: 500,
-            errorCode:  'TOKEN_GENERATION_FAILED',
+            'Gagal membuat token. Silakan coba lagi.',
+            500,
+            'TOKEN_GENERATION_FAILED',
         );
     }
 
-    public static function logoutFailed(): self
-    {
-        return new self(
-            message:    'Logout berhasil. Sesi Anda sudah berakhir.',
-            statusCode: 204,
-            errorCode:  'LOGOUT_FAILED',
-        );
-    }
+    // public static function logoutFailed(): self
+    // {
+    //     return new self(
+    //         message:    'Logout berhasil. Sesi Anda sudah berakhir.',
+    //         statusCode: 204,
+    //         errorCode:  'LOGOUT_FAILED',
+    //     );
+    // }
 
     public static function tokenRefreshFailed(): self
     {
         return new self(
-            message:    'Gagal memperbarui token. Silakan login ulang.',
-            statusCode: 401,
-            errorCode:  'TOKEN_REFRESH_FAILED',
+            'Gagal memperbarui token. Silakan login ulang.',
+            401,
+            'TOKEN_REFRESH_FAILED',
         );
     }
 
     public static function unauthenticated(): self
     {
         return new self(
-            message:    'Sesi tidak ditemukan. Silakan login ulang.',
-            statusCode: 401,
-            errorCode:  'UNAUTHENTICATED',
+            'Sesi tidak ditemukan. Silakan login ulang.',
+            401,
+            'UNAUTHENTICATED',
         );
     }
 
@@ -70,16 +59,4 @@ class AuthException extends Exception
     // Response builder
     // -------------------------------------------------------------------------
 
-    public function render(): JsonResponse
-    {
-        return response()->json([
-            'message' => $this->getMessage(),
-            'error'   => $this->errorCode,
-        ], $this->statusCode);
-    }
-
-    public function getStatusCode(): int
-    {
-        return $this->statusCode;
-    }
 }

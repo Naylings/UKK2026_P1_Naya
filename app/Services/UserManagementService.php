@@ -74,16 +74,7 @@ class UserManagementService
      */
     public function createUser(array $data): User
     {
-        // Cek email sudah ada
-        if (User::where('email', $data['email'])->exists()) {
-            throw UserException::emailAlreadyExists();
-        }
-
-        // Cek NIK sudah ada
-        if (UserDetail::where('nik', $data['nik'])->exists()) {
-            throw UserException::nikAlreadyExists();
-        }
-
+        
         try {
             // Create user
             $user = User::create([
@@ -130,17 +121,10 @@ class UserManagementService
      */
     public function updateUser(User $user, array $data): User
     {
-        // Jika email ada di data, cek unique
-        if (isset($data['email']) && $data['email'] !== $user->email) {
-            if (User::where('email', $data['email'])->exists()) {
-                throw UserException::emailAlreadyExists();
-            }
-        }
+        
 
         try {
-            // Update user fields (hanya email dan role)
             $userUpdate = array_filter([
-                'email' => $data['email'] ?? null,
                 'role'  => $data['role'] ?? null,
             ], fn($v) => $v !== null);
 

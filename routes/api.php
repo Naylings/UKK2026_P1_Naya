@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\User\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -40,16 +41,16 @@ Route::prefix('auth')->group(function () {
 Route::prefix('users')->middleware('auth:api')->group(function () {
     
     // List & Create
-    Route::get('/',                 [AuthController::class, 'indexUsers']);
-    Route::post('/',                [AuthController::class, 'storeUser']);
+    Route::get('/',                 [UserController::class, 'index']);
+    Route::post('/',                [UserController::class, 'store']);
     
     // Show, Update, Delete
-    Route::get('/{user}',           [AuthController::class, 'showUser']);
-    Route::put('/{user}',           [AuthController::class, 'updateUser']);
-    Route::delete('/{user}',        [AuthController::class, 'destroyUser']);
+    Route::get('/{user}',           [UserController::class, 'show']);
+    Route::put('/{user}',           [UserController::class, 'update']);
+    Route::delete('/{user}',        [UserController::class, 'destroy']);
     
     // Update credit only
-    Route::post('/{user}/credit',   [AuthController::class, 'updateUserCredit']);
+    Route::post('/{user}/credit',   [UserController::class, 'updateCredit']);
     
 });
 

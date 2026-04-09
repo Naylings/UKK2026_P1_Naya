@@ -3,43 +3,34 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\StoreUserRequest;
+use App\Http\Requests\Auth\UpdateUserCreditRequest;
+use App\Http\Requests\Auth\UpdateUserRequest;
 use App\Http\Resources\User\UserResource;
 use App\Models\User;
+use App\Services\UserManagementService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
+
+    public function __construct(
+        private readonly UserManagementService $userService
+    ) {}
+
     public function index(Request $request)
     {
-        $query = User::query();
-
-        if ($request->filled('search')) {
-            $query->where(function ($q) use ($request) {
-                $q->where('name', 'like', "%{$request->search}%")
-                  ->orWhere('email', 'like', "%{$request->search}%");
-            });
-        }
-
-        $users = $query->latest()->paginate($request->get('per_page', 10));
+        $users = $this->userService->getAllUsers(
+            $request->get('per_page', 10),
+            $request->get('search'),
+            $request->get('role')
+        );
 
         return UserResource::collection($users);
     }
-
-    public function store(Request $request)
+    public function store(StoreUserRequest $request)
     {
-        $validated = $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8|confirmed',
-            'credit'   => 'nullable|numeric|min:0',
-        ]);
-
-        $validated['password'] = Hash::make($validated['password']);
-        $validated['credit']   = $validated['credit'] ?? 0;
-
-        $user = User::create($validated);
+        $user = $this->userService->createUser($request->validated());
 
         return (new UserResource($user))
             ->response()
@@ -48,42 +39,33 @@ class UserController extends Controller
 
     public function show(User $user)
     {
+        $user = $this->userService->getUserById($user->id);
+
         return new UserResource($user);
     }
 
-    public function update(Request $request, User $user)
+    public function update(UpdateUserRequest $request, User $user)
     {
-        $validated = $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => ['required', 'email', Rule::unique('users')->ignore($user->id)],
-            'password' => 'nullable|string|min:8|confirmed',
-            'credit'   => 'nullable|numeric|min:0',
-        ]);
-
-        if (empty($validated['password'])) {
-            unset($validated['password']);
-        } else {
-            $validated['password'] = Hash::make($validated['password']);
-        }
-
-        $user->update($validated);
+        $user = $this->userService->updateUser($user, $request->validated());
 
         return new UserResource($user);
     }
 
     public function destroy(User $user)
     {
-        $user->delete();
-        return response()->json(['message' => 'User deleted successfully']);
+        $this->userService->deleteUser($user);
+
+        return response()->json([
+            'message' => 'User deleted successfully'
+        ]);
     }
 
-    public function updateCredit(Request $request, User $user)
+    public function updateCredit(UpdateUserCreditRequest $request, User $user)
     {
-        $validated = $request->validate([
-            'credit' => 'required|numeric|min:0',
-        ]);
-
-        $user->update(['credit' => $validated['credit']]);
+        $user = $this->userService->updateUserCredit(
+            $user,
+            $request->validated()['credit']
+        );
 
         return new UserResource($user);
     }

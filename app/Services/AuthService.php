@@ -48,11 +48,12 @@ class AuthService
      */
     public function logout(): void
     {
-        try {
+        // try {
             JWTAuth::invalidate(JWTAuth::getToken());
-        } catch (\Throwable $e) {
-            throw AuthException::logoutFailed();
-        }
+        // } 
+        // catch (\Throwable $e) {
+        //     throw AuthException::logoutFailed();
+        // }
     }
 
     /**
