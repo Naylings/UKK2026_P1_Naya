@@ -1,6 +1,14 @@
 <script setup lang="ts">
-import { computed, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import type { User } from '@/types/user';
+
+const op = ref();
+const selectedRow = ref<User | null>(null);
+
+const toggleMenu = (event: Event, user: User) => {
+  selectedRow.value = user;
+  op.value.toggle(event);
+};
 
 interface Props {
   users: User[];
@@ -45,128 +53,89 @@ const localFilters = computed({
 });
 
 const handlePageChange = (event: any) => {
-  emit('page-change', { page: event.page, rows: event.rows });
+  emit('page-change', { page: event.page + 1, rows: event.rows });
 };
 
 
 
+let timeout: any;
+
 watch(
-  () => ({ total: props.total, perPage: props.perPage, currentPage: props.currentPage, lastPage: props.lastPage }),
-  (newVal) => {
+  () => localFilters.value,
+  (val) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      emit('update:filters', val);
+    }, 500); // debounce 500ms
   },
+  { deep: true }
 );
 </script>
 
 <template>
   <div>
-      {{ users }}
     <!-- Header with Create Button -->
     <div class="flex justify-between items-center mb-4 gap-2 flex-wrap">
       <div class="flex gap-2 flex-1">
-        <InputText
-          v-model="localFilters.search"
-          placeholder="Cari email, nama, atau NIK..."
-          class="flex-1"
-        />
-        <Dropdown
-          v-model="localFilters.role"
-          :options="roles"
-          placeholder="Semua Role"
-          class="w-40"
-          show-clear
-        />
-        <Button
-          v-if="localFilters.search || localFilters.role"
-          icon="pi pi-times"
-          severity="secondary"
-          text
-          @click="emit('clear-filter')"
-        />
+        <InputText v-model="localFilters.search" placeholder="Cari email, nama, atau NIK..." class="flex-1" />
+        <Dropdown v-model="localFilters.role" :options="roles" placeholder="Semua Role" class="w-40" show-clear />
+        <Button v-if="localFilters.search || localFilters.role" icon="pi pi-times" severity="secondary" text
+          @click="emit('clear-filter')" />
       </div>
-      <Button
-        icon="pi pi-plus"
-        label="Tambah User"
-        @click="emit('create')"
-      />
+      <Button icon="pi pi-plus" label="Tambah User" @click="emit('create')" />
     </div>
 
     <!-- Table -->
-    <DataTable
-      :value="users"
-      :loading="loading"
-      paginator
-      :rows="perPage"
-      :total-records="total"
-      :rows-per-page-options="[5, 10, 20, 50]"
-      :first="(currentPage - 1) * perPage"
+    <DataTable :value="users" :loading="loading" paginator :rows="perPage" :total-records="total"
+      :rows-per-page-options="[5, 10, 20, 50]" :first="(currentPage - 1) * perPage"
       paginator-template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
-      class="p-datatable-striped"
-      @page="handlePageChange"
-    >
+      class="p-datatable-striped" @page="handlePageChange">
       <Column field="email" header="Email" style="width: 20%" />
-      <Column
-        field="details.name"
-        header="Nama"
-        style="width: 20%"
-      /><Column
-        field="details.nik"
-        header="NIK"
-        style="width: 20%"
-      />
+      <Column field="details.name" header="Nama" style="width: 20%" />
+      <Column field="details.nik" header="NIK" style="width: 20%" />
       <Column field="role" header="Role" style="width: 12%">
         <template #body="{ data }">
-          <Tag
-            :value="data.role"
-            :severity="data.role === 'Admin' ? 'danger' : data.role === 'Employee' ? 'info' : 'success'"
-          />
-        </template>
-      </Column><Column 
-        field="credit_score" 
-        header="Credit" 
-        style="width: 12%"
-      >
-        <template #body="slotProps">
-          {{ slotProps.data.credit_score }} / 100
+          <Tag :value="data.role"
+            :severity="data.role === 'Admin' ? 'danger' : data.role === 'Employee' ? 'info' : 'success'" />
         </template>
       </Column>
 
-      
-      <Column header="Actions" style="width: 24%" body-class="text-center">
+      <Column field="credit_score" header="Credit" style="width: 12%">
         <template #body="{ data }">
-          <Button
-            icon="pi pi-eye"
-            severity="info"
-            text
-            rounded
-            @click="emit('view', data)"
-            v-tooltip="'Lihat Detail'"
-          />
-          <Button
-            icon="pi pi-pencil"
-            severity="warning"
-            text
-            rounded
-            @click="emit('edit', data)"
-            v-tooltip="'Edit'"
-          />
-          <Button
-            icon="pi pi-dollar"
-            severity="success"
-            text
-            rounded
-            @click="emit('update-credit', data)"
-            v-tooltip="'Update Credit'"
-          />
-          <Button
-            icon="pi pi-trash"
-            severity="danger"
-            text
-            rounded
-            @click="emit('delete', data)"
-            v-tooltip="'Hapus'"
-          />
+          <span v-if="data.role === 'User'">
+            {{ data.credit_score }} / 100
+          </span>
+          <span v-else class="text-gray-400 italic">
+            -
+          </span>
+        </template>
+      </Column>
+
+
+      <Column header="Actions" style="width: 10%" body-class="text-center">
+        <template #body="{ data }">
+          <Button icon="pi pi-ellipsis-v" text rounded @click="toggleMenu($event, data)" />
         </template>
       </Column>
     </DataTable>
+    <OverlayPanel ref="op">
+      <div class="flex flex-col gap-2 min-w-45">
+
+        <Button label="Lihat Detail" icon="pi pi-eye" text severity="secondary" class="justify-start"
+          @click="selectedRow && emit('view', selectedRow); op.hide()" />
+
+        <Button label="Edit" icon="pi pi-pencil" text severity="warning" class="justify-start"
+          @click="selectedRow && emit('edit', selectedRow); op.hide()" />
+
+        <Button v-if="selectedRow?.role === 'User'" label="Update Credit" icon="pi pi-dollar" text severity="success"
+          class="justify-start" @click="selectedRow && emit('update-credit', selectedRow); op.hide()" />
+
+        <Divider />
+
+        <Button label="Hapus" icon="pi pi-trash" text severity="danger" class="justify-start"
+          @click="selectedRow && emit('delete', selectedRow); op.hide()" />
+
+      </div>
+    </OverlayPanel>
   </div>
 </template>

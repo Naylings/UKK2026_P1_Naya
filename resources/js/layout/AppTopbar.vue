@@ -80,7 +80,7 @@ async function handleLogout() {
           </g>
         </svg>
 
-        <span>Surat Menyurat</span>
+        <span>Peminjaman</span>
       </router-link>
     </div>
 

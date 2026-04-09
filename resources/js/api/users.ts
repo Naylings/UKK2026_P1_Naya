@@ -60,8 +60,8 @@ export const usersApi = {
    * Hapus user (dengan validasi relasi)
    */
   delete: async (id: number): Promise<string> => {
-    await apiClient.delete(`/users/${id}`);
-    return "User berhasil dihapus.";
+    const res = await apiClient.delete(`/users/${id}`);
+    return res.data.data;
   },
 
   /**

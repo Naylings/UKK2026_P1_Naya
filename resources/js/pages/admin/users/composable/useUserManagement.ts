@@ -76,7 +76,7 @@ export function useUserManagement() {
    */
 
   async function onPageChange(event: any) {
-    const page = event.page + 1;
+    const page = event.page ;
     const perPage = event.rows ?? userStore.perPage;
     await loadUsers({ page, per_page: perPage });
   }
@@ -301,14 +301,14 @@ export function useUserManagement() {
    */
   function resetForm() {
     form.value = {
-      email: "",
-      password: "",
+      email: null,
+      password: null,
       role: "User",
-      nik: "",
-      name: "",
-      no_hp: "",
-      address: "",
-      birth_date: "",
+      nik: null,
+      name: null,
+      no_hp: null,
+      address: null,
+      birth_date: null,
     };
     selectedUser.value = null;
   }

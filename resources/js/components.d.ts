@@ -37,6 +37,7 @@ declare module 'vue' {
     Menu: typeof import('primevue/menu')['default']
     Menubar: typeof import('primevue/menubar')['default']
     Message: typeof import('primevue/message')['default']
+    OverlayPanel: typeof import('primevue/overlaypanel')['default']
     Panel: typeof import('primevue/panel')['default']
     PanelMenu: typeof import('primevue/panelmenu')['default']
     Password: typeof import('primevue/password')['default']
