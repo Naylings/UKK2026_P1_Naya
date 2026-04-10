@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Exceptions\CategoryException;
 use App\Models\Category;
-use Illuminate\Support\Facades\Hash;
 
 class CategoryManagementService
 {
@@ -24,13 +23,13 @@ class CategoryManagementService
                 ->orWhere('description', 'like', "%{$search}%");
         }
 
-        $reults = $query->paginate($perPage);
+        $result = $query->paginate($perPage);
 
-        if (!$reults->count()) {
+        if (!$result->count()) {
             throw CategoryException::notFound();
         }
 
-        return $reults;
+        return $result;
     }
 
 

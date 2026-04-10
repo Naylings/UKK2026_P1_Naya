@@ -5,11 +5,19 @@ import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
 import AppMenuItem from './AppMenuItem.vue';
 
+interface AppMenuLinkItem {
+    label?: string;
+    icon?: string;
+    to?: string;
+    items?: AppMenuLinkItem[];
+    separator?: boolean;
+}
+
 const authStore = useAuthStore();
 const router = useRouter();
 const toast = useToast();
 
-const model = ref([
+const model = ref<AppMenuLinkItem[]>([
     {
         label: 'Home',
         items: [

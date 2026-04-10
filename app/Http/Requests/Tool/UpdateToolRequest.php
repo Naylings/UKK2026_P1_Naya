@@ -1,0 +1,89 @@
+<?php
+
+namespace App\Http\Requests\Tool;
+
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+
+class UpdateToolRequest extends FormRequest
+{
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    public function rules(): array
+    {
+        $tool = $this->route('tool');
+        $itemType = $this->input('item_type', $tool?->item_type);
+
+        return [
+            // Tool fields
+            'category_id'       => ['sometimes', 'exists:categories,id'],
+            'name'              => ['sometimes', 'string', 'max:255', Rule::unique('tools', 'name')->ignore($tool->id)],
+            'item_type'         => ['sometimes', 'string', Rule::in(['single', 'bundle', 'bundle_tool'])],
+            'price'             => ['sometimes', 'numeric', 'min:0'],
+            'min_credit_score'  => ['sometimes', 'integer', 'min:0', 'max:100'],
+            'description'       => ['nullable', 'string', 'max:500'],
+            'code_slug'         => ['sometimes', 'string', 'max:15', Rule::unique('tools', 'code_slug')->ignore($tool->id)],
+            'photo_path'        => ['nullable', 'string', 'max:255'],
+            'bundle_components' => ['nullable', 'array', Rule::requiredIf(fn() => $itemType === 'bundle')],
+            'bundle_components.*.name' => ['required_with:bundle_components', 'string', 'max:255'],
+            'bundle_components.*.price' => ['required_with:bundle_components', 'numeric', 'min:0'],
+            'bundle_components.*.qty' => ['required_with:bundle_components', 'integer', 'min:1'],
+            'bundle_components.*.description' => ['nullable', 'string', 'max:500'],
+            'bundle_components.*.photo_path' => ['nullable', 'string', 'max:255'],
+            'bundle_components.*.category_id' => ['nullable', 'integer', 'exists:categories,id'],
+            'bundle_components.*.min_credit_score' => ['nullable', 'integer', 'min:0', 'max:100'],
+            'bundle_components.*.code_slug' => ['nullable', 'string', 'max:15', 'distinct', 'unique:tools,code_slug'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'category_id.exists' => 'Kategori yang dipilih tidak valid.',
+            'name.string' => 'Nama harus berupa string.',
+            'name.max' => 'Nama tidak boleh lebih dari 255 karakter.',
+            'name.unique' => 'Alat dengan nama tersebut sudah ada.',
+            'item_type.string' => 'Jenis item harus berupa string.',
+            'item_type.in' => 'Jenis item harus salah satu dari berikut: single, bundle, bundle_tool.',
+            'price.numeric' => 'Harga harus berupa angka.',
+            'price.min' => 'Harga tidak boleh kurang dari 0.',
+            'min_credit_score.integer' => 'Skor kredit minimum harus berupa bilangan bulat.',
+            'min_credit_score.min' => 'Skor kredit minimum tidak boleh kurang dari 0.',
+            'min_credit_score.max' => 'Skor kredit minimum tidak boleh lebih dari 100.',
+            'description.string' => 'Deskripsi harus berupa string.',
+            'description.max' => 'Deskripsi tidak boleh lebih dari 500 karakter.',
+            'code_slug.string' => 'Slug kode harus berupa string.',
+            'code_slug.max' => 'Slug kode tidak boleh lebih dari 15 karakter.',
+            'code_slug.unique' => 'Alat dengan slug kode tersebut sudah ada.',
+            'photo_path.string' => 'Path foto harus berupa string.',
+            'photo_path.max' => 'Path foto tidak boleh lebih dari 255 karakter.',
+            'bundle_components.required' => 'Komponen bundle wajib diisi untuk item bertipe bundle.',
+            'bundle_components.array' => 'Komponen bundle harus berupa daftar.',
+            'bundle_components.*.name.required_with' => 'Nama tool komponen bundle wajib diisi.',
+            'bundle_components.*.name.string' => 'Nama tool komponen bundle harus berupa string.',
+            'bundle_components.*.name.max' => 'Nama tool komponen bundle tidak boleh lebih dari 255 karakter.',
+            'bundle_components.*.price.required_with' => 'Harga tool komponen bundle wajib diisi.',
+            'bundle_components.*.price.numeric' => 'Harga tool komponen bundle harus berupa angka.',
+            'bundle_components.*.price.min' => 'Harga tool komponen bundle tidak boleh kurang dari 0.',
+            'bundle_components.*.qty.required_with' => 'Jumlah komponen bundle wajib diisi.',
+            'bundle_components.*.qty.integer' => 'Jumlah komponen bundle harus berupa bilangan bulat.',
+            'bundle_components.*.qty.min' => 'Jumlah komponen bundle minimal 1.',
+            'bundle_components.*.description.string' => 'Deskripsi tool komponen bundle harus berupa string.',
+            'bundle_components.*.description.max' => 'Deskripsi tool komponen bundle tidak boleh lebih dari 500 karakter.',
+            'bundle_components.*.photo_path.string' => 'Path foto tool komponen bundle harus berupa string.',
+            'bundle_components.*.photo_path.max' => 'Path foto tool komponen bundle tidak boleh lebih dari 255 karakter.',
+            'bundle_components.*.category_id.integer' => 'Kategori tool komponen bundle harus berupa angka.',
+            'bundle_components.*.category_id.exists' => 'Kategori tool komponen bundle tidak valid.',
+            'bundle_components.*.min_credit_score.integer' => 'Skor kredit minimum tool komponen bundle harus berupa bilangan bulat.',
+            'bundle_components.*.min_credit_score.min' => 'Skor kredit minimum tool komponen bundle tidak boleh kurang dari 0.',
+            'bundle_components.*.min_credit_score.max' => 'Skor kredit minimum tool komponen bundle tidak boleh lebih dari 100.',
+            'bundle_components.*.code_slug.string' => 'Slug kode tool komponen bundle harus berupa string.',
+            'bundle_components.*.code_slug.max' => 'Slug kode tool komponen bundle tidak boleh lebih dari 15 karakter.',
+            'bundle_components.*.code_slug.distinct' => 'Slug kode tool komponen bundle tidak boleh duplikat.',
+            'bundle_components.*.code_slug.unique' => 'Slug kode tool komponen bundle sudah digunakan.',
+        ];
+    }
+}

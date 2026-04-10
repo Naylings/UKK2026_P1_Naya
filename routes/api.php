@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Category\CategoryController;
+use App\Http\Controllers\Tool\ToolController;
 use App\Http\Controllers\User\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -73,4 +74,26 @@ Route::prefix('categories')->middleware('auth:api')->group(function () {
     //  Update, Delete
     Route::put('/{category}',           [CategoryController::class, 'update']);
     Route::delete('/{category}',        [CategoryController::class, 'destroy']);
+});
+
+/*
+|--------------------------------------------------------------------------
+| Tool CRUD Routes
+|--------------------------------------------------------------------------
+|
+| prefix  : /api/tools
+| middleware: auth:api (JWT protected)
+|
+*/
+
+Route::prefix('tools')->middleware('auth:api')->group(function () {
+
+    // List & Create
+    Route::get('/',                 [ToolController::class, 'index']);
+    Route::post('/',                [ToolController::class, 'store']);
+
+    // Show, Update, Delete
+    Route::get('/{tool}',           [ToolController::class, 'show']);
+    Route::put('/{tool}',           [ToolController::class, 'update']);
+    Route::delete('/{tool}',        [ToolController::class, 'destroy']);
 });
