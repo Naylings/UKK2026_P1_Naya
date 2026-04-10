@@ -179,7 +179,7 @@ export function useUserManagement() {
                         toast.add({
                             severity: "success",
                             summary: "Berhasil",
-                            detail: "User berhasil diupdate.",
+                            detail: userStore.successMessage,
                             life: 3000,
                         });
                         formVisible.value = false;
@@ -210,7 +210,7 @@ export function useUserManagement() {
                         toast.add({
                             severity: "success",
                             summary: "Berhasil",
-                            detail: "User berhasil dibuat. (Credit awal: 100)",
+                            detail: userStore.successMessage,
                             life: 3000,
                         });
                         formVisible.value = false;
@@ -280,7 +280,7 @@ export function useUserManagement() {
                     toast.add({
                         severity: "success",
                         summary: "Berhasil",
-                        detail: "Credit berhasil diupdate.",
+                        detail: userStore.successMessage,
                         life: 3000,
                     });
                     creditVisible.value = false;
@@ -311,7 +311,7 @@ export function useUserManagement() {
                     toast.add({
                         severity: "success",
                         summary: "Berhasil",
-                        detail: "User berhasil dihapus.",
+                        detail: userStore.successMessage,
                         life: 3000,
                     });
                 } else {

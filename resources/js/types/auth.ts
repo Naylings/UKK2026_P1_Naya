@@ -42,6 +42,17 @@ export interface LaravelResource<T> {
   data: T;
 }
 
+/** Laravel JSON success response dengan optional message */
+export interface LaravelApiResponse<T> {
+  data: T;
+  message?: string;
+}
+
+/** Success response sederhana tanpa resource data */
+export interface ApiMessageResponse {
+  message: string;
+}
+
 /** Error response dari BE */
 export interface ApiErrorResponse {
   message: string;

@@ -6,8 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Resources\Auth\AuthResource;
 use App\Services\AuthService;
-use App\Services\UserManagementService;
-use App\Models\User;
 use Illuminate\Http\JsonResponse;
 
 class AuthController extends Controller
@@ -24,6 +22,9 @@ class AuthController extends Controller
         $result = $this->authService->login($request->validated());
 
         return (new AuthResource($result))
+            ->additional([
+                'message' => 'Login berhasil.',
+            ])
             ->response()
             ->setStatusCode(200);
     }
@@ -65,5 +66,4 @@ class AuthController extends Controller
     }
 
 }
-
 

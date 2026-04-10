@@ -14,6 +14,11 @@ import type {
 } from "@/types/user";
 import type { ApiErrorResponse } from "@/types/auth";
 
+interface UserMutationResult {
+  user: User;
+  message: string;
+}
+
 // ── Error helper ──────────────────────────────────────────────────────────
 
 /**
@@ -78,9 +83,13 @@ export const userService = {
   /**
    * Buat user baru dengan detail.
    */
-  async create(payload: CreateUserPayload): Promise<User> {
+  async create(payload: CreateUserPayload): Promise<UserMutationResult> {
     try {
-      return await usersApi.create(payload);
+      const response = await usersApi.create(payload);
+      return {
+        user: response.data,
+        message: response.message ?? "User berhasil dibuat. Credit awal: 100.",
+      };
     } catch (error) {
       throw parseUserError(error);
     }
@@ -89,9 +98,13 @@ export const userService = {
   /**
    * Update user (role + detail fields).
    */
-  async update(id: number, payload: UpdateUserPayload): Promise<User> {
+  async update(id: number, payload: UpdateUserPayload): Promise<UserMutationResult> {
     try {
-      return await usersApi.update(id, payload);
+      const response = await usersApi.update(id, payload);
+      return {
+        user: response.data,
+        message: response.message ?? "User berhasil diupdate.",
+      };
     } catch (error) {
       throw parseUserError(error);
     }
@@ -117,7 +130,8 @@ export const userService = {
     payload: UpdateUserCreditPayload,
   ): Promise<User> {
     try {
-      return await usersApi.updateCredit(id, payload);
+      const response = await usersApi.updateCredit(id, payload);
+      return response;
     } catch (error) {
       throw parseUserError(error);
     }

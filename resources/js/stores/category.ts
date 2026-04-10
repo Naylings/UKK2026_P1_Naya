@@ -5,19 +5,18 @@
 
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
-import { userService } from "@/services/userService";
+import { categoryService } from "@/services/categoryService";
 import type {
-  User,
-  CreateUserPayload,
-  UpdateUserPayload,
-  UpdateUserCreditPayload,
-} from "@/types/user";
+  Category,
+  CreateCategoryPayload,
+  UpdateCategoryPayload,
+} from "@/types/category";
 
-export const useUserStore = defineStore("user", () => {
+export const useCategoryStore = defineStore("category", () => {
   // ── State ──────────────────────────────────────────────────────────────
 
-  const users = ref<User[]>([]);
-  const currentUser = ref<User | null>(null);
+  const categories = ref<Category[]>([]);
+  const currentCategory = ref<Category | null>(null);
   const loading = ref(false);
   const error = ref<string | null>(null);
   const successMessage = ref<string | null>(null);
@@ -31,17 +30,16 @@ export const useUserStore = defineStore("user", () => {
 
   // ── Getters ────────────────────────────────────────────────────────────
 
-  const userCount = computed(() => users.value.length);
-  const hasUsers = computed(() => users.value.length > 0);
+  const categoryCount = computed(() => categories.value.length);
+  const hasCategories = computed(() => categories.value.length > 0);
 
   // ── Actions ────────────────────────────────────────────────────────────
 
   /**
-   * Ambil list semua user.
+   * Ambil list semua category.
    */
-  async function fetchUsers(params?: {
+  async function fetchCategories(params?: {
     search?: string;
-    role?: string;
     per_page?: number;
     page?: number;
   }): Promise<boolean> {
@@ -49,9 +47,9 @@ export const useUserStore = defineStore("user", () => {
     error.value = null;
 
     try {
-      const res = await userService.getAll(params);
+      const res = await categoryService.getAll(params);
 
-      users.value = res.data;
+      categories.value = res.data;
 
       currentPage.value = res.meta.current_page;
       lastPage.value = res.meta.last_page;
@@ -68,35 +66,18 @@ export const useUserStore = defineStore("user", () => {
     }
   }
 
+  
   /**
-   * Ambil detail user tertentu.
+   * Buat category baru.
    */
-  async function fetchUserById(id: number): Promise<boolean> {
-    loading.value = true;
-    error.value = null;
-
-    try {
-      currentUser.value = await userService.getById(id);
-      return true;
-    } catch (err) {
-      error.value = err as string;
-      return false;
-    } finally {
-      loading.value = false;
-    }
-  }
-
-  /**
-   * Buat user baru.
-   */
-  async function createUser(payload: CreateUserPayload): Promise<boolean> {
+  async function createCategory(payload: CreateCategoryPayload): Promise<boolean> {
     loading.value = true;
     error.value = null;
     successMessage.value = null;
 
     try {
-      const result = await userService.create(payload);
-      users.value.push(result.user);
+      const result = await categoryService.create(payload);
+      categories.value.push(result.category);
       successMessage.value = result.message;
       return true;
     } catch (err) {
@@ -108,30 +89,30 @@ export const useUserStore = defineStore("user", () => {
   }
 
   /**
-   * Update user.
+   * Update category.
    */
-  async function updateUser(
+  async function updateCategory(
     id: number,
-    payload: UpdateUserPayload,
+    payload: UpdateCategoryPayload,
   ): Promise<boolean> {
     loading.value = true;
     error.value = null;
     successMessage.value = null;
 
     try {
-      const result = await userService.update(id, payload);
-      const updated = result.user;
+      const result = await categoryService.update(id, payload);
+      const updated = result.category;
       successMessage.value = result.message;
 
       // Update di local list
-      const index = users.value.findIndex((u) => u.id === id);
+      const index = categories.value.findIndex((c) => c.id === id);
       if (index !== -1) {
-        users.value[index] = updated;
+        categories.value[index] = updated;
       }
 
-      // Update currentUser jika sedang diedit
-      if (currentUser.value?.id === id) {
-        currentUser.value = updated;
+      // Update currentCategory jika sedang diedit
+      if (currentCategory.value?.id === id) {
+        currentCategory.value = updated;
       }
 
       return true;
@@ -144,22 +125,22 @@ export const useUserStore = defineStore("user", () => {
   }
 
   /**
-   * Hapus user.
+   * Hapus category.
    */
-  async function deleteUser(id: number): Promise<boolean> {
+  async function deleteCategory(id: number): Promise<boolean> {
     loading.value = true;
     error.value = null;
     successMessage.value = null;
 
     try {
-      successMessage.value = await userService.delete(id);
+      successMessage.value = await categoryService.delete(id);
 
       // Hapus dari list
-      users.value = users.value.filter((u) => u.id !== id);
+      categories.value = categories.value.filter((c) => c.id !== id);
 
-      // Clear currentUser jika yang dihapus sedang dilihat
-      if (currentUser.value?.id === id) {
-        currentUser.value = null;
+      // Clear currentCategory jika yang dihapus sedang dilihat
+      if (currentCategory.value?.id === id) {
+        currentCategory.value = null;
       }
 
       return true;
@@ -171,41 +152,7 @@ export const useUserStore = defineStore("user", () => {
     }
   }
 
-  /**
-   * Update credit user.
-   */
-  async function updateUserCredit(
-    id: number,
-    payload: UpdateUserCreditPayload,
-  ): Promise<boolean> {
-    loading.value = true;
-    error.value = null;
-    successMessage.value = null;
-
-    try {
-      const updated = await userService.updateCredit(id, payload);
-      successMessage.value = "Credit berhasil diupdate.";
-
-      // Update di local list
-      const index = users.value.findIndex((u) => u.id === id);
-      if (index !== -1) {
-        users.value[index] = updated;
-      }
-
-      // Update currentUser jika sedang diedit
-      if (currentUser.value?.id === id) {
-        currentUser.value = updated;
-      }
-
-      return true;
-    } catch (err) {
-      error.value = err as string;
-      return false;
-    } finally {
-      loading.value = false;
-    }
-  }
-
+  
   /**
    * Bersihkan error dari state.
    */
@@ -217,8 +164,8 @@ export const useUserStore = defineStore("user", () => {
    * Bersihkan semua state.
    */
   function reset(): void {
-    users.value = [];
-    currentUser.value = null;
+    categories.value = [];
+    currentCategory.value = null;
     loading.value = false;
     error.value = null;
   }
@@ -229,21 +176,19 @@ export const useUserStore = defineStore("user", () => {
     lastPage,
     total,
     // state
-    users,
-    currentUser,
+    categories,
+    currentCategory,
     loading,
     error,
     successMessage,
     // getters
-    userCount,
-    hasUsers,
+    categoryCount,
+    hasCategories,
     // actions
-    fetchUsers,
-    fetchUserById,
-    createUser,
-    updateUser,
-    deleteUser,
-    updateUserCredit,
+    fetchCategories,
+    createCategory,
+    updateCategory,
+    deleteCategory,
     clearError,
     reset,
   };

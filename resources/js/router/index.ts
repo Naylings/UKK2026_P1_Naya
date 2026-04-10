@@ -39,6 +39,12 @@ const router = createRouter({
           component: () => import("@/pages/admin/users/Index.vue"),
           meta: { title: "User Management", roles: ["Admin"] },
         },
+        {
+          path: "/categories",
+          name: "category management",
+          component: () => import("@/pages/admin/categories/Index.vue"),
+          meta: { title: "Category Management", roles: ["Admin"] },
+        },
       ],
     },
     {

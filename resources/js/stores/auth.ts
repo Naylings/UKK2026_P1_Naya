@@ -14,6 +14,7 @@ export const useAuthStore = defineStore('auth', () => {
   const user    = ref<AuthUser | null>(null);
   const loading = ref(false);
   const error   = ref<string | null>(null);
+  const loginMessage = ref<string | null>(null);
   const logoutMessage = ref<string | null>(null);
 
   /**
@@ -41,7 +42,9 @@ export const useAuthStore = defineStore('auth', () => {
     error.value   = null;
 
     try {
-      user.value = await authService.login(payload);
+      const result = await authService.login(payload);
+      user.value = result.user;
+      loginMessage.value = result.message;
       return true;
     } catch (err) {
       // authService.login melempar string
@@ -106,6 +109,7 @@ export const useAuthStore = defineStore('auth', () => {
     user,
     loading,
     error,
+    loginMessage,
     initialized,
     logoutMessage,
     // getters

@@ -12,6 +12,7 @@ import type {
   UpdateUserCreditPayload,
   PaginatedUsersResponse,
 } from "@/types/user";
+import type { ApiMessageResponse, LaravelApiResponse } from "@/types/auth";
 
 export const usersApi = {
   /**
@@ -41,18 +42,29 @@ export const usersApi = {
    * POST /api/users
    * Buat user baru dengan detail
    */
-  create: async (payload: CreateUserPayload): Promise<User> => {
-    const res = await apiClient.post<UserResponse>("/users", payload);
-    return res.data.data;
+  create: async (
+    payload: CreateUserPayload,
+  ): Promise<LaravelApiResponse<User>> => {
+    const res = await apiClient.post<LaravelApiResponse<User>>(
+      "/users",
+      payload,
+    );
+    return res.data;
   },
 
   /**
    * PUT /api/users/:id
    * Update user (role + detail fields only)
    */
-  update: async (id: number, payload: UpdateUserPayload): Promise<User> => {
-    const res = await apiClient.put<UserResponse>(`/users/${id}`, payload);
-    return res.data.data;
+  update: async (
+    id: number,
+    payload: UpdateUserPayload,
+  ): Promise<LaravelApiResponse<User>> => {
+    const res = await apiClient.put<LaravelApiResponse<User>>(
+      `/users/${id}`,
+      payload,
+    );
+    return res.data;
   },
 
   /**
@@ -60,8 +72,8 @@ export const usersApi = {
    * Hapus user (dengan validasi relasi)
    */
   delete: async (id: number): Promise<string> => {
-    const res = await apiClient.delete(`/users/${id}`);
-    return res.data.data;
+    const res = await apiClient.delete<ApiMessageResponse>(`/users/${id}`);
+    return res.data.message;
   },
 
   /**
@@ -72,7 +84,7 @@ export const usersApi = {
     id: number,
     payload: UpdateUserCreditPayload,
   ): Promise<User> => {
-    const res = await apiClient.post<UserResponse>(
+    const res = await apiClient.post<LaravelApiResponse<User>>(
       `/users/${id}/credit`,
       payload,
     );

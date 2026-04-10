@@ -12,6 +12,11 @@ import type {
   LoginPayload,
 } from '@/types/auth';
 
+interface LoginResult {
+  user: AuthUser;
+  message: string;
+}
+
 // ── Error helper ──────────────────────────────────────────────────────────
 
 /**
@@ -43,11 +48,14 @@ export const authService = {
    * Login: kirim kredensial → simpan token → kembalikan user.
    * Melempar string error jika gagal (siap untuk ditampilkan di UI).
    */
-  async login(payload: LoginPayload): Promise<AuthUser> {
+  async login(payload: LoginPayload): Promise<LoginResult> {
     try {
       const result = await authApi.login(payload);
-      tokenStorage.set(result.access_token);
-      return result.user;
+      tokenStorage.set(result.data.access_token);
+      return {
+        user: result.data.user,
+        message: result.message ?? 'Login berhasil.',
+      };
     } catch (error) {
       throw parseAuthError(error);
     }

@@ -23,6 +23,11 @@ const model = ref([
                 icon: 'pi pi-fw pi-users',
                 to: '/users'
             },
+            {
+                label: 'Kategori',
+                icon: 'pi pi-fw pi-tags',
+                to: '/categories'
+            },
         ]
     },
 ]);

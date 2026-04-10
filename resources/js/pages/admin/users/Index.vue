@@ -2,10 +2,6 @@
 import { onBeforeMount } from "vue";
 import { useUserManagement } from "./composable/useUserManagement";
 
-// import UsersTable from './components/UsersTable.vue';
-// import UserForm from './components/UserForm.vue';
-// import UserDetail from './components/UserDetail.vue';
-// import UpdateCredit from './components/UpdateCredit.vue';
 
 const {
     userStore,

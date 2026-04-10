@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\StoreUserRequest;
-use App\Http\Requests\Auth\UpdateUserCreditRequest;
-use App\Http\Requests\Auth\UpdateUserRequest;
+use App\Http\Requests\User\StoreUserRequest;
+use App\Http\Requests\User\UpdateUserCreditRequest;
+use App\Http\Requests\User\UpdateUserRequest;
 use App\Http\Resources\User\UserResource;
 use App\Models\User;
 use App\Services\UserManagementService;
@@ -28,11 +28,15 @@ class UserController extends Controller
 
         return UserResource::collection($users);
     }
+    
     public function store(StoreUserRequest $request)
     {
         $user = $this->userService->createUser($request->validated());
 
         return (new UserResource($user))
+            ->additional([
+                'message' => 'User berhasil dibuat. Credit awal: 100.',
+            ])
             ->response()
             ->setStatusCode(201);
     }
@@ -48,7 +52,10 @@ class UserController extends Controller
     {
         $user = $this->userService->updateUser($user, $request->validated());
 
-        return new UserResource($user);
+        return (new UserResource($user))
+            ->additional([
+                'message' => 'User berhasil diupdate.',
+            ]);
     }
 
     public function destroy(User $user)
@@ -56,7 +63,7 @@ class UserController extends Controller
         $this->userService->deleteUser($user);
 
         return response()->json([
-            'message' => 'User deleted successfully'
+            'message' => 'User berhasil dihapus.',
         ]);
     }
 
@@ -67,6 +74,9 @@ class UserController extends Controller
             $request->validated()['credit']
         );
 
-        return new UserResource($user);
+        return (new UserResource($user))
+            ->additional([
+                'message' => 'Credit berhasil diupdate.',
+            ]);
     }
 }

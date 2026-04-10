@@ -19,7 +19,7 @@ async function handleLogin() {
     toast.add({ 
       severity: "success", 
       summary: "Selamat datang!", 
-      detail: `Login berhasil. Halo ${authStore.user.name || authStore.user.email}`,
+      detail: authStore.loginMessage || `Login berhasil. Halo ${authStore.user.name || authStore.user.email}`,
       life: 3000 
     });
 

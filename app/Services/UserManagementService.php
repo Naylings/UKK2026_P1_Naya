@@ -35,7 +35,12 @@ class UserManagementService
             $query->where('role', $role);
         }
 
-        return $query->paginate($perPage);
+        $results = $query->paginate($perPage);
+
+        if (!$results->count()) {
+            throw UserException::notFound();
+        }
+        return $results;
     }
 
     /**
@@ -74,7 +79,7 @@ class UserManagementService
      */
     public function createUser(array $data): User
     {
-        
+
         try {
             // Create user
             $user = User::create([
@@ -99,7 +104,7 @@ class UserManagementService
         } catch (UserException $e) {
             throw $e;
         } catch (\Exception $e) {
-            throw  UserException::createFailed();
+            throw  UserException::createFailed($e->getMessage());
         }
     }
 
@@ -121,7 +126,7 @@ class UserManagementService
      */
     public function updateUser(User $user, array $data): User
     {
-        
+
 
         try {
             $userUpdate = array_filter([
@@ -155,7 +160,7 @@ class UserManagementService
         } catch (UserException $e) {
             throw $e;
         } catch (\Exception $e) {
-            throw UserException::updateFailed();
+            throw UserException::updateFailed($e->getMessage());
         }
     }
 
@@ -177,7 +182,7 @@ class UserManagementService
             $user->update(['credit_score' => $creditScore]);
             return $user->load('detail');
         } catch (\Exception $e) {
-            throw UserException::updateCreditFailed();
+            throw UserException::updateCreditFailed($e->getMessage());
         }
     }
 
@@ -197,20 +202,17 @@ class UserManagementService
     public function deleteUser(User $user): void
     {
         // Check for relations except detail
-        $hasLoans = $user->loans()->exists();
-        $hasHandledLoans = $user->handledLoans()->exists();
-        $hasReturns = $user->returns()->exists();
-        $hasViolations = $user->violations()->exists();
-        $hasSettlements = $user->settlements()->exists();
-        $hasAppeals = $user->appeals()->exists();
-        $hasReviewedAppeals = $user->reviewedAppeals()->exists();
-        $hasActivityLogs = $user->activityLogs()->exists();
+        $hasRelation = $user->loans()->exists() ||
+            $user->handledLoans()->exists() ||
+            $user->returns()->exists() ||
+            $user->violations()->exists() ||
+            $user->settlements()->exists() ||
+            $user->appeals()->exists() ||
+            $user->reviewedAppeals()->exists() ||
+            $user->activityLogs()->exists();
 
         // If any relation exists (except detail), prevent deletion
-        if (
-            $hasLoans || $hasHandledLoans || $hasReturns || $hasViolations ||
-            $hasSettlements || $hasAppeals || $hasReviewedAppeals || $hasActivityLogs
-        ) {
+        if ($hasRelation) {
             throw UserException::hasRelations();
         }
 
@@ -223,7 +225,7 @@ class UserManagementService
             // Then delete user
             $user->delete();
         } catch (\Exception $e) {
-            throw UserException::deleteFailed();
+            throw UserException::deleteFailed($e->getMessage());
         }
     }
 }
