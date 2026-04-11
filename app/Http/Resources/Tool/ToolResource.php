@@ -9,7 +9,6 @@ class ToolResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
-
         return [
             'id'                => $this->id,
             'category_id'       => $this->category_id,
@@ -40,6 +39,16 @@ class ToolResource extends JsonResource
                 ]
             )->values()),
             'created_at'        => $this->created_at?->toIso8601String(),
+            // ─────────────────────────────────────────────────────────────────
+            // Metadata untuk frontend decision making
+            // ─────────────────────────────────────────────────────────────────
+            'has_units'         => $this->units()->exists(),
+            'units_count'       => $this->units()->count(),
+            'has_loans'         => $this->loans()->exists(),
+            'has_bundles'       => $this->bundles()->exists(),
+            'can_delete'        => !$this->units()->exists()
+                                   && !$this->loans()->exists()
+                                   && !$this->bundles()->exists(),
         ];
     }
 }

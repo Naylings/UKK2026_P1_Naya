@@ -107,7 +107,8 @@ export const categoryService = {
      */
     async delete(id: number): Promise<string> {
         try {
-            return await categoriesApi.delete(id);
+            const response = await categoriesApi.delete(id);
+            return response;
         } catch (error) {
             throw parseCategoryError(error);
         }
