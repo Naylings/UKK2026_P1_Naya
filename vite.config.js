@@ -2,15 +2,15 @@ import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import laravel from "laravel-vite-plugin";
 import Components from "unplugin-vue-components/vite";
-import { PrimeVueResolver } from "unplugin-vue-components/resolvers";
+import { PrimeVueResolver } from "@primevue/auto-import-resolver";
 import tailwindcss from "@tailwindcss/vite";
 
 import { fileURLToPath, URL } from "node:url";
 
 export default defineConfig({
   plugins: [
-        vue(),
-      
+    vue(),
+
     Components({
       dirs: ["resources/js/components"],
       extensions: ["vue"],
@@ -42,6 +42,6 @@ export default defineConfig({
   server: {
     host: "localhost",
     port: 5173,
-    strictPort: true
-  }
+    strictPort: true,
+  },
 });

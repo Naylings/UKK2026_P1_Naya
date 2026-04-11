@@ -3,10 +3,13 @@
 // Pure HTTP calls untuk tool management — tidak ada side effect
 // ─────────────────────────────────────────────
 
-import type { CreateToolPayload, PaginatedToolsResponse, Tool, ToolResponse, UpdateToolPayload } from "@/types/tool";
+import type {
+  PaginatedToolsResponse,
+  Tool,
+  ToolResponse,
+  UpdateToolPayload,
+} from "@/types/tool";
 import apiClient from "./client";
-// import type {
-// } from "@/types/tool";
 import type { ApiMessageResponse, LaravelApiResponse } from "@/types/auth";
 
 export const toolsApi = {
@@ -35,21 +38,20 @@ export const toolsApi = {
 
   /**
    * POST /api/tools
-   * Buat tool baru 
+   * Buat tool baru — menerima FormData untuk support file upload foto
    */
-  create: async (
-    payload: CreateToolPayload,
-  ): Promise<LaravelApiResponse<Tool>> => {
-    const res = await apiClient.post<LaravelApiResponse<Tool>>(
-      "/tools",
-      payload,
-    );
+  create: async (payload: FormData): Promise<LaravelApiResponse<Tool>> => {
+    const res = await apiClient.post<LaravelApiResponse<Tool>>("/tools", payload, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
     return res.data;
   },
 
   /**
    * PUT /api/tools/:id
-   * Update tool 
+   * Update tool
    */
   update: async (
     id: number,
@@ -70,5 +72,4 @@ export const toolsApi = {
     const res = await apiClient.delete<ApiMessageResponse>(`/tools/${id}`);
     return res.data.message;
   },
-
 };

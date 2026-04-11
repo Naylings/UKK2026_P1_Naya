@@ -4,7 +4,6 @@ import { ref } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import { useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
-import Popover from "primevue/popover";
 
 const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
 

@@ -29,7 +29,11 @@ class ToolController extends Controller
 
     public function store(StoreToolRequest $request)
     {
-        $tool = $this->toolService->createTool($request->validated());
+        $photoFile = $request->file('photo');
+        $tool = $this->toolService->createTool(
+            $request->validated(),
+            $photoFile
+        );
 
         return (new ToolResource($tool))
             ->additional([

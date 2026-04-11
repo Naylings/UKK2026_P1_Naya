@@ -25,9 +25,9 @@ class CategoryManagementService
 
         $result = $query->paginate($perPage);
 
-        if (!$result->count()) {
-            throw CategoryException::notFound();
-        }
+        // if (!$result->count()) {
+        //     throw CategoryException::notFound();
+        // }
 
         return $result;
     }

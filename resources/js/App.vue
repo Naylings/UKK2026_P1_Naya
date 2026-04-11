@@ -2,7 +2,6 @@
 import { onMounted } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import router from "@/router/index";
-import { ConfirmDialog, Toast } from "primevue";
 
 const authStore = useAuthStore();
 

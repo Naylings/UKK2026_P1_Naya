@@ -1,6 +1,6 @@
 // ─────────────────────────────────────────────
-// pages/admin/users/composables/useUserManagement.ts
-// Logic untuk user management page
+// pages/admin/Category/composables/useCategoryManagement.ts
+// Logic untuk category management page
 // ─────────────────────────────────────────────
 
 import { ref, computed } from "vue";

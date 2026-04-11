@@ -57,15 +57,29 @@ export interface Tool {
 // Create Payloads
 // ─────────────────────────────────────────────
 
+// Tambahkan di tool.ts
+export interface CreateToolPayloadFormData extends Omit<CreateToolPayload, 'photo_path'> {
+  photo?: File; // File upload instead of photo_path string
+}
+
+// Update BundleComponentPayload jika bundle components juga perlu photo upload
+export interface BundleComponentPayload {
+  name: string;
+  price: number;
+  qty: number;
+  description?: string | null;
+  photo?: File; // Support file upload
+  photo_path?: string | null; // Keep for backward compatibility
+}
+
+
+
 export interface BundleComponentPayload {
   name: string;
   price: number;
   qty: number;
   description?: string | null;
   photo_path?: string | null;
-  category_id?: number | null;
-  min_credit_score?: number | null;
-  code_slug?: string | null;
 }
 
 export interface CreateToolPayload {

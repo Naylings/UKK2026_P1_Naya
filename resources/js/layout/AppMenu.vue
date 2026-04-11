@@ -36,6 +36,12 @@ const model = ref<AppMenuLinkItem[]>([
                 icon: 'pi pi-fw pi-tags',
                 to: '/categories'
             },
+            {
+                label: 'Alat',
+                icon: 'pi pi-fw pi-wrench',
+                to: '/tools'
+            },
+            
         ]
     },
 ]);

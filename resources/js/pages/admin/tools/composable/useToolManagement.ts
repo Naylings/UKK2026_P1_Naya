@@ -1,6 +1,5 @@
 // ─────────────────────────────────────────────
 // pages/admin/tools/composables/useToolManagement.ts
-// Logic untuk tool management page dengan bundle support
 // ─────────────────────────────────────────────
 
 import { ref, computed } from "vue";
@@ -8,536 +7,389 @@ import { useToolStore } from "@/stores/tool";
 import { useToast } from "primevue/usetoast";
 import { useConfirm } from "primevue/useconfirm";
 import type {
-  Tool,
-  CreateToolPayload,
-  UpdateToolPayload,
-  BundleComponentPayload,
-  ItemType,
+    Tool,
+    UpdateToolPayload,
+    BundleComponentPayload,
+    ItemType,
 } from "@/types/tool";
 
-// ─────────────────────────────────────────────
-// Form Type Definition
-// ─────────────────────────────────────────────
-
 export interface ToolFormData {
-  name: string | null;
-  category_id: number | null;
-  item_type: ItemType | null;
-  price: number | null;
-  min_credit_score: number | null;
-  description: string | null;
-  code_slug: string | null;
-  photo_path: string | null;
-  bundle_components: BundleComponentPayload[] | null;
+    name: string | null;
+    category_id: number | null;
+    item_type: ItemType | null;
+    price: number | null;
+    min_credit_score: number | null;
+    description: string | null;
+    code_slug: string | null;
+    photo_path: string | null;
+    bundle_components: BundleComponentPayload[] | null;
 }
 
 export function useToolManagement() {
-  const toolStore = useToolStore();
-  const toast = useToast();
-  const confirm = useConfirm();
+    const toolStore = useToolStore();
+    const toast = useToast();
+    const confirm = useConfirm();
 
-  // ── Dialog state ──────────────────────────────────────────────────────────
+    // ── Dialog state ──────────────────────────────────────────────────────────
 
-  const formVisible = ref(false);
-  const detailVisible = ref(false);
-  const isEditMode = ref(false);
-  const editWarningAcknowledged = ref(false);
+    const formVisible = ref(false);
+    const detailVisible = ref(false);
+    const isEditMode = ref(false);
+    const editWarningAcknowledged = ref(false);
 
-  // ── Form data ─────────────────────────────────────────────────────────────
+    // ── Form data ─────────────────────────────────────────────────────────────
 
-  const form = ref<ToolFormData>({
-    name: null,
-    category_id: null,
-    item_type: null,
-    price: null,
-    min_credit_score: null,
-    description: null,
-    code_slug: null,
-    photo_path: null,
-    bundle_components: null,
-  });
-
-  // ── Bundle component form ─────────────────────────────────────────────────
-
-  const bundleComponentForm = ref<BundleComponentPayload>({
-    name: "",
-    price: 0,
-    qty: 1,
-    description: null,
-    photo_path: null,
-    category_id: null,
-    min_credit_score: null,
-    code_slug: null,
-  });
-
-  const showBundleComponentModal = ref(false);
-  const editingComponentIndex = ref<number | null>(null);
-
-  // ── Selected tool ─────────────────────────────────────────────────────────
-
-  const selectedTool = ref<Tool | null>(null);
-
-  // ── Filters ───────────────────────────────────────────────────────────────
-
-  const filters = ref({
-    category: "",
-    search: "",
-  });
-
-  // ── Computed ──────────────────────────────────────────────────────────────
-
-  const dialogTitle = computed(() =>
-    isEditMode.value ? "Edit Tool" : "Tambah Tool Baru",
-  );
-
-  const submitButtonLabel = computed(() =>
-    isEditMode.value ? "Update" : "Buat Tool",
-  );
-
-  const isBundle = computed(() => form.value.item_type === "bundle");
-
-  const bundleComponentsCount = computed(
-    () => form.value.bundle_components?.length ?? 0,
-  );
-
-  // ── Actions ───────────────────────────────────────────────────────────────
-
-  /**
-   * Pagination handler
-   */
-  async function onPageChange(event: any) {
-    const page = event.page;
-    const perPage = event.rows ?? toolStore.perPage;
-    await loadTools({ page, per_page: perPage });
-  }
-
-  /**
-   * Load semua tools
-   */
-  async function loadTools(params?: { page?: number; per_page?: number }) {
-    const success = await toolStore.fetchTools({
-      page: params?.page ?? toolStore.currentPage,
-      per_page: params?.per_page ?? toolStore.perPage,
-      search: filters.value.search || undefined,
-      category: filters.value.category || undefined,
+    const form = ref<ToolFormData>({
+        name: null,
+        category_id: null,
+        item_type: null,
+        price: null,
+        min_credit_score: null,
+        description: null,
+        code_slug: null,
+        photo_path: null,
+        bundle_components: null,
     });
 
-    if (!success) {
-      toast.add({
-        severity: "error",
-        summary: "Error",
-        detail: toolStore.error,
-        life: 3000,
-      });
+    // Handler untuk update:form emit dari ToolForm (karena form pakai local refs di child)
+    function handleFormUpdate(newForm: ToolFormData) {
+        form.value = newForm;
     }
-  }
 
-  /**
-   * Buka dialog create
-   */
-  function openCreateDialog() {
-    isEditMode.value = false;
-    editWarningAcknowledged.value = false;
-    resetForm();
-    formVisible.value = true;
-  }
+    // ── Photo upload state ────────────────────────────────────────────────────
 
-  /**
-   * Buka dialog edit dengan warning jika tool punya units
-   */
-  function openEditDialog(tool: Tool) {
-    selectedTool.value = tool;
+    const photoFile = ref<File | null>(null);
+    const photoPreview = ref<string | null>(null);
 
-    // Jika tool punya units, tampilkan warning terlebih dahulu
-    if (tool.has_units) {
-      confirm.require({
-        message: `⚠️ Alat ini memiliki <strong>${tool.units_count} unit fisik</strong>.
-                         Perubahan template hanya berlaku untuk penggunaan ke depan dan tidak akan
-                         mempengaruhi unit yang sudah ada. Lanjutkan?`,
-        header: "Peringatan Edit Tool dengan Unit",
-        icon: "pi pi-exclamation-triangle",
-        accept: () => {
-          editWarningAcknowledged.value = true;
-          proceedEditDialog(tool);
-        },
-        reject: () => {
-          selectedTool.value = null;
-        },
-      });
-    } else {
-      proceedEditDialog(tool);
+    function handlePhotoSelected(event: Event) {
+        const input = event.target as HTMLInputElement;
+        const file = input.files?.[0] ?? null;
+        photoFile.value = file;
+        photoPreview.value = file ? URL.createObjectURL(file) : null;
     }
-  }
 
-  /**
-   * Internal: proceed dengan open edit dialog
-   */
-  function proceedEditDialog(tool: Tool) {
-    isEditMode.value = true;
-    selectedTool.value = tool;
-
-    form.value = {
-      name: tool.name,
-      category_id: tool.category_id,
-      item_type: tool.item_type,
-      price: tool.price,
-      min_credit_score: tool.min_credit_score,
-      description: tool.description,
-      code_slug: tool.code_slug,
-      photo_path: tool.photo_path,
-      bundle_components: tool.bundle_components
-        ? tool.bundle_components.map((bc) => ({
-            name: bc.tool?.name ?? "",
-            price: bc.tool?.price ?? 0,
-            qty: bc.qty,
-            description: bc.tool?.description ?? null,
-            photo_path: bc.tool?.photo_path ?? null,
-            category_id: bc.tool?.category_id ?? null,
-            min_credit_score: bc.tool?.min_credit_score ?? null,
-            code_slug: bc.tool?.code_slug ?? null,
-          }))
-        : null,
-    };
-
-    formVisible.value = true;
-  }
-
-  /**
-   * Handle item_type change
-   */
-  function handleItemTypeChange(newType: ItemType) {
-    form.value.item_type = newType;
-
-    // Jika berubah dari bundle ke non-bundle, clear bundle components
-    if (newType !== "bundle") {
-      form.value.bundle_components = null;
-    } else if (newType === "bundle" && !form.value.bundle_components) {
-      form.value.bundle_components = [];
+    function removePhoto() {
+        photoFile.value = null;
+        photoPreview.value = null;
+        // Hapus juga photo_path di form agar BE tahu foto dihapus
+        form.value.photo_path = null;
     }
-  }
 
-  /**
-   * Open modal untuk tambah/edit bundle component
-   */
-  function openBundleComponentModal(index?: number) {
-    if (index !== undefined) {
-      editingComponentIndex.value = index;
-      bundleComponentForm.value = { ...form.value.bundle_components![index] };
-    } else {
-      editingComponentIndex.value = null;
-      bundleComponentForm.value = {
+    // ── Bundle component form ─────────────────────────────────────────────────
+
+    const bundleComponentForm = ref<BundleComponentPayload>({
         name: "",
         price: 0,
         qty: 1,
         description: null,
         photo_path: null,
-        category_id: null,
-        min_credit_score: null,
-        code_slug: null,
-      };
-    }
-    showBundleComponentModal.value = true;
-  }
+    });
 
-  /**
-   * Save bundle component (add atau update)
-   */
-  function saveBundleComponent() {
-    if (!form.value.bundle_components) {
-      form.value.bundle_components = [];
-    }
+    const showBundleComponentModal = ref(false);
+    const editingComponentIndex = ref<number | null>(null);
 
-    if (editingComponentIndex.value !== null) {
-      // Update existing
-      form.value.bundle_components[editingComponentIndex.value] = {
-        ...bundleComponentForm.value,
-      };
-    } else {
-      // Add new
-      form.value.bundle_components.push({
-        ...bundleComponentForm.value,
-      });
-    }
+    // ── Selected tool ─────────────────────────────────────────────────────────
 
-    showBundleComponentModal.value = false;
-    editingComponentIndex.value = null;
-  }
+    const selectedTool = ref<Tool | null>(null);
 
-  /**
-   * Remove bundle component
-   */
-  function removeBundleComponent(index: number) {
-    if (form.value.bundle_components) {
-      form.value.bundle_components.splice(index, 1);
-    }
-  }
+    // ── Filters ───────────────────────────────────────────────────────────────
 
-  /**
-   * Submit form (create atau update)
-   */
-  async function submitForm() {
-    if (!form.value) return;
+    const filters = ref({
+        category: "",
+        search: "",
+    });
 
-    // Validasi basic
-    if (!form.value.name || !form.value.category_id || !form.value.item_type) {
-      toast.add({
-        severity: "warn",
-        summary: "Validasi",
-        detail: "Nama, kategori, dan tipe item wajib diisi.",
-        life: 3000,
-      });
-      return;
+    // ── Computed ──────────────────────────────────────────────────────────────
+
+    const dialogTitle = computed(() =>
+        isEditMode.value ? "Edit Tool" : "Tambah Tool Baru",
+    );
+
+    const submitButtonLabel = computed(() =>
+        isEditMode.value ? "Update" : "Buat Tool",
+    );
+
+    const isBundle = computed(() => form.value.item_type === "bundle");
+
+    const bundleComponentsCount = computed(
+        () => form.value.bundle_components?.length ?? 0,
+    );
+
+    // ── Actions ───────────────────────────────────────────────────────────────
+
+    async function onPageChange(event: any) {
+        const page = event.page;
+        const perPage = event.rows ?? toolStore.perPage;
+        await loadTools({ page, per_page: perPage });
     }
 
-    // Validasi bundle components jika item_type = bundle
-    if (form.value.item_type === "bundle") {
-      if (
-        !form.value.bundle_components ||
-        form.value.bundle_components.length === 0
-      ) {
-        toast.add({
-          severity: "warn",
-          summary: "Validasi",
-          detail: "Bundle harus memiliki minimal satu komponen.",
-          life: 3000,
+    async function loadTools(params?: { page?: number; per_page?: number }) {
+        const success = await toolStore.fetchTools({
+            page: params?.page ?? toolStore.currentPage,
+            per_page: params?.per_page ?? toolStore.perPage,
+            search: filters.value.search || undefined,
+            category: filters.value.category || undefined,
         });
-        return;
-      }
+
+        if (!success) {
+            toast.add({
+                severity: "error",
+                summary: "Error",
+                detail: toolStore.error,
+                life: 3000,
+            });
+        }
     }
 
-    const action = isEditMode.value ? "update" : "buat";
-    const toolName = form.value.name || "";
-    const confirmMessage = `Apakah Anda yakin ingin ${action} tool "${toolName}"?`;
-
-    // Tambah warning jika edit tool yang punya units
-    const additionalMessage =
-      isEditMode.value && selectedTool.value?.has_units
-        ? "\n\n⚠️ Alat ini memiliki unit fisik. Perubahan tidak akan mempengaruhi unit yang sudah ada."
-        : "";
-
-    confirm.require({
-      message: confirmMessage + additionalMessage,
-      header: "Konfirmasi",
-      icon: "pi pi-exclamation-triangle",
-      accept: async () => {
-        if (isEditMode.value && selectedTool.value) {
-          const payload: UpdateToolPayload = {
-            id: selectedTool.value.id,
-            category_id: form.value.category_id,
-            name: form.value.name,
-            item_type: form.value.item_type,
-            price: form.value.price,
-            min_credit_score: form.value.min_credit_score,
-            description: form.value.description,
-            code_slug: form.value.code_slug,
-            photo_path: form.value.photo_path,
-            bundle_components: form.value.bundle_components,
-          };
-
-          const success = await toolStore.updateTool(
-            selectedTool.value.id,
-            payload,
-          );
-
-          if (success) {
-            toast.add({
-              severity: "success",
-              summary: "Berhasil",
-              detail: toolStore.successMessage,
-              life: 3000,
-            });
-            formVisible.value = false;
-            resetForm();
-          } else {
-            toast.add({
-              severity: "error",
-              summary: "Error",
-              detail: toolStore.error,
-              life: 3000,
-            });
-          }
-        } else {
-          const payload: CreateToolPayload = {
-            name: form.value.name!,
-            category_id: form.value.category_id!,
-            item_type: form.value.item_type!,
-            price: form.value.price!,
-            min_credit_score: form.value.min_credit_score!,
-            description: form.value.description!,
-            code_slug: form.value.code_slug!,
-            photo_path: form.value.photo_path!,
-            bundle_components: form.value.bundle_components,
-          };
-
-          const success = await toolStore.createTool(payload);
-
-          if (success) {
-            toast.add({
-              severity: "success",
-              summary: "Berhasil",
-              detail: toolStore.successMessage,
-              life: 3000,
-            });
-            formVisible.value = false;
-            resetForm();
-          } else {
-            toast.add({
-              severity: "error",
-              summary: "Error",
-              detail: toolStore.error,
-              life: 3000,
-            });
-          }
-        }
-      },
-    });
-  }
-
-  /**
-   * Buka dialog detail tool
-   */
-  function openDetailDialog(tool: Tool) {
-    selectedTool.value = tool;
-    detailVisible.value = true;
-  }
-
-  /**
-   * Handle detail dialog action
-   */
-  function handleDetailAction(action: "edit" | "delete", tool: Tool) {
-    detailVisible.value = false;
-    if (action === "edit") openEditDialog(tool);
-    if (action === "delete") confirmDelete(tool);
-  }
-
-  /**
-   * Konfirmasi delete
-   */
-  function confirmDelete(tool: Tool) {
-    // Jika tool tidak bisa dihapus, tampilkan error message
-    if (!tool.can_delete) {
-      let reason = "";
-      if (tool.has_units) reason = "masih memiliki unit fisik";
-      if (tool.has_loans)
-        reason = reason
-          ? reason + " dan peminjaman"
-          : "masih memiliki peminjaman";
-      if (tool.has_bundles)
-        reason = reason
-          ? reason + " dan bundle"
-          : "masih menjadi bagian dari bundle";
-
-      toast.add({
-        severity: "warn",
-        summary: "Tidak Dapat Dihapus",
-        detail: `Tool "${tool.name}" ${reason}.`,
-        life: 4000,
-      });
-      return;
+    function openCreateDialog() {
+        isEditMode.value = false;
+        editWarningAcknowledged.value = false;
+        resetForm();
+        formVisible.value = true;
     }
 
-    confirm.require({
-      message: `Apakah Anda yakin ingin menghapus tool "${tool.name}"?`,
-      header: "Konfirmasi Hapus",
-      icon: "pi pi-exclamation-triangle",
-      accept: async () => {
-        const success = await toolStore.deleteTool(tool.id);
+    function openEditDialog(tool: Tool) {
+        selectedTool.value = tool;
 
-        if (success) {
-          toast.add({
-            severity: "success",
-            summary: "Berhasil",
-            detail: toolStore.successMessage,
-            life: 3000,
-          });
+        if (tool.has_units) {
+            confirm.require({
+                message: `Alat ini memiliki ${tool.units_count} unit fisik. Perubahan hanya berlaku untuk penggunaan ke depan. Lanjutkan?`,
+                header: "Peringatan Edit Tool dengan Unit",
+                icon: "pi pi-exclamation-triangle",
+                accept: () => {
+                    editWarningAcknowledged.value = true;
+                    proceedEditDialog(tool);
+                },
+                reject: () => {
+                    selectedTool.value = null;
+                },
+            });
         } else {
-          toast.add({
-            severity: "error",
-            summary: "Error",
-            detail: toolStore.error,
-            life: 3000,
-          });
+            proceedEditDialog(tool);
         }
-      },
-    });
-  }
+    }
 
-  /**
-   * Reset form
-   */
-  function resetForm() {
-    form.value = {
-      name: null,
-      category_id: null,
-      item_type: null,
-      price: null,
-      min_credit_score: null,
-      description: null,
-      code_slug: null,
-      photo_path: null,
-      bundle_components: null,
+    function proceedEditDialog(tool: Tool) {
+        isEditMode.value = true;
+        selectedTool.value = tool;
+
+        // Reset photo state
+        photoFile.value = null;
+        // Set photoPreview ke path dari BE — ToolForm akan konversi ke /storage/...
+        photoPreview.value = tool.photo_path ?? null;
+
+        form.value = {
+            name: tool.name,
+            category_id: tool.category_id,
+            item_type: tool.item_type,
+            price: tool.price,
+            min_credit_score: tool.min_credit_score,
+            description: tool.description,
+            code_slug: tool.code_slug,
+            photo_path: tool.photo_path,
+            bundle_components: tool.bundle_components
+                ? tool.bundle_components.map((bc) => ({
+                    name: bc.tool?.name ?? "",
+                    price: bc.tool?.price ?? 0,
+                    qty: bc.qty,
+                    description: bc.tool?.description ?? null,
+                    photo_path: bc.tool?.photo_path ?? null,
+                }))
+                : null,
+        };
+
+        formVisible.value = true;
+    }
+
+    function handleItemTypeChange(newType: ItemType) {
+        form.value.item_type = newType;
+        if (newType !== "bundle") {
+            form.value.bundle_components = null;
+        } else if (!form.value.bundle_components) {
+            form.value.bundle_components = [];
+        }
+    }
+
+    function openBundleComponentModal(index?: number) {
+        if (index !== undefined) {
+            editingComponentIndex.value = index;
+            bundleComponentForm.value = { ...form.value.bundle_components![index] };
+        } else {
+            editingComponentIndex.value = null;
+            bundleComponentForm.value = { name: "", price: 0, qty: 1, description: null, photo_path: null };
+        }
+        showBundleComponentModal.value = true;
+    }
+
+    function saveBundleComponent() {
+        if (!form.value.bundle_components) {
+            form.value.bundle_components = [];
+        }
+        if (editingComponentIndex.value !== null) {
+            form.value.bundle_components[editingComponentIndex.value] = { ...bundleComponentForm.value };
+        } else {
+            form.value.bundle_components.push({ ...bundleComponentForm.value });
+        }
+        showBundleComponentModal.value = false;
+        editingComponentIndex.value = null;
+    }
+
+    function removeBundleComponent(index: number) {
+        form.value.bundle_components?.splice(index, 1);
+    }
+
+    function buildFormData(): FormData {
+        const fd = new FormData();
+        fd.append("name", form.value.name!);
+        fd.append("category_id", String(form.value.category_id!));
+        fd.append("item_type", form.value.item_type!);
+        fd.append("price", String(form.value.price!));
+        fd.append("min_credit_score", String(form.value.min_credit_score ?? 0));
+        fd.append("code_slug", form.value.code_slug!);
+        if (form.value.description) fd.append("description", form.value.description);
+        if (photoFile.value) fd.append("photo", photoFile.value);
+        if (form.value.bundle_components?.length) {
+            fd.append("bundle_components", JSON.stringify(form.value.bundle_components));
+        }
+        return fd;
+    }
+
+    async function submitForm() {
+        if (!form.value) return;
+
+        if (!form.value.name || !form.value.category_id || !form.value.item_type) {
+            toast.add({ severity: "warn", summary: "Validasi", detail: "Nama, kategori, dan tipe item wajib diisi.", life: 3000 });
+            return;
+        }
+
+        if (form.value.item_type === "bundle" && (!form.value.bundle_components || form.value.bundle_components.length === 0)) {
+            toast.add({ severity: "warn", summary: "Validasi", detail: "Bundle harus memiliki minimal satu komponen.", life: 3000 });
+            return;
+        }
+
+        if (!form.value.price || form.value.price <= 0) {
+            toast.add({ severity: "warn", summary: "Validasi", detail: "Harga harus diisi dan lebih dari 0.", life: 3000 });
+            return;
+        }
+
+        const action = isEditMode.value ? "update" : "buat";
+        const additionalNote = isEditMode.value && selectedTool.value?.has_units
+            ? "\n\nAlat ini memiliki unit fisik. Perubahan tidak akan mempengaruhi unit yang sudah ada."
+            : "";
+
+        confirm.require({
+            message: `Apakah Anda yakin ingin ${action} tool "${form.value.name}"?${additionalNote}`,
+            header: "Konfirmasi",
+            icon: "pi pi-exclamation-triangle",
+            accept: async () => {
+                let success: boolean;
+
+                if (isEditMode.value && selectedTool.value) {
+                    const payload: UpdateToolPayload = {
+                        id: selectedTool.value.id,
+                        category_id: form.value.category_id ?? undefined,
+                        name: form.value.name ?? undefined,
+                        item_type: form.value.item_type ?? undefined,
+                        price: form.value.price ?? undefined,
+                        min_credit_score: form.value.min_credit_score ?? undefined,
+                        description: form.value.description,
+                        code_slug: form.value.code_slug ?? undefined,
+                        photo_path: form.value.photo_path,
+                        bundle_components: form.value.bundle_components,
+                    };
+                    success = await toolStore.updateTool(selectedTool.value.id, payload);
+                } else {
+                    success = await toolStore.createTool(buildFormData());
+                }
+
+                if (success) {
+                    toast.add({ severity: "success", summary: "Berhasil", detail: toolStore.successMessage, life: 3000 });
+                    formVisible.value = false;
+                    resetForm();
+                } else {
+                    toast.add({ severity: "error", summary: "Error", detail: toolStore.error, life: 3000 });
+                }
+            },
+        });
+    }
+
+    function openDetailDialog(tool: Tool) {
+        selectedTool.value = tool;
+        detailVisible.value = true;
+    }
+
+    function handleDetailAction(action: "edit" | "delete", tool: Tool) {
+        detailVisible.value = false;
+        if (action === "edit") openEditDialog(tool);
+        if (action === "delete") confirmDelete(tool);
+    }
+
+    function confirmDelete(tool: Tool) {
+        if (!tool.can_delete) {
+            const reasons: string[] = [];
+            if (tool.has_units) reasons.push("masih memiliki unit fisik");
+            if (tool.has_loans) reasons.push("masih memiliki peminjaman");
+            if (tool.has_bundles) reasons.push("masih menjadi bagian dari bundle");
+            toast.add({
+                severity: "warn",
+                summary: "Tidak Dapat Dihapus",
+                detail: `Tool "${tool.name}" ${reasons.join(", ")}.`,
+                life: 4000,
+            });
+            return;
+        }
+
+        confirm.require({
+            message: `Apakah Anda yakin ingin menghapus tool "${tool.name}"?`,
+            header: "Konfirmasi Hapus",
+            icon: "pi pi-exclamation-triangle",
+            accept: async () => {
+                const success = await toolStore.deleteTool(tool.id);
+                if (success) {
+                    toast.add({ severity: "success", summary: "Berhasil", detail: toolStore.successMessage, life: 3000 });
+                } else {
+                    toast.add({ severity: "error", summary: "Error", detail: toolStore.error, life: 3000 });
+                }
+            },
+        });
+    }
+
+    function resetForm() {
+        form.value = {
+            name: null, category_id: null, item_type: null, price: null,
+            min_credit_score: null, description: null, code_slug: null,
+            photo_path: null, bundle_components: null,
+        };
+        photoFile.value = null;
+        photoPreview.value = null;
+        selectedTool.value = null;
+        editWarningAcknowledged.value = false;
+        bundleComponentForm.value = { name: "", price: 0, qty: 1, description: null, photo_path: null };
+        editingComponentIndex.value = null;
+    }
+
+    function clearFilter() {
+        filters.value = { category: "", search: "" };
+        loadTools({ page: 1, per_page: toolStore.perPage });
+    }
+
+    return {
+        // State
+        formVisible, detailVisible, isEditMode,
+        form, selectedTool, filters,
+        bundleComponentForm, showBundleComponentModal, editingComponentIndex,
+        photoFile, photoPreview,
+        // Computed
+        dialogTitle, submitButtonLabel, isBundle, bundleComponentsCount,
+        // Store
+        toolStore,
+        // Actions
+        onPageChange, loadTools,
+        openCreateDialog, openEditDialog, submitForm,
+        openDetailDialog, confirmDelete, resetForm, clearFilter,
+        handleDetailAction, handleItemTypeChange,
+        openBundleComponentModal, saveBundleComponent, removeBundleComponent,
+        handlePhotoSelected, removePhoto,
+        handleFormUpdate,
     };
-    selectedTool.value = null;
-    editWarningAcknowledged.value = false;
-    bundleComponentForm.value = {
-      name: "",
-      price: 0,
-      qty: 1,
-      description: null,
-      photo_path: null,
-      category_id: null,
-      min_credit_score: null,
-      code_slug: null,
-    };
-    editingComponentIndex.value = null;
-  }
-
-  /**
-   * Clear filter
-   */
-  function clearFilter() {
-    filters.value = {
-      category: "",
-      search: "",
-    };
-    loadTools({ page: 1, per_page: toolStore.perPage });
-  }
-
-  return {
-    // State
-    formVisible,
-    detailVisible,
-    isEditMode,
-    form,
-    selectedTool,
-    filters,
-    bundleComponentForm,
-    showBundleComponentModal,
-    editingComponentIndex,
-
-    // Computed
-    dialogTitle,
-    submitButtonLabel,
-    isBundle,
-    bundleComponentsCount,
-
-    // Store reference
-    toolStore,
-
-    // Actions
-    onPageChange,
-    loadTools,
-    openCreateDialog,
-    openEditDialog,
-    submitForm,
-    openDetailDialog,
-    confirmDelete,
-    resetForm,
-    clearFilter,
-    handleDetailAction,
-    handleItemTypeChange,
-    openBundleComponentModal,
-    saveBundleComponent,
-    removeBundleComponent,
-  };
 }

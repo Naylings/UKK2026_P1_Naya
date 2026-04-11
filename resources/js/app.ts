@@ -20,7 +20,6 @@ import { definePreset } from "@primeuix/themes";
 // primevue: import only the tooltip directive here; register components individually where needed
 
 const app = createApp(App);
-import Tooltip from 'primevue/tooltip';
 
 import { createPinia } from "pinia";
 
@@ -72,7 +71,6 @@ app.use(ToastService);
 app.use(ConfirmationService);
 
 app.directive("styleclass", StyleClass);
-app.directive("tooltip", Tooltip);
 
 // component that still error
 

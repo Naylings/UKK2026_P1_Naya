@@ -6,7 +6,7 @@
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
 import { toolService } from "@/services/toolService";
-import type { Tool, CreateToolPayload, UpdateToolPayload } from "@/types/tool";
+import type { Tool, UpdateToolPayload } from "@/types/tool";
 
 export const useToolStore = defineStore("tool", () => {
   // ── State ──────────────────────────────────────────────────────────────
@@ -33,9 +33,6 @@ export const useToolStore = defineStore("tool", () => {
 
   // ── Actions ────────────────────────────────────────────────────────────
 
-  /**
-   * Ambil list semua tool dengan pagination, search, dan filter kategori.
-   */
   async function fetchTools(params?: {
     search?: string;
     category?: string | number;
@@ -63,9 +60,6 @@ export const useToolStore = defineStore("tool", () => {
     }
   }
 
-  /**
-   * Ambil detail tool tertentu berdasarkan ID.
-   */
   async function fetchToolById(id: number): Promise<boolean> {
     loading.value = true;
     error.value = null;
@@ -82,9 +76,9 @@ export const useToolStore = defineStore("tool", () => {
   }
 
   /**
-   * Buat tool baru (single, bundle, atau bundle_tool).
+   * Buat tool baru.
    */
-  async function createTool(payload: CreateToolPayload): Promise<boolean> {
+  async function createTool(payload: FormData): Promise<boolean> {
     loading.value = true;
     error.value = null;
     successMessage.value = null;
@@ -102,10 +96,6 @@ export const useToolStore = defineStore("tool", () => {
     }
   }
 
-  /**
-   * Update tool (dapat mengubah fields dan bundle components).
-   * Warning: Jika tool punya units, perubahan hanya berlaku untuk penggunaan ke depan.
-   */
   async function updateTool(
     id: number,
     payload: UpdateToolPayload,
@@ -119,13 +109,11 @@ export const useToolStore = defineStore("tool", () => {
       const updated = result.tool;
       successMessage.value = result.message;
 
-      // Update di local list
       const index = tools.value.findIndex((t) => t.id === id);
       if (index !== -1) {
         tools.value[index] = updated;
       }
 
-      // Update currentTool jika sedang diedit
       if (currentTool.value?.id === id) {
         currentTool.value = updated;
       }
@@ -139,13 +127,6 @@ export const useToolStore = defineStore("tool", () => {
     }
   }
 
-  /**
-   * Hapus tool.
-   * Tool tidak dapat dihapus jika:
-   * - Masih memiliki units (representasi fisik)
-   * - Masih ada peminjaman aktif
-   * - Menjadi bagian dari bundle lain
-   */
   async function deleteTool(id: number): Promise<boolean> {
     loading.value = true;
     error.value = null;
@@ -154,10 +135,8 @@ export const useToolStore = defineStore("tool", () => {
     try {
       successMessage.value = await toolService.delete(id);
 
-      // Hapus dari list
       tools.value = tools.value.filter((t) => t.id !== id);
 
-      // Clear currentTool jika yang dihapus sedang dilihat
       if (currentTool.value?.id === id) {
         currentTool.value = null;
       }
@@ -171,16 +150,10 @@ export const useToolStore = defineStore("tool", () => {
     }
   }
 
-  /**
-   * Bersihkan error dari state.
-   */
   function clearError(): void {
     error.value = null;
   }
 
-  /**
-   * Bersihkan semua state.
-   */
   function reset(): void {
     tools.value = [];
     currentTool.value = null;
@@ -198,18 +171,15 @@ export const useToolStore = defineStore("tool", () => {
     perPage,
     lastPage,
     total,
-    // state
     tools,
     currentTool,
     loading,
     error,
     successMessage,
-    // getters
     toolCount,
     hasTools,
     isLoading,
     hasError,
-    // actions
     fetchTools,
     fetchToolById,
     createTool,

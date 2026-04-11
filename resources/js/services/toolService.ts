@@ -7,7 +7,6 @@ import { AxiosError } from "axios";
 import { toolsApi } from "@/api/tools";
 import type {
   Tool,
-  CreateToolPayload,
   UpdateToolPayload,
   PaginatedToolsResponse,
 } from "@/types/tool";
@@ -30,7 +29,6 @@ export function parseToolError(error: unknown): string {
 
     if (data?.message) return data.message;
 
-    // Fallback berdasarkan HTTP status
     switch (error.response?.status) {
       case 401:
         return "Sesi tidak valid. Silakan login ulang.";
@@ -67,8 +65,7 @@ export const toolService = {
         per_page: params?.per_page,
         page: params?.page,
       };
-      const response = await toolsApi.list(apiParams);
-      return response;
+      return await toolsApi.list(apiParams);
     } catch (error) {
       throw parseToolError(error);
     }
@@ -88,7 +85,7 @@ export const toolService = {
   /**
    * Buat tool baru.
    */
-  async create(payload: CreateToolPayload): Promise<ToolMutationResult> {
+  async create(payload: FormData): Promise<ToolMutationResult> {
     try {
       const response = await toolsApi.create(payload);
       return {
@@ -120,7 +117,6 @@ export const toolService = {
 
   /**
    * Hapus tool.
-   * Melempar error jika tool masih punya relasi atau ada masalah constraint.
    */
   async delete(id: number): Promise<string> {
     try {

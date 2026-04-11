@@ -4,18 +4,40 @@ namespace App\Services;
 
 use App\Exceptions\ToolException;
 use App\Models\Tool;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class ToolManagementService
 {
-    /**
-     * Get all tools dengan pagination, search
-     * 
-     * @param int $perPage
-     * @param string|null $search
-     * @return \Illuminate\Pagination\LengthAwarePaginator
-     */
+    // ─────────────────────────────────────────────────────────────────────────
+    // Code Slug Prefix Rules
+    //
+    //  single      → no prefix,  e.g.  GERINDA
+    //  bundle      → SET-,       e.g.  SET-GERINDA
+    //  bundle_tool → SUB-,       e.g.  SUB-GERINDA-1
+    //
+    // Prefix SUB- pada bundle_tool mencegah collision dengan single
+    // yang kebetulan punya nama sama dengan komponen bundle-nya.
+    // ─────────────────────────────────────────────────────────────────────────
+
+    private function applyCodeSlugPrefix(string $slug, string $itemType): string
+    {
+        // Strip prefix lama jika ada, lalu uppercase
+        $slug = Str::upper($slug);
+        $slug = preg_replace('/^(SET-|SUB-)/', '', $slug);
+
+        return match ($itemType) {
+            'bundle'      => 'SET-' . $slug,
+            'bundle_tool' => 'SUB-' . $slug,
+            default       => $slug, // single: no prefix
+        };
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Public API
+    // ─────────────────────────────────────────────────────────────────────────
+
     public function getAllTools(int $perPage = 10, ?string $search = null, ?string $category = null)
     {
         $query = Tool::with(['category', 'bundleComponents.tool']);
@@ -32,20 +54,9 @@ class ToolManagementService
             $query->where('category_id', $category);
         }
 
-        $result = $query->paginate($perPage);
-
-        if (!$result->count()) {
-            throw ToolException::notFound();
-        }
-
-        return $result;
+        return $query->paginate($perPage);
     }
 
-    /**
-     * Get tool by ID.
-     *
-     * @throws ToolException
-     */
     public function getToolById(int $toolId): Tool
     {
         $tool = Tool::with(['category', 'bundleComponents.tool'])->find($toolId);
@@ -57,37 +68,34 @@ class ToolManagementService
         return $tool;
     }
 
-
-
-    /**
-     * Create tool baru
-     * 
-     * @param array{
-     * category_id: int,
-     * name: string,
-     * item_type: string,
-     * price: float,
-     * min_credit_score: int,
-     * description?: string,
-     * code_slug: string,
-     * photo_path?: string
-     * } $data
-     * @return Tool
-     * @throws ToolException
-     */
-    public function createTool(array $data): Tool
+    public function createTool(array $data, ?UploadedFile $photoFile = null): Tool
     {
         try {
-            $tool = DB::transaction(function () use ($data) {
+            $tool = DB::transaction(function () use ($data, $photoFile) {
+                // Handle foto upload
+                $photoPath = null;
+                if ($photoFile) {
+                    $photoPath = $photoFile->store('tools', 'public');
+                }
+                $photoPath = $photoPath ?? ($data['photo_path'] ?? null);
+
+                // Terapkan prefix sesuai item_type
+                $codeSlug = $this->applyCodeSlugPrefix(
+                    $data['code_slug'],
+                    $data['item_type']
+                );
+
                 $tool = Tool::create([
-                    'category_id' => $data['category_id'],
-                    'name' => $data['name'],
-                    'item_type' => $data['item_type'],
-                    'price' => $data['price'],
+                    'category_id'      => $data['category_id'],
+                    'name'             => $data['name'],
+                    'item_type'        => $data['item_type'],
+                    'price'            => $data['price'],
                     'min_credit_score' => $data['min_credit_score'],
-                    'description' => $data['description'] ?? null,
-                    'code_slug' => $data['code_slug'],
-                    'photo_path' => $data['photo_path'] ?? null,
+                    'description'      => $data['description'] ?? null,
+                    'code_slug'        => $codeSlug,
+                    'photo_path'       => $photoPath,
+                    // FIX: $timestamps = false sehingga created_at wajib diisi manual
+                    'created_at'       => now(),
                 ]);
 
                 $this->syncBundleComponents($tool, $data['bundle_components'] ?? null);
@@ -101,39 +109,32 @@ class ToolManagementService
         }
     }
 
-    /**
-     * Update tool
-     * 
-     * @param Tool $tool
-     * @param array{
-     * category_id?: int,
-     * name?: string,
-     * item_type?: string,
-     * price?: float,
-     * min_credit_score?: int,
-     * description?: string,
-     * code_slug?: string,
-     * photo_path?: string
-     * } $data
-     * @return Tool
-     * @throws ToolException
-     */
     public function updateTool(Tool $tool, array $data): Tool
     {
         try {
             DB::transaction(function () use ($tool, $data) {
+                $finalItemType = $data['item_type'] ?? $tool->item_type;
+
+                $codeSlug = $this->applyCodeSlugPrefix(
+                    $data['code_slug'] ?? $tool->code_slug,
+                    $finalItemType
+                );
+
                 $tool->update(array_filter([
-                    'category_id' => $data['category_id'] ?? null,
-                    'name' => $data['name'] ?? null,
-                    'item_type' => $data['item_type'] ?? null,
-                    'price' => $data['price'] ?? null,
+                    'category_id'      => $data['category_id'] ?? null,
+                    'name'             => $data['name'] ?? null,
+                    'item_type'        => $data['item_type'] ?? null,
+                    'price'            => $data['price'] ?? null,
                     'min_credit_score' => $data['min_credit_score'] ?? null,
-                    'description' => $data['description'] ?? null,
-                    'code_slug' => $data['code_slug'] ?? null,
-                    'photo_path' => $data['photo_path'] ?? null,
+                    'description'      => $data['description'] ?? null,
+                    'code_slug'        => $codeSlug,
+                    'photo_path'       => $data['photo_path'] ?? null,
                 ], fn($v) => $v !== null));
 
-                $shouldSyncComponents = array_key_exists('bundle_components', $data) || $tool->item_type !== 'bundle';
+                $shouldSyncComponents =
+                    array_key_exists('bundle_components', $data)
+                    || $tool->item_type !== 'bundle';
+
                 if ($shouldSyncComponents) {
                     $this->syncBundleComponents($tool, $data['bundle_components'] ?? null);
                 }
@@ -147,13 +148,6 @@ class ToolManagementService
         }
     }
 
-    /**
-     * Delete tool
-     * 
-     * @param Tool $tool
-     * @return void
-     * @throws ToolException
-     */
     public function deleteTool(Tool $tool): void
     {
         $hasRelation = $tool->loans()->exists()
@@ -164,7 +158,6 @@ class ToolManagementService
             throw ToolException::hasRelations();
         }
 
-
         try {
             $this->clearBundleComponents($tool);
             $tool->delete();
@@ -173,13 +166,10 @@ class ToolManagementService
         }
     }
 
-    /**
-     * Sync komponen untuk tool bertipe bundle.
-     *
-     * @param array<int, array{name:string, price:numeric, qty:int, description?:?string, photo_path?:?string, category_id?:?int, min_credit_score?:?int, code_slug?:?string}>|null $components
-     *
-     * @throws ToolException
-     */
+    // ─────────────────────────────────────────────────────────────────────────
+    // Bundle component helpers
+    // ─────────────────────────────────────────────────────────────────────────
+
     private function syncBundleComponents(Tool $tool, ?array $components): void
     {
         if (!$tool->isBundle()) {
@@ -193,23 +183,32 @@ class ToolManagementService
 
         $this->clearBundleComponents($tool);
 
-        $createdComponents = collect($components)->map(function (array $component, int $index) use ($tool) {
-            $childTool = Tool::create([
-                'category_id' => $component['category_id'] ?? $tool->category_id,
-                'name' => $component['name'],
-                'item_type' => 'bundle_tool',
-                'price' => $component['price'],
-                'min_credit_score' => $component['min_credit_score'] ?? $tool->min_credit_score,
-                'description' => $component['description'] ?? $tool->description,
-                'code_slug' => $component['code_slug'] ?? $this->generateComponentCodeSlug($tool->code_slug, $component['name'], $index + 1),
-                'photo_path' => $component['photo_path'] ?? null,
-            ]);
+        $createdComponents = collect($components)
+            ->map(function (array $component, int $index) use ($tool) {
+                $childTool = Tool::create([
+                    'category_id'      => $tool->category_id,
+                    'name'             => $component['name'],
+                    'item_type'        => 'bundle_tool',
+                    'price'            => $component['price'],
+                    // min_credit_score bundle_tool selalu ikut parent
+                    'min_credit_score' => $tool->min_credit_score,
+                    'description'      => $component['description'] ?? $tool->description,
+                    'code_slug'        => $this->generateComponentCodeSlug(
+                        $tool->code_slug,
+                        $component['name'],
+                        $index + 1
+                    ),
+                    'photo_path'       => $component['photo_path'] ?? null,
+                    // FIX: created_at wajib diisi manual
+                    'created_at'       => now(),
+                ]);
 
-            return [
-                'tool_id' => $childTool->id,
-                'qty' => $component['qty'],
-            ];
-        })->all();
+                return [
+                    'tool_id' => $childTool->id,
+                    'qty'     => $component['qty'],
+                ];
+            })
+            ->all();
 
         if (empty($createdComponents)) {
             throw ToolException::invalidBundleComponent();
@@ -227,9 +226,7 @@ class ToolManagementService
         foreach ($existingComponents as $component) {
             $childTool = $component->tool;
 
-            if (!$childTool) {
-                continue;
-            }
+            if (!$childTool) continue;
 
             $isSafeToDelete = $childTool->isBundleTool()
                 && !$childTool->loans()->exists()
@@ -242,23 +239,42 @@ class ToolManagementService
         }
     }
 
-    private function generateComponentCodeSlug(string $parentCode, string $name, int $index): string
+    /**
+     * Generate code slug untuk bundle_tool.
+     *
+     * Format: SUB-{baseParent}-{index}
+     * Contoh: parent = SET-GERINDA → SUB-GERINDA-1, SUB-GERINDA-2
+     *
+     * base diambil dari parent slug setelah prefix SET-/SUB- dicopot.
+     * Jika collision, counter naik sampai slug unik.
+     */
+    private function generateComponentCodeSlug(string $parentSlug, string $componentName, int $index): string
     {
-        $seed = Str::upper(Str::of($parentCode)->replaceMatches('/[^A-Za-z0-9]/', '')->substr(0, 8));
-        if ($seed === '') {
-            $seed = Str::upper(Str::of($name)->replaceMatches('/[^A-Za-z0-9]/', '')->substr(0, 8));
+        // Ambil base dari parent: SET-GERINDA → GERINDA
+        $base = preg_replace('/^(SET-|SUB-)/', '', Str::upper($parentSlug));
+
+        // Fallback ke nama komponen jika base kosong
+        if ($base === '') {
+            $base = Str::upper(
+                Str::of($componentName)->replaceMatches('/[^A-Za-z0-9]/', '')->substr(0, 10)
+            );
         }
 
-        $suffix = (string) $index;
-        $base = Str::substr($seed, 0, max(1, 15 - strlen($suffix) - 1));
-        $candidate = "{$base}-{$suffix}";
+        // Max total panjang slug = 20 char
+        // SUB- (4) + base + - (1) + suffix
+        $suffix    = (string) $index;
+        $maxBase   = max(1, 20 - 4 - 1 - strlen($suffix));
+        $trimBase  = Str::substr($base, 0, $maxBase);
+        $candidate = "SUB-{$trimBase}-{$suffix}";
 
+        // Loop sampai slug benar-benar unik
         $counter = $index;
         while (Tool::query()->where('code_slug', $candidate)->exists()) {
             $counter++;
-            $suffix = (string) $counter;
-            $base = Str::substr($seed, 0, max(1, 15 - strlen($suffix) - 1));
-            $candidate = "{$base}-{$suffix}";
+            $suffix    = (string) $counter;
+            $maxBase   = max(1, 20 - 4 - 1 - strlen($suffix));
+            $trimBase  = Str::substr($base, 0, $maxBase);
+            $candidate = "SUB-{$trimBase}-{$suffix}";
         }
 
         return $candidate;

@@ -21,7 +21,7 @@ return new class extends Migration
             $table->foreign('user_id')->references('id')->on('users');
             $table->integer('return_id')->nullable()->comment('FK ke returns. NULL jika type = lost karena tidak ada pengembalian');
             $table->foreign('return_id')->references('id')->on('returns');
-            $table->enum('type', ["late","damaged","lost"]);
+            $table->enum('type', ["late","damaged","lost","other"]);
             $table->integer('total_score')->comment('total kredit user yang berkurang');
             $table->float('fine', 53)->comment('Jumlah Denda');
             $table->text('description')->comment('Penjelasan detail pelanggaran');

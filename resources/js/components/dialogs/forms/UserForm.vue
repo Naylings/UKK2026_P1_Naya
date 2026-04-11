@@ -1,4 +1,5 @@
 <script setup lang="ts">
+
 interface UserFormType {
     email?: string;
     password?: string;
@@ -72,7 +73,7 @@ const roles = ["Admin", "Employee", "User"];
             <!-- Role -->
             <div>
                 <label class="block text-sm font-medium mb-2">Role</label>
-                <Dropdown
+                <Select
                     v-model="form.role"
                     :options="roles"
                     placeholder="Pilih role"
@@ -135,7 +136,7 @@ const roles = ["Admin", "Employee", "User"];
                 <label class="block text-sm font-medium mb-2"
                     >Tanggal Lahir</label
                 >
-                <Calendar
+                <DatePicker
                     v-model="form.birth_date"
                     date-format="yy-mm-dd"
                     placeholder="YYYY-MM-DD"

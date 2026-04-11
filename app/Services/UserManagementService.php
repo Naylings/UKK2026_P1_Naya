@@ -37,9 +37,9 @@ class UserManagementService
 
         $results = $query->paginate($perPage);
 
-        if (!$results->count()) {
-            throw UserException::notFound();
-        }
+        // if (!$results->count()) {
+        //     throw UserException::notFound();
+        // }
         return $results;
     }
 
