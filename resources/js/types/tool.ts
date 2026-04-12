@@ -74,13 +74,6 @@ export interface BundleComponentPayload {
 
 
 
-export interface BundleComponentPayload {
-  name: string;
-  price: number;
-  qty: number;
-  description?: string | null;
-  photo_path?: string | null;
-}
 
 export interface CreateToolPayload {
   category_id: number;

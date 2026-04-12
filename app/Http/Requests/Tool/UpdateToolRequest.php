@@ -12,6 +12,17 @@ class UpdateToolRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation()
+    {
+        if ($this->has('bundle_components') && is_string($this->bundle_components)) {
+            $decoded = json_decode($this->bundle_components, true);
+    
+            $this->merge([
+                'bundle_components' => is_array($decoded) ? $decoded : null,
+            ]);
+        }
+    }
+    
     public function rules(): array
     {
         $tool = $this->route('tool');

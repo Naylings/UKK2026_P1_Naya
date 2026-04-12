@@ -40,7 +40,8 @@ class ToolManagementService
 
     public function getAllTools(int $perPage = 10, ?string $search = null, ?string $category = null)
     {
-        $query = Tool::with(['category', 'bundleComponents.tool']);
+        $query = Tool::with(['category', 'bundleComponents.tool'])
+            ->where('item_type', '!=', 'bundle_tool'); // Exclude bundle_tool dari list utama
 
         if ($search) {
             $query->where(function ($q) use ($search) {
@@ -77,7 +78,7 @@ class ToolManagementService
                 if ($photoFile) {
                     $photoPath = $photoFile->store('tools', 'public');
                 }
-                $photoPath = $photoPath ?? ($data['photo_path'] ?? null);
+                $photoPath = $photoPath ?? ($data['photo_path'] ?? 'tools/placeholder-tool.png');
 
                 // Terapkan prefix sesuai item_type
                 $codeSlug = $this->applyCodeSlugPrefix(
@@ -198,7 +199,7 @@ class ToolManagementService
                         $component['name'],
                         $index + 1
                     ),
-                    'photo_path'       => $component['photo_path'] ?? null,
+                    'photo_path'       => $component['photo_path'] ?? 'tools/placeholder-tool.png',
                     // FIX: created_at wajib diisi manual
                     'created_at'       => now(),
                 ]);

@@ -166,7 +166,6 @@ const clearFilters = () => {
           option-label="label"
           option-value="value"
           placeholder="Semua Kategori"
-          show-clear
           class="min-w-44"
         />
 
@@ -192,13 +191,15 @@ const clearFilters = () => {
       v-model:expandedRows="expandedRows"
       paginator
       lazy
+      stripedRows
+      showGridlines
       :rows="props.perPage"
       :totalRecords="props.total"
       :first="(props.currentPage - 1) * props.perPage"
       paginator-template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
       :rows-per-page-options="[10, 25, 50]"
       @page="handlePageChange"
-      class="text-sm"
+      class="text-sm rounded-xl overflow-hidden"
     >
       <!-- Expand -->
       <Column expander style="width: 3rem" />
@@ -224,25 +225,25 @@ const clearFilters = () => {
       </Column>
 
       <!-- Nama + Kategori -->
-      <Column header="Nama" field="name">
+      <Column header="Nama">
         <template #body="{ data }">
-          <div>
-            <div class="font-medium">{{ data.name }}</div>
-            <div class="text-xs text-surface-400 mt-0.5">
-              {{ data.category?.name ?? "—" }}
-            </div>
+          <div class="flex flex-col gap-0.5">
+            <span class="font-semibold">{{ data.name }}</span>
+            <span class="text-xs text-surface-400">
+              {{ data.category?.name ?? "Tanpa kategori" }}
+            </span>
           </div>
         </template>
       </Column>
       <!-- Deskripsi -->
       <Column header="Deskripsi">
         <template #body="{ data }">
-          <span
-            class="block overflow-hidden text-ellipsis whitespace-nowrap max-w-full"
+          <p
+            class="text-surface-600 text-xs leading-snug line-clamp-2 max-w-xs"
             :title="data.description"
           >
-            {{ data.description ?? "—" }}
-          </span>
+            {{ data.description ?? "-" }}
+          </p>
         </template>
       </Column>
       <!-- Kode -->
@@ -257,37 +258,43 @@ const clearFilters = () => {
       </Column>
 
       <!-- Tipe -->
-      <Column header="Tipe" style="width: 8rem">
+      <Column header="Tipe" style="width: 7rem">
         <template #body="{ data }">
           <Tag
-            :value="data.item_type"
+            :value="data.item_type.toUpperCase()"
             :severity="typeSeverity[data.item_type] ?? 'secondary'"
+            rounded
           />
         </template>
       </Column>
 
       <!-- Harga -->
-      <Column header="Harga" style="width: 10rem">
+      <Column header="Harga" style="width: 10rem" body-class="text-right">
         <template #body="{ data }">
-          <span class="font-medium">{{ formatCurrency(data.price) }}</span>
+          <span class="font-semibold">
+            {{ formatCurrency(data.price) }}
+          </span>
         </template>
       </Column>
 
       <!-- Units -->
-      <Column header="Units" style="width: 6rem" body-class="text-center">
+      <Column header="Unit" style="width: 5rem" body-class="text-center">
         <template #body="{ data }">
-          <Tag :value="String(data.units_count)" severity="secondary" rounded />
+          <span class="text-sm font-medium">
+            {{ data.units_count }}
+          </span>
         </template>
       </Column>
 
       <!-- Actions -->
-      <Column header="" style="width: 4rem" body-class="text-center">
+      <Column header="" style="width: 3rem" body-class="text-center">
         <template #body="{ data }">
           <Button
-            icon="pi pi-ellipsis-v"
+            icon="pi pi-ellipsis-h"
             text
             rounded
             size="small"
+            class="opacity-70 hover:opacity-100"
             @click="toggleMenu($event, data)"
           />
         </template>
@@ -307,24 +314,6 @@ const clearFilters = () => {
           </p>
 
           <DataTable :value="data.bundle_components ?? []" class="text-sm">
-            <!-- Foto komponen -->
-            <Column header="Foto" style="width: 5rem">
-              <template #body="{ data: comp }">
-                <img
-                  v-if="storageUrl(comp.tool?.photo_path)"
-                  :src="storageUrl(comp.tool?.photo_path)!"
-                  :alt="comp.tool?.name"
-                  class="w-10 h-10 object-cover rounded-lg border border-surface-200"
-                />
-                <div
-                  v-else
-                  class="w-10 h-10 rounded-lg border border-surface-200 bg-surface-100 flex items-center justify-center"
-                >
-                  <i class="pi pi-image text-surface-400" />
-                </div>
-              </template>
-            </Column>
-
             <Column header="Nama">
               <template #body="{ data: comp }">
                 <div>

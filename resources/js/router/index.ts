@@ -51,6 +51,12 @@ const router = createRouter({
           component: () => import("@/pages/admin/tools/Index.vue"),
           meta: { title: "Manajemen Alat", roles: ["Admin"] },
         },
+        {
+          path: "/tools/:id",
+          name: "tool detail",
+          component: () => import("@/pages/admin/tools/Detail.vue"),
+          meta: { title: "Detail Tool", roles: ["Admin"] },
+        },
       ],
     },
     {

@@ -33,6 +33,7 @@ class ToolResource extends JsonResource
                             'id' => $component->tool->id,
                             'name' => $component->tool->name,
                             'code_slug' => $component->tool->code_slug,
+                            'price' => $component->tool->price,
                             'item_type' => $component->tool->item_type,
                         ]
                         : null,
