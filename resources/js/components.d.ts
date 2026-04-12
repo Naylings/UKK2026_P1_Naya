@@ -30,6 +30,7 @@ declare module 'vue' {
     ContextMenu: typeof import('primevue/contextmenu')['default']
     copy: typeof import('./components/dialogs/forms/UserForm copy.vue')['default']
     DataTable: typeof import('primevue/datatable')['default']
+    DatePicker: typeof import('primevue/datepicker')['default']
     Dialog: typeof import('primevue/dialog')['default']
     Divider: typeof import('primevue/divider')['default']
     Dropdown: typeof import('primevue/dropdown')['default']
@@ -54,6 +55,7 @@ declare module 'vue' {
     Popover: typeof import('primevue/popover')['default']
     ProgressBar: typeof import('primevue/progressbar')['default']
     ProgressSpinner: typeof import('primevue/progressspinner')['default']
+    RecordConditionModal: typeof import('./components/dialogs/forms/RecordConditionModal.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     ScrollPanel: typeof import('primevue/scrollpanel')['default']
@@ -73,6 +75,9 @@ declare module 'vue' {
     Toolbar: typeof import('primevue/toolbar')['default']
     ToolForm: typeof import('./components/dialogs/forms/ToolForm.vue')['default']
     ToolsTable: typeof import('./components/datatable/ToolsTable.vue')['default']
+    ToolUnitFormModal: typeof import('./components/dialogs/forms/ToolUnitFormModal.vue')['default']
+    ToolUnitsTable: typeof import('./components/datatable/ToolUnitsTable.vue')['default']
+    UnitConditionHistoryModal: typeof import('./components/dialogs/details/UnitConditionHistoryModal.vue')['default']
     UpdateCredit: typeof import('./components/dialogs/forms/UpdateCredit.vue')['default']
     UserDetail: typeof import('./components/dialogs/details/UserDetail.vue')['default']
     UserForm: typeof import('./components/dialogs/forms/UserForm.vue')['default']
@@ -80,5 +85,8 @@ declare module 'vue' {
     WargaDetail: typeof import('./components/dialogs/details/WargaDetail.vue')['default']
     WargaForm: typeof import('./components/dialogs/forms/WargaForm.vue')['default']
     WargaTable: typeof import('./components/datatable/WargaTable.vue')['default']
+  }
+  export interface ComponentCustomProperties {
+    Tooltip: typeof import('primevue/tooltip')['default']
   }
 }

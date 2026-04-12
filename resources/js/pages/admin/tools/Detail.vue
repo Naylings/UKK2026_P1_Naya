@@ -1,13 +1,25 @@
 <script setup lang="ts">
-import { computed, onMounted } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useToolStore } from "@/stores/tool";
+import { useToolUnitStore } from "@/stores/toolunit";
 import { useToast } from "primevue/usetoast";
 import { useConfirm } from "primevue/useconfirm";
+import type {
+  ToolUnit,
+  CreateToolUnitPayload,
+  RecordConditionPayload,
+} from "@/types/toolunit";
+import type { LoanRecord } from "@/components/dialogs/details/UnitConditionHistoryModal.vue";
+import ToolUnitsTable from "@/components/datatable/ToolUnitsTable.vue";
+import ToolUnitFormModal from "@/components/dialogs/forms/ToolUnitFormModal.vue";
+import UnitConditionHistoryModal from "@/components/dialogs/details/UnitConditionHistoryModal.vue";
+import RecordConditionModal from "@/components/dialogs/forms/RecordConditionModal.vue";
 
 const route = useRoute();
 const router = useRouter();
 const toolStore = useToolStore();
+const unitStore = useToolUnitStore();
 const toast = useToast();
 const confirm = useConfirm();
 
@@ -18,17 +30,34 @@ const tool = computed(() => toolStore.currentTool);
 const isBundle = computed(() => tool.value?.item_type === "bundle");
 const canDelete = computed(() => tool.value?.can_delete ?? false);
 
+// Unit Management
+const units = computed(() => unitStore.toolUnits);
+const unitsLoading = computed(() => unitStore.loading);
+const unitsCurrentPage = computed(() => unitStore.currentPage);
+const unitsLastPage = computed(() => unitStore.lastPage);
+const unitsTotal = computed(() => unitStore.total);
+const unitsPerPage = computed(() => unitStore.perPage);
+
+// ── Modal States ────────────────────────────────────────────────────────
+
+const showUnitFormModal = ref(false);
+
+const showDetailModal = ref(false);
+const selectedDetailUnit = ref<ToolUnit | null>(null);
+
+const showRecordConditionModal = ref(false);
+const selectedConditionUnit = ref<ToolUnit | null>(null);
+
+// Loans Management
+const selectedDetailUnitLoans = ref<LoanRecord[]>([]);
+const loansLoading = ref(false);
+
 // ── Lifecycle ─────────────────────────────────────────────────────────────
 
 onMounted(async () => {
-  console.log("Detail.vue mounted");
-  console.log("Route params:", route.params);
-
   const toolId = Number(route.params.id);
-  console.log("Extracted toolId:", toolId, "isNaN:", isNaN(toolId));
 
   if (!toolId || isNaN(toolId)) {
-    console.error("Invalid toolId");
     toast.add({
       severity: "error",
       summary: "Error",
@@ -39,14 +68,10 @@ onMounted(async () => {
     return;
   }
 
-  console.log("Fetching tool with ID:", toolId);
-  const success = await toolStore.fetchToolById(toolId);
-  console.log("Fetch result:", success);
-  console.log("Current tool:", toolStore.currentTool);
-  console.log("Store error:", toolStore.error);
+  // Fetch tool detail
+  const toolSuccess = await toolStore.fetchToolById(toolId);
 
-  if (!success) {
-    console.error("Failed to fetch tool");
+  if (!toolSuccess) {
     toast.add({
       severity: "error",
       summary: "Error",
@@ -55,25 +80,213 @@ onMounted(async () => {
     });
     setTimeout(() => router.push({ name: "tool management" }), 1500);
   }
+
+  // Fetch units untuk tool ini
+  await fetchUnits();
 });
 
-// ── Helpers ───────────────────────────────────────────────────────────────
+// ── Unit Management Handlers ───────────────────────────────────────────────
 
-function storageUrl(path: string | null): string | null {
-  if (!path) return null;
-  if (path.startsWith("http") || path.startsWith("/storage")) return path;
-  return `/storage/${path}`;
+async function fetchUnits(page: number = 1) {
+  if (!tool.value?.id) return;
+
+  const success = await unitStore.fetchUnits({
+    tool_id: tool.value.id,
+    page,
+    per_page: unitsPerPage.value,
+  });
+
+  if (!success && unitStore.error) {
+    toast.add({
+      severity: "error",
+      summary: "Error",
+      detail: unitStore.error,
+      life: 3000,
+    });
+  }
 }
 
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-  }).format(value);
+function openCreateUnitModal() {
+  showUnitFormModal.value = true;
 }
 
-// ── Actions ───────────────────────────────────────────────────────────────
+async function handleUnitFormSubmit(payload: CreateToolUnitPayload) {
+  const quantity = payload.quantity ?? 1;
+  const conditionLabel =
+    payload.condition === "good"
+      ? "Baik"
+      : payload.condition === "broken"
+        ? "Rusak"
+        : "Maintenance";
+
+  confirm.require({
+    message: `Apakah Anda yakin ingin membuat ${quantity} unit baru dengan kondisi "${conditionLabel}"?`,
+    header: "Konfirmasi Buat Unit",
+    icon: "pi pi-exclamation-triangle",
+    accept: async () => {
+      const success = await unitStore.createUnit(payload);
+
+      if (success) {
+        toast.add({
+          severity: "success",
+          summary: "Berhasil",
+          detail: unitStore.successMessage,
+          life: 2000,
+        });
+        showUnitFormModal.value = false;
+        await fetchUnits();
+      } else {
+        toast.add({
+          severity: "error",
+          summary: "Error",
+          detail: unitStore.error,
+          life: 3000,
+        });
+      }
+    },
+  });
+}
+
+function handleDeleteUnit(unit: ToolUnit) {
+  // Check if unit has loans
+  if (unit.has_loans) {
+    toast.add({
+      severity: "error",
+      summary: "Gagal Menghapus",
+      detail:
+        "Unit tidak bisa dihapus karena masih memiliki history peminjaman",
+      life: 3000,
+    });
+    return;
+  }
+
+  confirm.require({
+    message: `Apakah Anda yakin ingin menghapus unit "${unit.code}"?`,
+    header: "Konfirmasi Hapus Unit",
+    icon: "pi pi-exclamation-triangle",
+    accept: async () => {
+      const success = await unitStore.deleteUnit(unit.code);
+
+      if (success) {
+        toast.add({
+          severity: "success",
+          summary: "Berhasil",
+          detail: unitStore.successMessage,
+          life: 2000,
+        });
+        await fetchUnits();
+      } else {
+        toast.add({
+          severity: "error",
+          summary: "Error",
+          detail: unitStore.error,
+          life: 3000,
+        });
+      }
+    },
+  });
+}
+
+function openDetailModal(unit: ToolUnit) {
+  selectedDetailUnit.value = unit;
+  showDetailModal.value = true;
+  handleLoadLoans(unit);
+  handleLoadConditionHistory();
+}
+
+async function handleLoadLoans(unit: ToolUnit) {
+  loansLoading.value = true;
+  try {
+    // TODO: Fetch loans untuk unit ini dari API
+    // Untuk saat ini, set empty array sebagai placeholder
+    selectedDetailUnitLoans.value = [];
+  } catch (err) {
+    console.error("Error loading loans:", err);
+    toast.add({
+      severity: "error",
+      summary: "Error",
+      detail: "Gagal memuat data peminjaman.",
+      life: 3000,
+    });
+  } finally {
+    loansLoading.value = false;
+  }
+}
+
+async function handleLoadConditionHistory() {
+  if (!selectedDetailUnit.value) return;
+
+  const success = await unitStore.fetchConditionHistory(
+    selectedDetailUnit.value.code,
+  );
+
+  if (!success && unitStore.error) {
+    toast.add({
+      severity: "error",
+      summary: "Error",
+      detail: unitStore.error,
+      life: 3000,
+    });
+  }
+}
+
+function openRecordConditionModal(unit: ToolUnit) {
+  selectedConditionUnit.value = unit;
+  showRecordConditionModal.value = true;
+  showDetailModal.value = false;
+}
+
+function handleRecordCondition(payload: RecordConditionPayload) {
+  if (!selectedConditionUnit.value) return;
+
+  const conditionLabel =
+    payload.condition === "good"
+      ? "Baik"
+      : payload.condition === "broken"
+        ? "Rusak"
+        : "Maintenance";
+
+  confirm.require({
+    message: `Apakah Anda yakin ingin mencatat kondisi "${conditionLabel}" untuk unit "${selectedConditionUnit.value.code}"?`,
+    header: "Konfirmasi Catat Kondisi",
+    icon: "pi pi-exclamation-triangle",
+    accept: async () => {
+      const success = await unitStore.recordCondition(
+        selectedConditionUnit.value!.code,
+        payload,
+      );
+
+      if (success) {
+        toast.add({
+          severity: "success",
+          summary: "Berhasil",
+          detail: "Kondisi unit berhasil dicatat.",
+          life: 2000,
+        });
+        showRecordConditionModal.value = false;
+
+        // Reload condition history jika detail modal masih terbuka
+        if (
+          selectedDetailUnit.value?.code === selectedConditionUnit.value.code
+        ) {
+          await handleLoadConditionHistory();
+        }
+
+        // Reload units list
+        await fetchUnits(unitsCurrentPage.value);
+      } else {
+        toast.add({
+          severity: "error",
+          summary: "Error",
+          detail: unitStore.error,
+          life: 3000,
+        });
+      }
+    },
+  });
+}
+
+// ── Tool Management Handlers ──────────────────────────────────────────────
 
 function goBack() {
   router.push({ name: "tool management" });
@@ -93,6 +306,7 @@ function confirmDelete() {
     if (tool.value.has_loans) reasons.push("masih memiliki peminjaman");
     if (tool.value.has_bundles)
       reasons.push("masih menjadi bagian dari bundle");
+
     toast.add({
       severity: "warn",
       summary: "Tidak Dapat Dihapus",
@@ -127,6 +341,22 @@ function confirmDelete() {
     },
   });
 }
+
+// ── Helpers ───────────────────────────────────────────────────────────────
+
+function storageUrl(path: string | null): string | null {
+  if (!path) return null;
+  if (path.startsWith("http") || path.startsWith("/storage")) return path;
+  return `/storage/${path}`;
+}
+
+function formatCurrency(value: number): string {
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+  }).format(value);
+}
 </script>
 
 <template>
@@ -156,17 +386,17 @@ function confirmDelete() {
         <!-- Photo -->
         <div class="lg:col-span-1">
           <div
-            class="rounded-xl overflow-hidden border border-surface-200 bg-surface-50"
+            class="rounded-xl overflow-hidden border border-surface-200 bg-surface-50 aspect-square"
           >
             <img
               v-if="storageUrl(tool.photo_path)"
               :src="storageUrl(tool.photo_path)!"
               :alt="tool.name"
-              class="w-full h-64 object-cover"
+              class="w-full h-full object-cover"
             />
             <div
               v-else
-              class="w-full h-64 flex items-center justify-center bg-surface-100"
+              class="w-full h-full flex items-center justify-center bg-surface-100"
             >
               <div class="text-center">
                 <i class="pi pi-image text-surface-400 text-4xl block mb-2" />
@@ -273,9 +503,9 @@ function confirmDelete() {
         </div>
       </div>
 
-      <!-- Units Info -->
+      <!-- Units Info Summary -->
       <Divider />
-      <div class="grid grid-cols-3 gap-4">
+      <div class="grid grid-cols-4 gap-4">
         <div class="border border-surface-200 rounded-lg p-4">
           <p
             class="text-xs text-surface-500 font-semibold uppercase tracking-wide"
@@ -302,6 +532,16 @@ function confirmDelete() {
           </p>
           <p class="text-3xl font-bold mt-2 text-orange-600">
             {{ tool.borrowed_units ?? 0 }}
+          </p>
+        </div>
+        <div class="border border-surface-200 rounded-lg p-4">
+          <p
+            class="text-xs text-surface-500 font-semibold uppercase tracking-wide"
+          >
+            Nonaktif
+          </p>
+          <p class="text-3xl font-bold mt-2 text-red-600">
+            {{ tool.nonactive_units ?? 0 }}
           </p>
         </div>
       </div>
@@ -361,7 +601,31 @@ function confirmDelete() {
         </div>
       </div>
 
-      <!-- Actions -->
+      <!-- Unit Management Section -->
+      <Divider />
+      <div class="space-y-4">
+        <ToolUnitsTable
+          :units="units"
+          :loading="unitsLoading"
+          :current-page="unitsCurrentPage"
+          :last-page="unitsLastPage"
+          :total="unitsTotal"
+          :per-page="unitsPerPage"
+          :tool-id="tool.id"
+          @create="openCreateUnitModal"
+          @delete="handleDeleteUnit"
+          @view-detail="openDetailModal"
+          @record-condition="
+            (unit) => {
+              selectedConditionUnit = unit;
+              showRecordConditionModal = true;
+            }
+          "
+          @page-change="(event) => fetchUnits(event.page)"
+        />
+      </div>
+
+      <!-- Tool Actions -->
       <Divider />
       <div class="flex gap-3 justify-end">
         <Button
@@ -393,4 +657,38 @@ function confirmDelete() {
       <p>Tool tidak ditemukan</p>
     </div>
   </div>
+
+  <!-- Unit Modals -->
+
+  <!-- Create/Edit Unit Modal -->
+  <ToolUnitFormModal
+    :visible="showUnitFormModal"
+    :tool-id="tool?.id"
+    :loading="unitsLoading"
+    @update:visible="showUnitFormModal = $event"
+    @submit="handleUnitFormSubmit"
+  />
+
+  <!-- Unit Detail & Condition History Modal -->
+  <UnitConditionHistoryModal
+    :visible="showDetailModal"
+    :unit="selectedDetailUnit"
+    :condition-history="unitStore.conditionHistory"
+    :loans="selectedDetailUnitLoans"
+    :loading="unitsLoading || loansLoading"
+    @update:visible="showDetailModal = $event"
+    @record-condition="
+      selectedDetailUnit && openRecordConditionModal(selectedDetailUnit)
+    "
+    @load-history="handleLoadConditionHistory"
+  />
+
+  <!-- Record Condition Modal -->
+  <RecordConditionModal
+    :visible="showRecordConditionModal"
+    :unit-code="selectedConditionUnit?.code"
+    :loading="unitsLoading"
+    @update:visible="showRecordConditionModal = $event"
+    @submit="handleRecordCondition"
+  />
 </template>

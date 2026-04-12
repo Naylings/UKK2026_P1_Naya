@@ -16,13 +16,13 @@ class StoreToolRequest extends FormRequest
     {
         if ($this->has('bundle_components') && is_string($this->bundle_components)) {
             $decoded = json_decode($this->bundle_components, true);
-    
+
             $this->merge([
                 'bundle_components' => is_array($decoded) ? $decoded : null,
             ]);
         }
     }
-    
+
     public function rules(): array
     {
         $isBundle = $this->input('item_type') === 'bundle';
@@ -37,15 +37,14 @@ class StoreToolRequest extends FormRequest
             'description'       => ['nullable', 'string', 'max:500'],
             'code_slug'         => ['required', 'string', 'max:15', 'unique:tools,code_slug'],
             'photo_path'        => ['nullable', 'string', 'max:255'],
+
+            // Bundle components (only if bundle)
             'bundle_components' => ['nullable', 'array', Rule::requiredIf($isBundle)],
             'bundle_components.*.name' => ['required_with:bundle_components', 'string', 'max:255'],
             'bundle_components.*.price' => ['required_with:bundle_components', 'numeric', 'min:0'],
             'bundle_components.*.qty' => ['required_with:bundle_components', 'integer', 'min:1'],
             'bundle_components.*.description' => ['nullable', 'string', 'max:500'],
             'bundle_components.*.photo_path' => ['nullable', 'string', 'max:255'],
-            'bundle_components.*.category_id' => ['nullable', 'integer', 'exists:categories,id'],
-            'bundle_components.*.min_credit_score' => ['nullable', 'integer', 'min:0', 'max:100'],
-            'bundle_components.*.code_slug' => ['nullable', 'string', 'max:15', 'distinct', 'unique:tools,code_slug'],
         ];
     }
 
@@ -91,15 +90,6 @@ class StoreToolRequest extends FormRequest
             'bundle_components.*.description.max' => 'Deskripsi tool komponen bundle tidak boleh lebih dari 500 karakter.',
             'bundle_components.*.photo_path.string' => 'Path foto tool komponen bundle harus berupa string.',
             'bundle_components.*.photo_path.max' => 'Path foto tool komponen bundle tidak boleh lebih dari 255 karakter.',
-            'bundle_components.*.category_id.integer' => 'Kategori tool komponen bundle harus berupa angka.',
-            'bundle_components.*.category_id.exists' => 'Kategori tool komponen bundle tidak valid.',
-            'bundle_components.*.min_credit_score.integer' => 'Skor kredit minimum tool komponen bundle harus berupa bilangan bulat.',
-            'bundle_components.*.min_credit_score.min' => 'Skor kredit minimum tool komponen bundle tidak boleh kurang dari 0.',
-            'bundle_components.*.min_credit_score.max' => 'Skor kredit minimum tool komponen bundle tidak boleh lebih dari 100.',
-            'bundle_components.*.code_slug.string' => 'Slug kode tool komponen bundle harus berupa string.',
-            'bundle_components.*.code_slug.max' => 'Slug kode tool komponen bundle tidak boleh lebih dari 15 karakter.',
-            'bundle_components.*.code_slug.distinct' => 'Slug kode tool komponen bundle tidak boleh duplikat.',
-            'bundle_components.*.code_slug.unique' => 'Slug kode tool komponen bundle sudah digunakan.',
         ];
     }
 }

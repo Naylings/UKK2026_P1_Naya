@@ -48,6 +48,9 @@ export interface Tool {
   // ─────────────────────────────────────────────────────────────────
   has_units: boolean;
   units_count: number;
+  available_units: number;
+  borrowed_units: number;
+  nonactive_units: number;
   has_loans: boolean;
   has_bundles: boolean;
   can_delete: boolean;
@@ -58,7 +61,10 @@ export interface Tool {
 // ─────────────────────────────────────────────
 
 // Tambahkan di tool.ts
-export interface CreateToolPayloadFormData extends Omit<CreateToolPayload, 'photo_path'> {
+export interface CreateToolPayloadFormData extends Omit<
+  CreateToolPayload,
+  "photo_path"
+> {
   photo?: File; // File upload instead of photo_path string
 }
 
@@ -71,9 +77,6 @@ export interface BundleComponentPayload {
   photo?: File; // Support file upload
   photo_path?: string | null; // Keep for backward compatibility
 }
-
-
-
 
 export interface CreateToolPayload {
   category_id: number;

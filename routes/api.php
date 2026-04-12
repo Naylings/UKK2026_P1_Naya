@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Category\CategoryController;
 use App\Http\Controllers\Tool\ToolController;
+use App\Http\Controllers\ToolUnit\ToolUnitController;
 use App\Http\Controllers\User\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -96,4 +97,30 @@ Route::prefix('tools')->middleware('auth:api')->group(function () {
     Route::get('/{tool}',           [ToolController::class, 'show']);
     Route::put('/{tool}',           [ToolController::class, 'update']);
     Route::delete('/{tool}',        [ToolController::class, 'destroy']);
+});
+
+/*
+|--------------------------------------------------------------------------
+| Tool Unit CRUD Routes
+|--------------------------------------------------------------------------
+|
+| prefix  : /api/tool-units
+| middleware: auth:api (JWT protected)
+|
+*/
+
+Route::prefix('tool-units')->middleware('auth:api')->group(function () {
+
+    // List & Create
+    Route::get('/',                         [ToolUnitController::class, 'index']);
+    Route::post('/',                        [ToolUnitController::class, 'store']);
+
+    // Show, Update, Delete
+    Route::get('/{code}',                   [ToolUnitController::class, 'show']);
+    Route::put('/{code}',                   [ToolUnitController::class, 'update']);
+    Route::delete('/{code}',                [ToolUnitController::class, 'destroy']);
+
+    // Record condition & history
+    Route::post('/{code}/record-condition', [ToolUnitController::class, 'recordCondition']);
+    Route::get('/{code}/history',           [ToolUnitController::class, 'conditionHistory']);
 });

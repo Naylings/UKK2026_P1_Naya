@@ -45,6 +45,9 @@ class ToolResource extends JsonResource
             // ─────────────────────────────────────────────────────────────────
             'has_units'         => $this->units()->exists(),
             'units_count'       => $this->units()->count(),
+            'available_units'   => $this->units()->where('status', 'available')->count(),
+            'borrowed_units'    => $this->units()->where('status', 'lent')->count(),
+            'nonactive_units'   => $this->units()->where('status', 'nonactive')->count(),
             'has_loans'         => $this->loans()->exists(),
             'has_bundles'       => $this->bundles()->exists(),
             'can_delete'        => !$this->units()->exists()
