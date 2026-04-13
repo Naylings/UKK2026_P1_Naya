@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { User } from "@/types/user";
-import { formatDate } from "@/utils/dateFormat";
+import { formatDate } from "@/utils/useFormatter";
 
 interface Props {
     visible: boolean;

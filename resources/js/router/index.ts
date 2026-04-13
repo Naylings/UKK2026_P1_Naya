@@ -55,7 +55,7 @@ const router = createRouter({
           path: "/tools/:id",
           name: "tool detail",
           component: () => import("@/pages/admin/tools/Detail.vue"),
-          meta: { title: "Detail Tool", roles: ["Admin"] },
+          meta: { title: "Detail Alat", roles: ["Admin"] },
         },
         {
           path: "/app-config",
@@ -63,6 +63,24 @@ const router = createRouter({
           component: () => import("@/pages/admin/AppConfig.vue"),
           meta: { title: "Konfigurasi Aplikasi", roles: ["Admin"] },
         },
+        {
+          path: "/tools/user",
+          name: "user tools",
+          component: () => import("@/pages/peminjam/tools/Index.vue"),
+          meta: { title: "Daftar Alat", roles: ["User"] },
+        },
+        {
+          path: "/tools/user/:id",
+          name: "user tool detail",
+          component: () => import("@/pages/peminjam/tools/Detail.vue"),
+          meta: { title: "Detail Alat", roles: ["User"] },
+        },
+        {
+          path: "/loan-request/:toolId",
+          name: "loan-request",
+          component: () => import("@/pages/peminjam/LoanRequest.vue"),
+          meta: { title: "Ajukan Peminjaman", roles: ["User"] },
+        }
       ],
     },
     {

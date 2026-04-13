@@ -1,42 +1,28 @@
 <script setup lang="ts">
-import { computed, onMounted } from "vue";
-import { useToolDetail } from "./composable/useToolDetail";
-import { useToolUnits } from "./composable/useToolUnits";
-import { useUnitUIState } from "./composable/useUnitUiState";
+import { onMounted } from "vue";
+import { useRouter } from "vue-router";
 import { useFormatter } from "@/utils/useFormatter";
+import { useToolDetail } from "@/pages/admin/tools/composable/useToolDetail";
+
+const router = useRouter();
 
 const { storageUrl, formatCurrency } = useFormatter();
-const { tool, loading, isBundle, canDelete, init, confirmDelete, goBack } =
-    useToolDetail();
 
-const {
-    units,
-    loading: unitsLoading,
-    currentPage: unitsCurrentPage,
-    lastPage: unitsLastPage,
-    total: unitsTotal,
-    perPage: unitsPerPage,
-    conditionHistory,
-    loadConditionHistory,
-    fetchUnits,
-    deleteUnit,
-    createUnit,
-    recordCondition,
-} = useToolUnits(computed(() => tool.value?.id));
+const { tool, loading, isBundle, init, goBack } = useToolDetail();
 
-const {
-    showUnitFormModal,
-    showDetailModal,
-    showRecordConditionModal,
-    selectedDetailUnit,
-    selectedConditionUnit,
-    openCreateModal,
-    openDetail,
-    openRecordCondition,
-} = useUnitUIState();
+function goToLoanRequest() {
+    if (!tool.value?.id) return;
+
+    router.push({
+        name: "loan-request",
+        params: {
+            toolId: tool.value.id,
+        },
+    });
+}
 
 onMounted(() => {
-    init(fetchUnits);
+    init();
 });
 </script>
 
@@ -309,25 +295,6 @@ onMounted(() => {
                 </div>
             </div>
 
-            <!-- Unit Management Section -->
-            <Divider />
-            <div class="space-y-4">
-                <ToolUnitsTable
-                    :units="units"
-                    :loading="unitsLoading"
-                    :current-page="unitsCurrentPage"
-                    :last-page="unitsLastPage"
-                    :total="unitsTotal"
-                    :per-page="unitsPerPage"
-                    :tool-id="tool.id"
-                    @create="openCreateModal"
-                    @delete="deleteUnit"
-                    @view-detail="openDetail"
-                    @record-condition="openRecordCondition"
-                    @page-change="(event) => fetchUnits(event.page)"
-                />
-            </div>
-
             <!-- Tool Actions -->
             <Divider />
             <div class="flex gap-3 justify-end">
@@ -337,6 +304,12 @@ onMounted(() => {
                     severity="secondary"
                     outlined
                     @click="goBack"
+                />
+                <Button
+                    label="Ajukan Peminjaman"
+                    icon="pi pi-send"
+                    severity="info"
+                    @click="goToLoanRequest"
                 />
             </div>
         </div>
@@ -349,42 +322,4 @@ onMounted(() => {
     </div>
 
     <!-- Unit Modals -->
-
-    <!-- Create/Edit Unit Modal -->
-    <ToolUnitFormModal
-        :visible="showUnitFormModal"
-        :tool-id="tool?.id"
-        :loading="unitsLoading"
-        @update:visible="showUnitFormModal = $event"
-        @submit="createUnit"
-    />
-
-    <!-- Unit Detail & Condition History Modal -->
-    <UnitConditionHistoryModal
-        :visible="showDetailModal"
-        :unit="selectedDetailUnit"
-        :condition-history="conditionHistory"
-        :loans="[]"
-        :loading="unitsLoading"
-        @update:visible="showDetailModal = $event"
-        @record-condition="
-            selectedDetailUnit && openRecordCondition(selectedDetailUnit)
-        "
-        @load-history="
-            selectedDetailUnit && loadConditionHistory(selectedDetailUnit.code)
-        "
-    />
-
-    <!-- Record Condition Modal -->
-    <RecordConditionModal
-        :visible="showRecordConditionModal"
-        :unit-code="selectedConditionUnit?.code"
-        :loading="unitsLoading"
-        @update:visible="showRecordConditionModal = $event"
-        @submit="
-            (payload) =>
-                selectedConditionUnit &&
-                recordCondition(selectedConditionUnit.code, payload)
-        "
-    />
 </template>

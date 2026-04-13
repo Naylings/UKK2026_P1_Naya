@@ -46,6 +46,7 @@ declare module 'vue' {
     UserDetail: typeof import('./components/dialogs/details/UserDetail.vue')['default']
     UserForm: typeof import('./components/dialogs/forms/UserForm.vue')['default']
     UsersTable: typeof import('./components/datatable/UsersTable.vue')['default']
+    UserToolsTable: typeof import('./components/datatable/UserToolsTable.vue')['default']
   }
   export interface ComponentCustomProperties {
     Tooltip: typeof import('primevue/tooltip')['default']

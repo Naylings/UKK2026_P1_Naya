@@ -135,8 +135,10 @@ Route::prefix('tool-units')->middleware('auth:api')->group(function () {
 | middleware: auth:api (JWT protected)
 |
 */
-
-Route::prefix('app-config')->middleware('auth:api')->group(function () {
+Route::prefix('app-config')->group(function () {
     Route::get('/', [AppConfigController::class, 'show']);
-    Route::put('/', [AppConfigController::class, 'update']);
+    Route::middleware('auth:api')->group(function () {
+        Route::put('/', [AppConfigController::class, 'update']);
+    });
+
 });

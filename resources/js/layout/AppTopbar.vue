@@ -8,7 +8,6 @@ import { useAppConfigStore } from "@/stores/appconfig";
 import { storeToRefs } from "pinia";
 
 const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
-
 const op = ref(null);
 const router = useRouter();
 const toast = useToast();
@@ -20,6 +19,14 @@ function userMenu(event) {
 
 const appConfigStore = useAppConfigStore();
 const { config } = storeToRefs(appConfigStore);        
+
+import { onMounted } from "vue";
+
+onMounted(() => {
+  if (!config.value) {
+    appConfigStore.fetchConfig();
+  }
+});
 
 async function handleLogout() {
     try {
