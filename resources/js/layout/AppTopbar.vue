@@ -4,6 +4,8 @@ import { ref } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import { useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
+import { useAppConfigStore } from "@/stores/appconfig";
+import { storeToRefs } from "pinia";
 
 const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
 
@@ -15,6 +17,9 @@ const authStore = useAuthStore();
 function userMenu(event) {
   op.value.toggle(event);
 }
+
+const appConfigStore = useAppConfigStore();
+const { config } = storeToRefs(appConfigStore);        
 
 async function handleLogout() {
     try {
@@ -79,7 +84,7 @@ async function handleLogout() {
           </g>
         </svg>
 
-        <span>Peminjaman</span>
+        <span>{{ config?.name ?? 'Peminjaman' }}</span>
       </router-link>
     </div>
 

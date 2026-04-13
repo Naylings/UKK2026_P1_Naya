@@ -57,6 +57,12 @@ const router = createRouter({
           component: () => import("@/pages/admin/tools/Detail.vue"),
           meta: { title: "Detail Tool", roles: ["Admin"] },
         },
+        {
+          path: "/app-config",
+          name: "app config",
+          component: () => import("@/pages/admin/AppConfig.vue"),
+          meta: { title: "Konfigurasi Aplikasi", roles: ["Admin"] },
+        },
       ],
     },
     {

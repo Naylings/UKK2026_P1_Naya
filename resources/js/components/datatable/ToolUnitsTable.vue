@@ -71,10 +71,6 @@ function onPageChange(event: any) {
   emit("page-change", { page: event.page + 1, rows: event.rows });
 }
 
-function onRowsPerPageChange(rows: number) {
-  emit("page-change", { page: currentPage, rows: rows });
-}
-
 function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleDateString("id-ID", {
     year: "numeric",
@@ -131,7 +127,6 @@ function handleViewDetail(unit: ToolUnit) {
       paginator
       :first="(currentPage - 1) * perPage"
       :rows="perPage"
-      :rowsPerPageOptions="[5, 10, 20, 50]"
       :totalRecords="total"
       :current-page-report-template="'Menampilkan {first} sampai {last} dari {totalRecords} unit'"
       current-page-report-position="left"
@@ -139,7 +134,6 @@ function handleViewDetail(unit: ToolUnit) {
       striped-rows
       class="text-sm"
       @page="onPageChange"
-      @update:rows="onRowsPerPageChange"
     >
       <!-- Kode Unit -->
       <Column field="code" header="Kode Unit" style="width: 12rem">

@@ -41,7 +41,11 @@ const model = ref<AppMenuLinkItem[]>([
                 icon: 'pi pi-fw pi-wrench',
                 to: '/tools'
             },
-            
+            {
+                label: 'Konfigurasi',
+                icon: 'pi pi-fw pi-cog',
+                to: '/app-config'
+            }
         ]
     },
 ]);

@@ -136,7 +136,7 @@ const conditionOptions = [
     :header="dialogTitle"
     modal
     :closable="!loading"
-    class="w-full sm:w-96"
+    class="w-full sm:w-116"
     @update:visible="handleClose"
   >
     <div class="space-y-4">
@@ -199,15 +199,6 @@ const conditionOptions = [
         </div>
       </div>
 
-      <!-- Info -->
-      <Message
-        severity="info"
-        icon="pi pi-info-circle"
-        class="text-xs w-full"
-        :closable="false"
-      >
-        Kode unit akan otomatis dibuat oleh sistem berdasarkan tool
-      </Message>
     </div>
 
     <!-- Footer -->

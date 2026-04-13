@@ -84,108 +84,97 @@ const conditionDescriptions: Record<string, string> = {
   broken: "Unit mengalami kerusakan dan tidak dapat digunakan",
   maintenance: "Unit sedang dalam pemeliharaan/perbaikan",
 };
+
+function getConditionIcon(val: string) {
+  if (val === 'good') return 'pi pi-check-circle';
+  if (val === 'broken') return 'pi pi-times-circle';
+  return 'pi pi-cog';
+}
+
+function getSeverityClass(val: string) {
+  if (val === 'good') return 'bg-green-50 border-green-200 text-green-700';
+  if (val === 'broken') return 'bg-red-50 border-red-200 text-red-700';
+  return 'bg-orange-50 border-orange-200 text-orange-700';
+}
 </script>
 
 <template>
   <Dialog
     :visible="visible"
-    header="Catat Kondisi Unit"
+    header="Update Kondisi Unit"
     modal
     :closable="!loading"
-    class="w-full sm:w-96"
+    class="w-full sm:w-112.5"
     @update:visible="handleClose"
     @show="onDialogShow"
   >
-    <div class="space-y-4">
-      <!-- Unit Code Info -->
-      <div
-        v-if="unitCode"
-        class="bg-blue-50 border border-blue-200 rounded-lg p-3"
-      >
-        <p class="text-xs text-blue-700 font-semibold">Unit</p>
-        <p class="text-lg font-mono font-bold text-blue-900 mt-1">
-          {{ unitCode }}
-        </p>
+    <div class="flex flex-col gap-6 py-2">
+      <div v-if="unitCode" class="flex items-center justify-between bg-surface-50 dark:bg-surface-900 p-4 rounded-xl border border-surface-200 dark:border-surface-700">
+        <div>
+          <p class="text-xs text-surface-500 font-medium uppercase tracking-wider">Unit Code</p>
+          <p class="text-xl font-mono font-bold text-primary leading-none mt-1">{{ unitCode }}</p>
+        </div>
+        <i class="pi pi-box text-3xl text-surface-300"></i>
       </div>
 
-      <!-- Kondisi (Required) -->
-      <div class="field">
-        <label for="condition" class="text-sm font-semibold block mb-2">
-          Kondisi Unit
-          <span class="text-red-500">*</span>
+      <div class="flex flex-col gap-3">
+        <label class="text-sm font-bold flex items-center gap-1">
+          Pilih Kondisi Baru <span class="text-red-500">*</span>
         </label>
-        <Select
-          id="condition"
+        <SelectButton
           v-model="condition"
           :options="conditionOptions"
           option-label="label"
           option-value="value"
+          aria-labelledby="basic"
           :disabled="loading"
           class="w-full"
-        />
-        <div v-if="errors.condition" class="text-red-500 text-xs mt-1">
-          {{ errors.condition }}
-        </div>
-        <p v-if="condition" class="text-xs text-surface-500 mt-2">
-          {{ conditionDescriptions[condition] }}
-        </p>
+        >
+          <template #option="slotProps">
+            <div class="flex flex-col items-center gap-1 px-2 py-1">
+              <i :class="getConditionIcon(slotProps.option.value)" class="text-lg"></i>
+              <span class="text-xs font-semibold">{{ slotProps.option.label }}</span>
+            </div>
+          </template>
+        </SelectButton>
+        
+        <transition name="p-connected-overlay">
+          <div v-if="condition" :class="getSeverityClass(condition)" class="p-3 rounded-lg text-xs border">
+             <i class="pi pi-info-circle mr-2"></i> {{ conditionDescriptions[condition] }}
+          </div>
+        </transition>
       </div>
 
-      <!-- Notes -->
-      <div class="field">
-        <label for="condition-notes" class="text-sm font-semibold block mb-2">
-          Catatan Kondisi (Opsional)
-        </label>
+      <div class="flex flex-col gap-2">
+        <label for="condition-notes" class="text-sm font-bold">Detail Catatan</label>
         <Textarea
           id="condition-notes"
           v-model="notes"
-          placeholder="Jelaskan detail kondisi (barang lecet, baterai habis, dll)"
-          :disabled="false"
-          rows="4"
-          maxlength="1000"
+          placeholder="Contoh: Body lecet, layar berkedip, atau butuh kalibrasi..."
+          :disabled="loading"
+          rows="3"
+          auto-resize
           class="w-full"
         />
-        <div class="text-xs text-surface-500 mt-1">
-          {{ notes.length }}/1000 karakter
+        <div class="flex justify-between text-[10px] uppercase font-bold text-surface-400 mt-1">
+          <span>Riwayat akan tersimpan otomatis</span>
+          <span :class="{'text-red-500': notes.length > 900}">{{ notes.length }} / 1000</span>
         </div>
-        <Message
-          severity="info"
-          icon="pi pi-info-circle"
-          class="text-xs w-full mt-2"
-          :closable="false"
-        >
-          Jelaskan detail kondisi/kerusakan pada unit ini
-        </Message>
       </div>
-
-      <!-- Info Message -->
-      <Message
-        severity="info"
-        icon="pi pi-info-circle"
-        class="text-xs w-full"
-        :closable="false"
-      >
-        Catatan kondisi ini akan menjadi riwayat unit dan dapat dilihat di tab
-        riwayat
-      </Message>
     </div>
 
-    <!-- Footer -->
     <template #footer>
-      <Button
-        label="Batal"
-        icon="pi pi-times"
-        text
-        :disabled="loading"
-        @click="handleClose"
-      />
-      <Button
-        label="Catat Kondisi"
-        icon="pi pi-check"
-        :loading="loading"
-        :disabled="!isFormValid || loading"
-        @click="handleSubmit"
-      />
+      <div class="flex gap-2 w-full">
+        <Button label="Batal" severity="secondary" text class="flex-1" :disabled="loading" @click="handleClose" />
+        <Button 
+          label="Simpan Perubahan" 
+          icon="pi pi-save" 
+          class="flex-1" 
+          :loading="loading" 
+          :disabled="!isFormValid || loading" 
+          @click="handleSubmit" 
+        />
+      </div>
     </template>
   </Dialog>
 </template>

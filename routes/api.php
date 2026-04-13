@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AppConfig\AppConfigController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Category\CategoryController;
 use App\Http\Controllers\Tool\ToolController;
@@ -123,4 +124,19 @@ Route::prefix('tool-units')->middleware('auth:api')->group(function () {
     // Record condition & history
     Route::post('/{code}/record-condition', [ToolUnitController::class, 'recordCondition']);
     Route::get('/{code}/history',           [ToolUnitController::class, 'conditionHistory']);
+});
+
+/*
+|--------------------------------------------------------------------------
+| App Config Routes
+|--------------------------------------------------------------------------
+|
+| prefix  : /api/app-config
+| middleware: auth:api (JWT protected)
+|
+*/
+
+Route::prefix('app-config')->middleware('auth:api')->group(function () {
+    Route::get('/', [AppConfigController::class, 'show']);
+    Route::put('/', [AppConfigController::class, 'update']);
 });
