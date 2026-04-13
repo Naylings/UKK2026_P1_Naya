@@ -37,6 +37,7 @@ class StoreToolRequest extends FormRequest
             'description'       => ['nullable', 'string', 'max:500'],
             'code_slug'         => ['required', 'string', 'max:15', 'unique:tools,code_slug'],
             'photo_path'        => ['nullable', 'string', 'max:255'],
+            'photo'             => ['nullable', 'file', 'image', 'max:2048'],
 
             // Bundle components (only if bundle)
             'bundle_components' => ['nullable', 'array', Rule::requiredIf($isBundle)],
@@ -75,6 +76,9 @@ class StoreToolRequest extends FormRequest
             'code_slug.unique' => 'Alat dengan slug kode tersebut sudah ada.',
             'photo_path.string' => 'Path foto harus berupa string.',
             'photo_path.max' => 'Path foto tidak boleh lebih dari 255 karakter.',
+            'photo.file' => 'Foto harus berupa file yang valid.',
+            'photo.image' => 'Foto harus berupa gambar.',
+            'photo.max' => 'Ukuran foto maksimal 2MB.',
             'bundle_components.required' => 'Komponen bundle wajib diisi untuk item bertipe bundle.',
             'bundle_components.array' => 'Komponen bundle harus berupa daftar.',
             'bundle_components.*.name.required_with' => 'Nama tool komponen bundle wajib diisi.',

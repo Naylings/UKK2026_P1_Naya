@@ -6,7 +6,7 @@
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
 import { toolService } from "@/services/toolService";
-import type { Tool, UpdateToolPayload } from "@/types/tool";
+import type { Tool } from "@/types/tool";
 
 export const useToolStore = defineStore("tool", () => {
   // ── State ──────────────────────────────────────────────────────────────
@@ -98,7 +98,7 @@ export const useToolStore = defineStore("tool", () => {
 
   async function updateTool(
     id: number,
-    payload: UpdateToolPayload,
+    payload: FormData,
   ): Promise<boolean> {
     loading.value = true;
     error.value = null;

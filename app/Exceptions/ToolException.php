@@ -80,4 +80,13 @@ class ToolException extends ApiException
             'TOOL_INVALID_BUNDLE_COMPONENT',
         );
     }
+
+    public static function invalidPhotoUpload(string $reason = ''): self
+    {
+        return new self(
+            'Upload foto alat gagal' . ($reason ? ': ' . $reason : '.'),
+            422,
+            'TOOL_INVALID_PHOTO_UPLOAD',
+        );
+    }
 }

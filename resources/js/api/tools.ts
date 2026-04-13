@@ -3,12 +3,7 @@
 // Pure HTTP calls untuk tool management — tidak ada side effect
 // ─────────────────────────────────────────────
 
-import type {
-  PaginatedToolsResponse,
-  Tool,
-  ToolResponse,
-  UpdateToolPayload,
-} from "@/types/tool";
+import type { PaginatedToolsResponse, Tool, ToolResponse } from "@/types/tool";
 import apiClient from "./client";
 import type { ApiMessageResponse, LaravelApiResponse } from "@/types/auth";
 
@@ -55,11 +50,18 @@ export const toolsApi = {
    */
   update: async (
     id: number,
-    payload: UpdateToolPayload,
+    payload: FormData,
   ): Promise<LaravelApiResponse<Tool>> => {
-    const res = await apiClient.put<LaravelApiResponse<Tool>>(
+    payload.append("_method", "PUT");
+
+    const res = await apiClient.post<LaravelApiResponse<Tool>>(
       `/tools/${id}`,
       payload,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      },
     );
     return res.data;
   },

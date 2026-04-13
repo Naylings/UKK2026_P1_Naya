@@ -5,11 +5,7 @@
 
 import { AxiosError } from "axios";
 import { toolsApi } from "@/api/tools";
-import type {
-  Tool,
-  UpdateToolPayload,
-  PaginatedToolsResponse,
-} from "@/types/tool";
+import type { Tool, PaginatedToolsResponse } from "@/types/tool";
 import type { ApiErrorResponse } from "@/types/auth";
 
 interface ToolMutationResult {
@@ -102,7 +98,7 @@ export const toolService = {
    */
   async update(
     id: number,
-    payload: UpdateToolPayload,
+    payload: FormData,
   ): Promise<ToolMutationResult> {
     try {
       const response = await toolsApi.update(id, payload);

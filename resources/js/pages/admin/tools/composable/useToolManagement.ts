@@ -6,12 +6,7 @@ import { ref, computed } from "vue";
 import { useToolStore } from "@/stores/tool";
 import { useToast } from "primevue/usetoast";
 import { useConfirm } from "primevue/useconfirm";
-import type {
-  Tool,
-  UpdateToolPayload,
-  BundleComponentPayload,
-  ItemType,
-} from "@/types/tool";
+import type { Tool, BundleComponentPayload, ItemType } from "@/types/tool";
 
 export interface ToolFormData {
   name: string | null;
@@ -60,9 +55,7 @@ export function useToolManagement() {
   const photoFile = ref<File | null>(null);
   const photoPreview = ref<string | null>(null);
 
-  function handlePhotoSelected(event: Event) {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0] ?? null;
+  function handlePhotoSelected(file: File | null) {
     photoFile.value = file;
     photoPreview.value = file ? URL.createObjectURL(file) : null;
   }
@@ -245,7 +238,7 @@ export function useToolManagement() {
     form.value.bundle_components?.splice(index, 1);
   }
 
-  function buildFormData(): FormData {
+  function buildFormData(isUpdate = false): FormData {
     const fd = new FormData();
     fd.append("name", form.value.name!);
     fd.append("category_id", String(form.value.category_id!));
@@ -256,6 +249,9 @@ export function useToolManagement() {
     if (form.value.description)
       fd.append("description", form.value.description);
     if (photoFile.value) fd.append("photo", photoFile.value);
+    if (isUpdate && !photoFile.value && form.value.photo_path) {
+      fd.append("photo_path", form.value.photo_path);
+    }
     if (form.value.bundle_components?.length) {
       fd.append(
         "bundle_components",
@@ -316,18 +312,7 @@ export function useToolManagement() {
         let success: boolean;
 
         if (isEditMode.value && selectedTool.value) {
-          const payload: UpdateToolPayload = {
-            id: selectedTool.value.id,
-            category_id: form.value.category_id ?? undefined,
-            name: form.value.name ?? undefined,
-            item_type: form.value.item_type ?? undefined,
-            price: form.value.price ?? undefined,
-            min_credit_score: form.value.min_credit_score ?? undefined,
-            description: form.value.description,
-            code_slug: form.value.code_slug ?? undefined,
-            photo_path: form.value.photo_path,
-            bundle_components: form.value.bundle_components,
-          };
+          const payload = buildFormData(true);
           success = await toolStore.updateTool(selectedTool.value.id, payload);
         } else {
           success = await toolStore.createTool(buildFormData());

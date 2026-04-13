@@ -52,7 +52,11 @@ class ToolController extends Controller
 
     public function update(UpdateToolRequest $request, Tool $tool)
     {
-        $tool = $this->toolService->updateTool($tool, $request->validated());
+        $tool = $this->toolService->updateTool(
+            $tool,
+            $request->validated(),
+            $request->file('photo')
+        );
 
         return (new ToolResource($tool))
             ->additional([

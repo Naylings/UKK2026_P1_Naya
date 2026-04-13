@@ -10,6 +10,35 @@ use Illuminate\Support\Str;
 
 class ToolManagementService
 {
+    private function storePhotoOrFail(?UploadedFile $photoFile): ?string
+    {
+        if (!$photoFile) {
+            return null;
+        }
+
+        if (!$photoFile->isValid()) {
+            throw ToolException::invalidPhotoUpload($this->mapUploadError($photoFile->getError()));
+        }
+
+        if (!$photoFile->getRealPath()) {
+            throw ToolException::invalidPhotoUpload('file temporary upload tidak ditemukan');
+        }
+
+        return $photoFile->store('tools', 'public');
+    }
+
+    private function mapUploadError(int $errorCode): string
+    {
+        return match ($errorCode) {
+            UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE => 'ukuran file melebihi batas upload server',
+            UPLOAD_ERR_PARTIAL => 'file hanya terupload sebagian',
+            UPLOAD_ERR_NO_FILE => 'file tidak ditemukan pada request',
+            UPLOAD_ERR_NO_TMP_DIR => 'folder temporary upload di server tidak tersedia',
+            UPLOAD_ERR_CANT_WRITE => 'server gagal menulis file upload',
+            UPLOAD_ERR_EXTENSION => 'upload dihentikan oleh extension PHP',
+            default => 'file upload tidak valid',
+        };
+    }
     // ─────────────────────────────────────────────────────────────────────────
     // Code Slug Prefix Rules
     //
@@ -74,10 +103,7 @@ class ToolManagementService
         try {
             $tool = DB::transaction(function () use ($data, $photoFile) {
                 // Handle foto upload
-                $photoPath = null;
-                if ($photoFile) {
-                    $photoPath = $photoFile->store('tools', 'public');
-                }
+                $photoPath = $this->storePhotoOrFail($photoFile);
                 $photoPath = $photoPath ?? ($data['photo_path'] ?? 'tools/placeholder-tool.png');
 
                 // Terapkan prefix sesuai item_type
@@ -92,10 +118,9 @@ class ToolManagementService
                     'item_type'        => $data['item_type'],
                     'price'            => $data['price'],
                     'min_credit_score' => $data['min_credit_score'],
-                    'description'      => $data['description'] ?? null,
+                    'description'      => $data['description'] ?? '-',
                     'code_slug'        => $codeSlug,
                     'photo_path'       => $photoPath,
-                    // FIX: $timestamps = false sehingga created_at wajib diisi manual
                     'created_at'       => now(),
                 ]);
 
@@ -105,16 +130,23 @@ class ToolManagementService
             });
 
             return $tool->load(['category', 'bundleComponents.tool']);
+        } catch (ToolException $e) {
+            throw $e;
         } catch (\Exception $e) {
             throw ToolException::createFailed($e->getMessage());
         }
     }
 
-    public function updateTool(Tool $tool, array $data): Tool
+    public function updateTool(Tool $tool, array $data, ?UploadedFile $photoFile = null): Tool
     {
         try {
-            DB::transaction(function () use ($tool, $data) {
+            DB::transaction(function () use ($tool, $data, $photoFile) {
                 $finalItemType = $data['item_type'] ?? $tool->item_type;
+                $photoPath = $tool->photo_path;
+
+                if ($photoFile) {
+                    $photoPath = $this->storePhotoOrFail($photoFile);
+                }
 
                 $codeSlug = $this->applyCodeSlugPrefix(
                     $data['code_slug'] ?? $tool->code_slug,
@@ -129,7 +161,7 @@ class ToolManagementService
                     'min_credit_score' => $data['min_credit_score'] ?? null,
                     'description'      => $data['description'] ?? null,
                     'code_slug'        => $codeSlug,
-                    'photo_path'       => $data['photo_path'] ?? null,
+                    'photo_path'       => $photoPath,
                 ], fn($v) => $v !== null));
 
                 $shouldSyncComponents =
@@ -200,7 +232,6 @@ class ToolManagementService
                         $index + 1
                     ),
                     'photo_path'       => $component['photo_path'] ?? 'tools/placeholder-tool.png',
-                    // FIX: created_at wajib diisi manual
                     'created_at'       => now(),
                 ]);
 
