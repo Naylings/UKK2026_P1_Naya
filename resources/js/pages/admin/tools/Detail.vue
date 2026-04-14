@@ -2,8 +2,8 @@
 import { computed, onMounted } from "vue";
 import { useToolDetail } from "./composable/useToolDetail";
 import { useToolUnits } from "./composable/useToolUnits";
-import { useUnitUIState } from "./composable/useUnitUiState";
 import { useFormatter } from "@/utils/useFormatter";
+import { useUnitUIState } from "./composable/useUnitUIState";
 
 const { storageUrl, formatCurrency } = useFormatter();
 const { tool, loading, isBundle, canDelete, init, confirmDelete, goBack } =
@@ -24,6 +24,8 @@ const {
     recordCondition,
 } = useToolUnits(computed(() => tool.value?.id));
 
+import { watch } from "vue";
+
 const {
     showUnitFormModal,
     showDetailModal,
@@ -38,6 +40,35 @@ const {
 onMounted(() => {
     init(fetchUnits);
 });
+
+// Auto-fetch unit condition history when detail modal opens
+watch(showDetailModal, async (newVal) => {
+    if (newVal && selectedDetailUnit.value) {
+        await loadConditionHistory(selectedDetailUnit.value.code);
+    }
+});
+
+
+async function handleRecordCondition(payload: any) {
+    if (!selectedConditionUnit.value) return;
+
+    const success = await recordCondition(
+        selectedConditionUnit.value.code,
+        payload
+    );
+
+    if (success) {
+        showRecordConditionModal.value = false; 
+    }
+}
+
+async function handleCreateUnit(payload: any) {
+    const success = await createUnit(payload);
+
+    if (success) {
+        showUnitFormModal.value = false; 
+    }
+}
 </script>
 
 <template>
@@ -356,7 +387,7 @@ onMounted(() => {
         :tool-id="tool?.id"
         :loading="unitsLoading"
         @update:visible="showUnitFormModal = $event"
-        @submit="createUnit"
+        @submit="handleCreateUnit"
     />
 
     <!-- Unit Detail & Condition History Modal -->
@@ -373,6 +404,7 @@ onMounted(() => {
         @load-history="
             selectedDetailUnit && loadConditionHistory(selectedDetailUnit.code)
         "
+        :mode="'admin'" 
     />
 
     <!-- Record Condition Modal -->
@@ -381,10 +413,6 @@ onMounted(() => {
         :unit-code="selectedConditionUnit?.code"
         :loading="unitsLoading"
         @update:visible="showRecordConditionModal = $event"
-        @submit="
-            (payload) =>
-                selectedConditionUnit &&
-                recordCondition(selectedConditionUnit.code, payload)
-        "
+        @submit="handleRecordCondition"
     />
 </template>

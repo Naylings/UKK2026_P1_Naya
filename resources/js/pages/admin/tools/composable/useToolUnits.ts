@@ -40,16 +40,28 @@ export function useToolUnits(toolIdRef: any) {
         }
     }
 
-    function createUnit(payload: CreateToolUnitPayload) {
-        confirm.require({
-            message: "Yakin buat unit?",
-            accept: async () => {
-                const success = await unitStore.createUnit(payload);
-                if (success) {
-                    toast.add({ severity: "success", summary: "Berhasil" });
-                    await fetchUnits();
-                }
-            },
+    async function createUnit(
+        payload: CreateToolUnitPayload,
+    ): Promise<boolean> {
+        return new Promise((resolve) => {
+            confirm.require({
+                message: "Yakin buat unit?",
+                header: "Konfirmasi",
+                icon: "pi pi-exclamation-triangle",
+                acceptLabel: "Ya",
+                rejectLabel: "Batal",
+                accept: async () => {
+                    const success = await unitStore.createUnit(payload);
+                    if (success) {
+                        toast.add({ severity: "success", summary: "Berhasil" });
+                        await fetchUnits();
+                        resolve(true);
+                    } else {
+                        resolve(false);
+                    }
+                },
+                reject: () => resolve(false),
+            });
         });
     }
 
@@ -65,6 +77,10 @@ export function useToolUnits(toolIdRef: any) {
 
         confirm.require({
             message: `Hapus unit ${unit.code}?`,
+            header: "Konfirmasi Hapus",
+            icon: "pi pi-exclamation-triangle",
+            acceptLabel: "Hapus",
+            rejectLabel: "Batal",
             accept: async () => {
                 const success = await unitStore.deleteUnit(unit.code);
                 if (success) await fetchUnits();
@@ -86,7 +102,7 @@ export function useToolUnits(toolIdRef: any) {
     async function recordCondition(
         code: string,
         payload: RecordConditionPayload,
-    ) {
+    ): Promise<boolean> {
         const success = await unitStore.recordCondition(code, payload);
 
         if (!success) {
@@ -95,7 +111,18 @@ export function useToolUnits(toolIdRef: any) {
                 summary: "Error",
                 detail: unitStore.error,
             });
+            return false;
         }
+
+        toast.add({
+            severity: "success",
+            summary: "Berhasil",
+            detail: "Kondisi berhasil dicatat",
+        });
+
+        await fetchUnits();
+
+        return true;
     }
 
     return {

@@ -4,9 +4,11 @@ namespace App\Http\Controllers\ToolUnit;
 
 use App\Exceptions\ToolUnitException;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ToolUnit\AvailableUnitRequest;
 use App\Http\Requests\ToolUnit\RecordConditionRequest;
 use App\Http\Requests\ToolUnit\StoreToolUnitRequest;
 use App\Http\Requests\ToolUnit\UpdateToolUnitRequest;
+use App\Http\Resources\ToolUnit\AvailableUnitResource;
 use App\Http\Resources\ToolUnit\ToolUnitResource;
 use App\Http\Resources\ToolUnit\UnitConditionResource;
 use App\Services\ToolUnitService;
@@ -88,13 +90,18 @@ class ToolUnitController extends Controller
                     ->setStatusCode(201);
             }
 
-            // Bulk create
-            $units = $this->unitService->createBulkUnits(
-                $data['tool_id'],
-                $quantity,
-                $data['notes'] ?? '',
-                $data['condition'] ?? 'good',
-            );
+            $units = [];
+
+            for ($i = 0; $i < $quantity; $i++) {
+                $created = $this->unitService->createUnit(
+                    $data['tool_id'],
+                    1,
+                    $data['notes'] ?? '',
+                    $data['condition'] ?? 'good',
+                );
+
+                $units[] = $created[0];
+            }
 
             return response()->json([
                 'data'    => ToolUnitResource::collection($units),
@@ -219,6 +226,33 @@ class ToolUnitController extends Controller
             return response()->json(
                 ['message' => $e->getMessage()],
                 $e->getCode() ?: 404
+            );
+        } catch (\Exception $e) {
+            return response()->json(
+                ['message' => 'Error: ' . $e->getMessage()],
+                500
+            );
+        }
+    }
+
+
+    public function availableUnits(AvailableUnitRequest $request)
+    {
+        try {
+            $data = $request->validated();
+
+            $units = $this->unitService->getAvailableUnits(
+                $data['tool_id'],
+                $data['loan_date'],
+                $data['due_date']
+            );
+
+            return AvailableUnitResource::collection($units)
+                ->additional(['message' => 'Berhasil mengambil unit tersedia']);
+        } catch (ToolUnitException $e) {
+            return response()->json(
+                ['message' => $e->getMessage()],
+                $e->getCode() ?: 422
             );
         } catch (\Exception $e) {
             return response()->json(

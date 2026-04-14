@@ -7,17 +7,21 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    Badge: typeof import('primevue/badge')['default']
     BundleComponentForm: typeof import('./components/dialogs/forms/BundleComponentForm.vue')['default']
     BundleComponentTable: typeof import('./components/datatable/BundleComponentTable.vue')['default']
     Button: typeof import('primevue/button')['default']
+    Calendar: typeof import('primevue/calendar')['default']
     CategoriesTable: typeof import('./components/datatable/CategoriesTable.vue')['default']
     CategoryForm: typeof import('./components/dialogs/forms/CategoryForm.vue')['default']
     Column: typeof import('primevue/column')['default']
     ConfirmDialog: typeof import('primevue/confirmdialog')['default']
     DataTable: typeof import('primevue/datatable')['default']
+    Datepicker: typeof import('primevue/datepicker')['default']
     DatePicker: typeof import('primevue/datepicker')['default']
     Dialog: typeof import('primevue/dialog')['default']
     Divider: typeof import('primevue/divider')['default']
+    Dropdown: typeof import('primevue/dropdown')['default']
     FileUpload: typeof import('primevue/fileupload')['default']
     InputGroup: typeof import('primevue/inputgroup')['default']
     InputGroupAddon: typeof import('primevue/inputgroupaddon')['default']
@@ -43,6 +47,7 @@ declare module 'vue' {
     UpdateCredit: typeof import('./components/dialogs/forms/UpdateCredit.vue')['default']
     UserDetail: typeof import('./components/dialogs/details/UserDetail.vue')['default']
     UserForm: typeof import('./components/dialogs/forms/UserForm.vue')['default']
+    UsersLoanTable: typeof import('./components/datatable/UsersLoanTable.vue')['default']
     UsersTable: typeof import('./components/datatable/UsersTable.vue')['default']
     UserToolsTable: typeof import('./components/datatable/UserToolsTable.vue')['default']
   }

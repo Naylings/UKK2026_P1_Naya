@@ -6,6 +6,7 @@ use App\Http\Controllers\Category\CategoryController;
 use App\Http\Controllers\Tool\ToolController;
 use App\Http\Controllers\ToolUnit\ToolUnitController;
 use App\Http\Controllers\User\UserController;
+use App\Http\Controllers\Loan\LoanController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -116,6 +117,9 @@ Route::prefix('tool-units')->middleware('auth:api')->group(function () {
     Route::get('/',                         [ToolUnitController::class, 'index']);
     Route::post('/',                        [ToolUnitController::class, 'store']);
 
+    // Available units for loan (peminjam access)
+    Route::get('/available',                [ToolUnitController::class, 'availableUnits']);
+
     // Show, Update, Delete
     Route::get('/{code}',                   [ToolUnitController::class, 'show']);
     Route::put('/{code}',                   [ToolUnitController::class, 'update']);
@@ -141,4 +145,18 @@ Route::prefix('app-config')->group(function () {
         Route::put('/', [AppConfigController::class, 'update']);
     });
 
+});
+/*
+|--------------------------------------------------------------------------
+| Loans Routes
+|--------------------------------------------------------------------------
+|
+| prefix  : /api/loans
+| middleware: auth:api (JWT protected)
+|
+*/
+Route::prefix('loans')->group(function () {
+    Route::post('/', [LoanController::class, 'store']);
+    Route::get('/', [LoanController::class, 'index']);
+    Route::get('/my', [LoanController::class, 'userLoans']);
 });

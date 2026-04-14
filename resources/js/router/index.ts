@@ -78,8 +78,14 @@ const router = createRouter({
         {
           path: "/loan-request/:toolId",
           name: "loan-request",
-          component: () => import("@/pages/peminjam/LoanRequest.vue"),
+          component: () => import("@/pages/peminjam/loan/Request.vue"),
           meta: { title: "Ajukan Peminjaman", roles: ["User"] },
+        },
+        {
+          path: "/loans",
+          name: "peminjam-loans",
+          component: () => import("@/pages/peminjam/loan/Index.vue"),
+          meta: { title: "Riwayat Peminjaman", roles: ["User"] },
         }
       ],
     },

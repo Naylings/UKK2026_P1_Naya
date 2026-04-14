@@ -39,7 +39,7 @@ class ToolUnitService
      */
     private function getStatusFromCondition(string $condition): string
     {
-        return match($condition) {
+        return match ($condition) {
             'good' => 'available',
             'broken' => 'nonactive',
             'maintenance' => 'nonactive',
@@ -52,7 +52,7 @@ class ToolUnitService
      */
     private function getDefaultNotes(string $condition): string
     {
-        return match($condition) {
+        return match ($condition) {
             'good' => 'Unit dalam kondisi baik, siap digunakan',
             'broken' => 'Unit mengalami kerusakan dan tidak dapat digunakan',
             'maintenance' => 'Unit sedang dalam pemeliharaan/perbaikan',
@@ -332,5 +332,38 @@ class ToolUnitService
             ->orderBy('loan_date', 'desc')
             ->get()
             ->toArray();
+    }
+
+    public function getAvailableUnits(int $toolId, string $loanDateStr, string $dueDateStr)
+    {
+        try {
+            $loanDate = \Carbon\Carbon::parse($loanDateStr);
+            $dueDate  = \Carbon\Carbon::parse($dueDateStr);
+
+            $units = ToolUnit::with(['latestCondition', 'tool'])
+                ->where('tool_id', $toolId)
+                ->whereIn('status', ['available', 'lent'])
+                ->whereDoesntHave('loans', function ($query) use ($loanDate, $dueDate) {
+                    $query->whereIn('status', ['active', 'pending'])
+                        ->where(function ($q) use ($loanDate, $dueDate) {
+                            $q->where('loan_date', '<=', $dueDate)
+                                ->where('due_date', '>=', $loanDate);
+                        });
+                })
+                ->get()
+                ->map(function ($unit) use ($loanDate, $dueDate) {
+                    $unit->availability_reason =
+                        'Tersedia untuk periode ' .
+                        $loanDate->format('d/m') . ' - ' .
+                        $dueDate->format('d/m');
+                    $unit->is_available_for_period = true;
+
+                    return $unit;
+                });
+
+            return $units;
+        } catch (\Exception $e) {
+            throw ToolUnitException::fetchAvailableFailed($e->getMessage());
+        }
     }
 }

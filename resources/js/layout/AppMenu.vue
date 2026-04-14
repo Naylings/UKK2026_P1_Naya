@@ -50,6 +50,11 @@ const model = ref<AppMenuLinkItem[]>([
                 label: 'Daftar Alat',
                 icon: 'pi pi-fw pi-wrench',
                 to: '/tools/user'
+            },
+            {
+                label: 'Peminjaman',
+                icon: 'pi pi-fw pi-list',
+                to: '/loans'
             }
         ]
     },

@@ -11,10 +11,10 @@ export type ConditionType = "good" | "broken" | "maintenance";
 // ─────────────────────────────────────────────
 
 export interface UnitTool {
-  id: number;
-  name: string;
-  code_slug: string;
-  item_type: string;
+    id: number;
+    name: string;
+    code_slug: string;
+    item_type: string;
 }
 
 // ─────────────────────────────────────────────
@@ -22,12 +22,12 @@ export interface UnitTool {
 // ─────────────────────────────────────────────
 
 export interface UnitCondition {
-  id: string;
-  unit_code: string;
-  return_id: number | null;
-  conditions: ConditionType;
-  notes: string;
-  recorded_at: string;
+    id: string;
+    unit_code: string;
+    return_id: number | null;
+    conditions: ConditionType;
+    notes: string;
+    recorded_at: string;
 }
 
 // ─────────────────────────────────────────────
@@ -35,21 +35,21 @@ export interface UnitCondition {
 // ─────────────────────────────────────────────
 
 export interface ToolUnit {
-  code: string;
-  tool_id: number;
-  tool?: UnitTool;
-  status: UnitStatus;
-  notes: string | null;
-  created_at: string;
+    code: string;
+    tool_id: number;
+    tool?: UnitTool;
+    status: UnitStatus;
+    notes: string | null;
+    created_at: string;
 
-  // ─────────────────────────────────────────────────────────────────
-  // Metadata untuk UI decision making
-  // ─────────────────────────────────────────────────────────────────
-  latest_condition?: UnitCondition | null;
-  is_available: boolean;
-  is_lent: boolean;
-  is_nonactive: boolean;
-  has_loans: boolean;
+    // ─────────────────────────────────────────────────────────────────
+    // Metadata untuk UI decision making
+    // ─────────────────────────────────────────────────────────────────
+    latest_condition?: UnitCondition | null;
+    is_available: boolean;
+    is_lent: boolean;
+    is_nonactive: boolean;
+    has_loans: boolean;
 }
 
 // ─────────────────────────────────────────────
@@ -57,10 +57,10 @@ export interface ToolUnit {
 // ─────────────────────────────────────────────
 
 export interface CreateToolUnitPayload {
-  tool_id: number;
-  quantity?: number; // Default: 1. Jika > 1, akan membuat bulk units
-  notes?: string;
-  condition?: ConditionType; // Default: 'good'
+    tool_id: number;
+    quantity?: number; // Default: 1. Jika > 1, akan membuat bulk units
+    notes?: string;
+    condition?: ConditionType; // Default: 'good'
 }
 
 // ─────────────────────────────────────────────
@@ -68,14 +68,14 @@ export interface CreateToolUnitPayload {
 // ─────────────────────────────────────────────
 
 export interface UpdateToolUnitPayload {
-  status: UnitStatus;
-  notes?: string;
+    status: UnitStatus;
+    notes?: string;
 }
 
 export interface RecordConditionPayload {
-  condition: ConditionType;
-  notes?: string;
-  return_id?: number | null;
+    condition: ConditionType;
+    notes?: string;
+    return_id?: number | null;
 }
 
 // ─────────────────────────────────────────────
@@ -83,39 +83,39 @@ export interface RecordConditionPayload {
 // ─────────────────────────────────────────────
 
 export interface ToolUnitResponse {
-  data: ToolUnit;
-  message?: string;
+    data: ToolUnit;
+    message?: string;
 }
 
 export interface ToolUnitListResponse {
-  data: ToolUnit[];
+    data: ToolUnit[];
 }
 
 export interface PaginatedToolUnitsResponse {
-  data: ToolUnit[];
-  meta: {
-    current_page: number;
-    from: number;
-    last_page: number;
-    per_page: number;
-    to: number;
-    total: number;
-  };
-  links: {
-    first: string;
-    last: string;
-    next: string | null;
-    prev: string | null;
-  };
+    data: ToolUnit[];
+    meta: {
+        current_page: number;
+        from: number;
+        last_page: number;
+        per_page: number;
+        to: number;
+        total: number;
+    };
+    links: {
+        first: string;
+        last: string;
+        next: string | null;
+        prev: string | null;
+    };
 }
 
 export interface BulkCreateToolUnitsResponse {
-  data: ToolUnit[];
-  message: string;
+    data: ToolUnit[];
+    message: string;
 }
 
 export interface ConditionHistoryResponse {
-  data: UnitCondition[];
+    data: UnitCondition[];
 }
 
 // ─────────────────────────────────────────────
@@ -123,9 +123,9 @@ export interface ConditionHistoryResponse {
 // ─────────────────────────────────────────────
 
 export interface ToolUnitQueryParams {
-  per_page?: number;
-  tool_id?: number;
-  status?: UnitStatus;
-  search?: string;
-  page?: number;
+    per_page?: number;
+    tool_id?: number;
+    status?: UnitStatus;
+    search?: string;
+    page?: number;
 }
