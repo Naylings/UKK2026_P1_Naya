@@ -17,14 +17,12 @@ return new class extends Migration
             $table->integer('id')->primary()->autoIncrement();
             $table->integer('loan_id')->unique()->comment('FK ke loans  ,   1 loan hanya bisa punya 1 return');
             $table->foreign('loan_id')->references('id')->on('loans');
-            $table->integer('employee_id')->comment('FK ke users   (  Employee  )   yang mencatat pengembalian');
+            $table->integer('employee_id')->nullable()->comment('FK ke users   (  Employee  )   yang mencatat pengembalian');
             $table->foreign('employee_id')->references('id')->on('users');
-            $table->string('condition_id', 255)->comment('FK ke unit_conditions  ,   kondisi alat saat dikembalikan');
-            $table->foreign('condition_id')->references('id')->on('unit_conditions');
-            $table->date('return_date')->comment('Tanggal aktual alat dikembalikan');
+            $table->timestamp('return_date')->comment('Tanggal aktual alat dikembalikan');
             $table->string('proof')->nullable()->comment('foto/video bukti');
             $table->text('notes')->nullable()->comment('Catatan pengembalian dari Employee');
-            $table->timestamp('created_at');
+            $table->timestamps();
         });
 
         Schema::enableForeignKeyConstraints();
@@ -38,3 +36,4 @@ return new class extends Migration
         Schema::dropIfExists('returns');
     }
 };
+

@@ -8,7 +8,6 @@ use App\Http\Requests\Loan\StoreLoanRequest;
 use App\Http\Resources\Loan\LoanResource;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class LoanController extends Controller
 {

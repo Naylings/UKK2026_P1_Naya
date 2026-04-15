@@ -30,7 +30,7 @@ class LoanService
             }
 
             $conflict = Loan::where('unit_code', $data['unit_code'])
-                ->whereIn('status', ['pending', 'approve'])
+->whereIn('status', ['pending', 'approved'])
                 ->where(function ($q) use ($data) {
                     $q->whereBetween('loan_date', [$data['loan_date'], $data['due_date']])
                         ->orWhereBetween('due_date', [$data['loan_date'], $data['due_date']]);
@@ -118,7 +118,7 @@ class LoanService
             }
 
             $hasActiveLoan = Loan::where('unit_code', $loan->unit_code)
-                ->where('status', 'approve')
+                ->where('status', 'approved')
                 ->lockForUpdate()
                 ->exists();
 
@@ -127,7 +127,7 @@ class LoanService
             }
 
             $loan->update([
-                'status' => 'approve',
+'status' => 'approved',
                 'employee_id' => $employeeId,
                 'notes' => $notes,
             ]);

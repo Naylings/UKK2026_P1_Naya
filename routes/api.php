@@ -4,6 +4,7 @@ use App\Http\Controllers\AppConfig\AppConfigController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Category\CategoryController;
 use App\Http\Controllers\Loan\LoanController;
+use App\Http\Controllers\Return\ReturnController;
 use App\Http\Controllers\Tool\ToolController;
 use App\Http\Controllers\ToolUnit\ToolUnitController;
 use App\Http\Controllers\User\UserController;
@@ -163,4 +164,30 @@ Route::prefix('loans')->group(function () {
 
     Route::post('/{loanId}/approve', [LoanController::class, 'approve']);
     Route::post('/{loanId}/reject', [LoanController::class, 'reject']);
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| Returns Routes
+|--------------------------------------------------------------------------
+|
+| prefix  : /api/returns
+| middleware: auth:api (JWT protected)
+|
+*/
+
+Route::prefix('returns')->middleware('auth:api')->group(function () {
+
+    // USER: submit return (buat return dari loan)
+    Route::post('/{loanId}', [ReturnController::class, 'store']);
+
+    // EMPLOYEE: confirm return
+    Route::post('/{loanId}/confirm', [ReturnController::class, 'confirm']);
+
+    // LIST returns (filter: ready, dll)
+    Route::get('/', [ReturnController::class, 'index']);
+
+    // DETAIL return
+    Route::get('/{id}', [ReturnController::class, 'show']);
 });

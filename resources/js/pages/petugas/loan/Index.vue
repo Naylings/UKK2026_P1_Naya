@@ -36,7 +36,7 @@ const showValidation = ref(false);
 const statusOptions = [
     { label: "Semua Status", value: "" },
     { label: "Pending", value: "pending" },
-    { label: "Approve", value: "approve" },
+{ label: "Approved", value: "approved" },
     { label: "Rejected", value: "rejected" },
     { label: "Expired", value: "expired" },
 ];

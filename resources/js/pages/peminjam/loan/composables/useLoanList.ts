@@ -1,6 +1,6 @@
 import { ref } from "vue";
 import { loanRequestService } from "@/services/loanService";
-import type { LoanResponse } from "@/types/loan";
+import type { LoanFilters, LoanResponse } from "@/types/loan";
 
 export function useLoanList() {
   // ── State ──────────────────────────────────────────────
@@ -9,7 +9,7 @@ export function useLoanList() {
   const loading = ref(false);
   const error = ref<string | null>(null);
 
-const filters = ref({
+const filters = ref<LoanFilters>({
     status: "",
     search: "",
     page: 1,
@@ -45,14 +45,25 @@ async function loadMyLoans(params?: any) {
     }
   }
 
-  function onPageChange(event: any) {
+function onPageChange(event: any) {
     filters.value.page = event.page + 1;
     filters.value.per_page = event.rows;
 
     loadMyLoans();
   }
 
-function clearFilter() {
+  function setFilters(val: any) {
+    filters.value = val;
+    loadMyLoans();
+  }
+
+  function setSearch(val: string) {
+    filters.value.search = val;
+    filters.value.page = 1;
+    loadMyLoans();
+  }
+
+  function clearFilter() {
     filters.value = {
       status: "",
       search: "",
@@ -61,6 +72,20 @@ function clearFilter() {
     };
 
     loadMyLoans();
+  }
+
+  // ── Detail Modal ──────────────────────────────────────────────
+  const detailLoan = ref<LoanResponse | null>(null);
+  const showDetailModal = ref(false);
+
+  function openDetailModal(loan: LoanResponse) {
+    detailLoan.value = loan;
+    showDetailModal.value = true;
+  }
+
+  function closeDetailModal() {
+    detailLoan.value = null;
+    showDetailModal.value = false;
   }
 
   return {
@@ -73,5 +98,13 @@ function clearFilter() {
     loadMyLoans,
     onPageChange,
     clearFilter,
+    setFilters,
+    setSearch,
+
+    // Detail Modal
+    detailLoan,
+    showDetailModal,
+    openDetailModal,
+    closeDetailModal,
   };
 }

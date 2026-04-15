@@ -19,6 +19,7 @@ const emit = defineEmits<{
     (e: "search", value: string): void;
     (e: "reset"): void;
     (e: "review", loan: any): void;
+    (e: "return", loan: any): void;
     (e: "detail", loan: any): void;
 }>();
 
@@ -163,7 +164,7 @@ watch(globalFilter, (val) => {
                     <Tag
                         :value="data.status"
                         :severity="
-data.status === 'approve'
+                            data.status === 'approve'
                                 ? 'success'
                                 : data.status === 'pending'
                                   ? 'warning'
@@ -196,6 +197,18 @@ data.status === 'approve'
                             rounded
                             v-tooltip="'Review'"
                             @click="$emit('review', data)"
+                        />
+                        <Button
+                            v-if="
+                                data.status === 'approved' &&
+                                props.mode !== 'petugas'
+                            "
+                            icon="pi pi-replay"
+                            severity="success"
+                            text
+                            rounded
+                            v-tooltip="'Return'"
+                            @click="$emit('return', data)"
                         />
 
                         <Button

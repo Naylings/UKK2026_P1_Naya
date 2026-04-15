@@ -18,7 +18,11 @@ return new class extends Migration
             $table->string('unit_code', 255)->comment('FK ke tool_units');
             $table->foreign('unit_code')->references('code')->on('tool_units');
             $table->integer('return_id')->nullable()->comment('FK ke returns  ,   NULL jika dicatat di luar konteks pengembalian   (  entry awal  ,   maintenance  ,   inspeksi)');
-            $table->enum('conditions', ["good","broken","maintenance"]);
+            $table->foreign('return_id')
+                ->references('id')
+                ->on('returns')
+                ->nullOnDelete();
+            $table->enum('conditions', ["good", "broken", "maintenance"]);
             $table->text('notes')->comment('Penjelasan kondisi saat dicatat');
             $table->timestamp('recorded_at')->comment('Waktu kondisi dicatat. Kondisi terkini = recorded_at paling baru');
         });

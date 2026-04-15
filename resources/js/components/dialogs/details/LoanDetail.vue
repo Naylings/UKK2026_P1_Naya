@@ -52,7 +52,7 @@ const formatDate = (date: string) => {
                     class="px-3 py-1 rounded-full text-xs font-semibold capitalize"
                     :class="{
                         'bg-yellow-100 text-yellow-700': detailLoan.status === 'pending',
-                        'bg-green-100 text-green-700': detailLoan.status === 'approve',
+'bg-green-100 text-green-700': detailLoan.status === 'approved',
                         'bg-red-100 text-red-700': detailLoan.status === 'rejected',
                         'bg-gray-200 text-gray-700': detailLoan.status === 'expired',
                     }"

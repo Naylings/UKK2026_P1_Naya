@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { onBeforeMount } from "vue";
 import { useLoanList } from "./composables/useLoanList";
-
+import { useReturnLoan } from "./composables/useReturnLoan";
+import ReturnLoanForm from "@/components/dialogs/forms/ReturnLoanForm.vue";
+import LoanDetail from "@/components/dialogs/details/LoanDetail.vue";
 
 const {
     loans,
@@ -11,44 +13,69 @@ const {
     loadMyLoans,
     onPageChange,
     clearFilter,
+    showDetailModal,
+    detailLoan,
+    openDetailModal,
 } = useLoanList();
+
+const {
+    isModalOpen,
+    selectedLoan,
+    loading :returnLoading,
+    error,
+    successMessage,
+
+    openReturnModal,
+    closeReturnModal,
+    submitReturn,
+} = useReturnLoan();
 
 const statusOptions = [
     { label: "Semua Status", value: "" },
     { label: "Pending", value: "pending" },
-{ label: "Approve", value: "approve" },
+    { label: "Approve", value: "approve" },
     { label: "Rejected", value: "rejected" },
-    { label: "Expired", value: "expired" }
+    { label: "Expired", value: "expired" },
 ];
-
-
 
 onBeforeMount(() => {
     loadMyLoans();
-    console.log("Filters on mount:", filters.value);  
-    console.log("Meta on mount:", meta.value);
-    console.log("Loans on mount:", loans.value);
 });
 </script>
 
 <template>
+    <!-- TABLE -->
     <LoanTable
         :loans="loans"
         :loading="loading"
         :meta="meta"
         :filters="filters"
         :status-options="statusOptions"
-        @update:filters="(val) => {
-            filters = val;
-            loadMyLoans();
-        }"
+        mode="user"
+        @update:filters="
+            (val) => {
+                Object.assign(filters, val);
+                loadMyLoans();
+            }
+        "
         @page-change="onPageChange"
-@search="(val) => {
-            console.log('Search triggered:', val);
-            filters.search = val;
-            filters.page = 1;
-            loadMyLoans();
-        }"
+        @search="
+            (val) => {
+                filters.search = val;
+                filters.page = 1;
+                loadMyLoans();
+            }
+        "
         @reset="clearFilter"
+        @return="openReturnModal"
+        @detail="openDetailModal"
     />
+
+    <ReturnLoanForm
+        v-model:visible="isModalOpen"
+        :selected-loan="selectedLoan"
+        :loading="returnLoading"
+        @submit="submitReturn"
+    />
+    <LoanDetail v-model:visible="showDetailModal" :detail-loan="detailLoan" />
 </template>
