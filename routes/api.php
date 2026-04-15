@@ -3,10 +3,10 @@
 use App\Http\Controllers\AppConfig\AppConfigController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Category\CategoryController;
+use App\Http\Controllers\Loan\LoanController;
 use App\Http\Controllers\Tool\ToolController;
 use App\Http\Controllers\ToolUnit\ToolUnitController;
 use App\Http\Controllers\User\UserController;
-use App\Http\Controllers\Loan\LoanController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -159,4 +159,8 @@ Route::prefix('loans')->group(function () {
     Route::post('/', [LoanController::class, 'store']);
     Route::get('/', [LoanController::class, 'index']);
     Route::get('/my', [LoanController::class, 'userLoans']);
+
+
+    Route::post('/{loanId}/approve', [LoanController::class, 'approve']);
+    Route::post('/{loanId}/reject', [LoanController::class, 'reject']);
 });

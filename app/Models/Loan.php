@@ -74,9 +74,9 @@ class Loan extends Model
         return $this->status === 'pending';
     }
 
-    public function isActive(): bool
+public function isApprove(): bool
     {
-        return $this->status === 'active';
+        return $this->status === 'approve';
     }
 
     public function isRejected(): bool
@@ -84,13 +84,13 @@ class Loan extends Model
         return $this->status === 'rejected';
     }
 
-    public function isClosed(): bool
+public function isExpired(): bool
     {
-        return $this->status === 'closed';
+        return $this->status === 'expired';
     }
 
     public function isOverdue(): bool
     {
-        return $this->isActive() && now()->toDateString() > $this->due_date->toDateString();
+return $this->isApprove() && now()->toDateString() > $this->due_date->toDateString();
     }
 }

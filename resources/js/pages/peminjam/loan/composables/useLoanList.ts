@@ -9,8 +9,9 @@ export function useLoanList() {
   const loading = ref(false);
   const error = ref<string | null>(null);
 
-  const filters = ref({
+const filters = ref({
     status: "",
+    search: "",
     page: 1,
     per_page: 10,
   });
@@ -19,17 +20,21 @@ export function useLoanList() {
 
   // ── Actions ────────────────────────────────────────────
 
-  async function loadMyLoans(params?: any) {
+async function loadMyLoans(params?: any) {
     loading.value = true;
     error.value = null;
 
-    try {
-      const res = await loanRequestService.getMyLoans({
+    const apiParams = {
         status: filters.value.status || undefined,
+        search: filters.value.search || undefined,
         page: filters.value.page,
         per_page: filters.value.per_page,
         ...params,
-      });
+      };
+    console.log('loadMyLoans params:', apiParams);
+
+    try {
+      const res = await loanRequestService.getMyLoans(apiParams);
 
       loans.value = res.data;
       meta.value = res.meta;
@@ -47,9 +52,10 @@ export function useLoanList() {
     loadMyLoans();
   }
 
-  function clearFilter() {
+function clearFilter() {
     filters.value = {
       status: "",
+      search: "",
       page: 1,
       per_page: 10,
     };

@@ -19,13 +19,13 @@ export interface AvailableToolUnitsResponse {
     message: string;
 }
 
-export type LoanStatus = "pending" | "active" | "rejected" | "closed";
+export type LoanStatus = "pending" | "approve" | "rejected" | "expired";
 
 export interface LoanFilters {
-  status: string;
-  search?: string;
-  page: number;
-  per_page: number;
+    status: string;
+    search?: string;
+    page: number;
+    per_page: number;
 }
 
 export interface Loan {
@@ -50,34 +50,8 @@ export interface CreateLoanPayload {
     tool_id: number;
     unit_code: string;
     loan_date: string; // YYYY-MM-DD
-    due_date: string;  // YYYY-MM-DD
+    due_date: string; // YYYY-MM-DD
     purpose: string;
-}
-
-export interface LoanUser {
-    id: number;
-    name: string;
-}
-
-export interface LoanTool {
-    id: number;
-    name: string;
-}
-
-export interface LoanUnit {
-    code: string;
-}
-
-export interface LoanResponse {
-    id: number;
-    status: LoanStatus;
-    loan_date: string;
-    due_date: string;
-    purpose: string;
-
-    user: LoanUser;
-    tool: LoanTool;
-    unit: LoanUnit;
 }
 
 export interface CreateLoanResponse {
@@ -93,3 +67,70 @@ export interface LoanListResponse {
         total: number;
     };
 }
+
+export interface LoanReviewPayload {
+    notes?: string;
+}
+
+export interface LoanReviewResponse {
+    message: string;
+    data: LoanResponse;
+}
+
+export interface LoanUserDetail {
+    nik: string;
+    name: string;
+    no_hp: string;
+    address: string;
+    birth_date?: string;
+}
+
+export interface LoanUser {
+    id: number;
+    details?: LoanUserDetail | null;
+}
+
+export interface LoanTool {
+    id: number;
+    name: string;
+}
+
+export interface LoanUnit {
+    code: string;
+    status?: string;
+}
+
+export interface LoanEmployee {
+    id: number;
+    email?: string;
+    role?: string;
+    details?: LoanUserDetail | null;
+}
+
+export interface LoanReview {
+    employee_id?: number;
+    notes?: string | null;
+    employee?: LoanEmployee | null;
+}
+
+export interface LoanResponse {
+    id: number;
+    status: LoanStatus;
+
+    loan_date: string;
+    due_date: string;
+    purpose: string;
+    notes?: string | null;
+
+    user?: LoanUser;
+    tool?: LoanTool;
+    unit?: LoanUnit;
+    review?: LoanReview;
+
+    employee?: LoanEmployee | null;
+
+    created_at: string;
+}
+
+export type LoanReviewAction = "approve" | "reject";
+

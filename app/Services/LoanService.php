@@ -10,25 +10,27 @@ use Illuminate\Support\Facades\DB;
 
 class LoanService
 {
+
     public function create(array $data): Loan
     {
         return DB::transaction(function () use ($data) {
-            $hasActiveLoan = Loan::where('user_id', Auth::id())
-                ->whereIn('status', ['pending', 'active'])
-                ->exists();
 
-            if ($hasActiveLoan) {
-                throw LoanException::userHasActiveLoan();
+            $user = Auth::user();
+
+            if ($user->is_restricted) {
+                throw LoanException::createFailed('Anda masih memiliki pinjaman aktif.');
             }
 
-            $unit = ToolUnit::where('code', $data['unit_code'])->first();
+            $tool = \App\Models\Tool::find($data['tool_id']);
 
-            if (!$unit) {
-                throw LoanException::unitNotFound();
+            if ($tool && $tool->min_credit_score !== null) {
+                if ($user->credit_score < $tool->min_credit_score) {
+                    throw LoanException::createFailed('Credit score tidak mencukupi.');
+                }
             }
 
             $conflict = Loan::where('unit_code', $data['unit_code'])
-                ->whereIn('status', ['pending', 'active'])
+                ->whereIn('status', ['pending', 'approve'])
                 ->where(function ($q) use ($data) {
                     $q->whereBetween('loan_date', [$data['loan_date'], $data['due_date']])
                         ->orWhereBetween('due_date', [$data['loan_date'], $data['due_date']]);
@@ -40,7 +42,7 @@ class LoanService
             }
 
             $loan = Loan::create([
-                'user_id' => Auth::id(),
+                'user_id' => $user->id,
                 'tool_id' => $data['tool_id'],
                 'unit_code' => $data['unit_code'],
                 'status' => 'pending',
@@ -49,6 +51,10 @@ class LoanService
                 'purpose' => $data['purpose'],
             ]);
 
+
+            $loan->user()->update([
+                'is_restricted' => 1
+            ]);
             return $loan;
         });
     }
@@ -57,14 +63,17 @@ class LoanService
     public function getAll(array $filters = [])
     {
         return Loan::query()
-            ->with(['user', 'tool', 'unit'])
+            ->with(['user.detail', 'tool', 'unit', 'employee.detail'])
             ->when($filters['status'] ?? null, function ($q, $status) {
                 $q->where('status', $status);
             })
             ->when($filters['search'] ?? null, function ($q, $search) {
                 $q->where(function ($sub) use ($search) {
                     $sub->where('purpose', 'like', "%{$search}%")
-                        ->orWhere('unit_code', 'like', "%{$search}%");
+                        ->orWhere('unit_code', 'like', "%{$search}%")
+                        ->orWhereHas('tool', function ($toolQuery) use ($search) {
+                            $toolQuery->where('name', 'like', "%{$search}%");
+                        });
                 });
             })
             ->latest()
@@ -75,12 +84,84 @@ class LoanService
     public function getByUserId(int $userId, array $filters = [])
     {
         return Loan::query()
-            ->with(['tool', 'unit'])
+            ->with(['tool', 'unit', 'employee.detail', 'user.detail'])
             ->where('user_id', $userId)
             ->when($filters['status'] ?? null, function ($q, $status) {
                 $q->where('status', $status);
             })
+            ->when($filters['search'] ?? null, function ($q, $search) {
+                $q->where(function ($sub) use ($search) {
+                    $sub->where('purpose', 'like', "%{$search}%")
+                        ->orWhere('unit_code', 'like', "%{$search}%")
+                        ->orWhereHas('tool', function ($toolQuery) use ($search) {
+                            $toolQuery->where('name', 'like', "%{$search}%");
+                        });
+                });
+            })
             ->latest()
             ->paginate($filters['per_page'] ?? 10);
+    }
+
+
+    public function approve(int $loanId, int $employeeId, ?string $notes = null): Loan
+    {
+        return DB::transaction(function () use ($loanId, $employeeId, $notes) {
+
+            $loan = Loan::lockForUpdate()->find($loanId);
+
+            if (!$loan) {
+                throw LoanException::notFound();
+            }
+
+            if ($loan->status !== 'pending') {
+                throw LoanException::notPending();
+            }
+
+            $hasActiveLoan = Loan::where('unit_code', $loan->unit_code)
+                ->where('status', 'approve')
+                ->lockForUpdate()
+                ->exists();
+
+            if ($hasActiveLoan) {
+                throw LoanException::unitNotAvailable();
+            }
+
+            $loan->update([
+                'status' => 'approve',
+                'employee_id' => $employeeId,
+                'notes' => $notes,
+            ]);
+
+            return $loan->fresh(['user.detail', 'tool', 'unit', 'employee.detail']);
+        });
+    }
+
+
+    public function reject(int $loanId, int $employeeId, ?string $notes = null): Loan
+    {
+        return DB::transaction(function () use ($loanId, $employeeId, $notes) {
+
+            $loan = Loan::lockForUpdate()->find($loanId);
+
+            if (!$loan) {
+                throw LoanException::notFound();
+            }
+
+            if ($loan->status !== 'pending') {
+                throw LoanException::notPending();
+            }
+
+            $loan->update([
+                'status' => 'rejected',
+                'employee_id' => $employeeId,
+                'notes' => $notes,
+            ]);
+
+            $loan->user->update([
+                'is_restricted' => 0
+            ]);
+
+            return $loan->fresh(['user.detail', 'tool', 'unit', 'employee.detail']);
+        });
     }
 }

@@ -108,4 +108,52 @@ class LoanException extends ApiException
             'USER_HAS_ACTIVE_LOAN',
         );
     }
+
+
+    public static function invalidStatusTransition(): self
+    {
+        return new self(
+            'Status peminjaman tidak valid untuk perubahan ini.',
+            422,
+            'INVALID_STATUS_TRANSITION',
+        );
+    }
+
+    public static function notPending(): self
+    {
+        return new self(
+            'Hanya peminjaman dengan status pending yang dapat direview.',
+            422,
+            'LOAN_NOT_PENDING',
+        );
+    }
+
+
+    public static function alreadyReviewed(): self
+    {
+        return new self(
+            'Peminjaman ini sudah direview.',
+            409,
+            'LOAN_ALREADY_REVIEWED',
+        );
+    }
+
+    public static function unitAlreadyAssigned(): self
+    {
+        return new self(
+            'Unit sudah dialokasikan ke peminjaman lain.',
+            409,
+            'UNIT_ALREADY_ASSIGNED',
+        );
+    }
+
+
+    public static function missingReviewer(): self
+{
+    return new self(
+        'Reviewer (employee) tidak boleh kosong saat status berubah.',
+        422,
+        'MISSING_REVIEWER',
+    );
+}
 }

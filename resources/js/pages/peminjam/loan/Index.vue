@@ -16,9 +16,9 @@ const {
 const statusOptions = [
     { label: "Semua Status", value: "" },
     { label: "Pending", value: "pending" },
-    { label: "Active", value: "active" },
+{ label: "Approve", value: "approve" },
     { label: "Rejected", value: "rejected" },
-    { label: "Closed", value: "closed" },
+    { label: "Expired", value: "expired" }
 ];
 
 
@@ -32,7 +32,7 @@ onBeforeMount(() => {
 </script>
 
 <template>
-    <UsersLoanTable
+    <LoanTable
         :loans="loans"
         :loading="loading"
         :meta="meta"
@@ -43,7 +43,8 @@ onBeforeMount(() => {
             loadMyLoans();
         }"
         @page-change="onPageChange"
-        @search="(val) => {
+@search="(val) => {
+            console.log('Search triggered:', val);
             filters.search = val;
             filters.page = 1;
             loadMyLoans();

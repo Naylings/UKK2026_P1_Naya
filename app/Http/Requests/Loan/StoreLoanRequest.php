@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Loan;
 
+use App\Models\ToolUnit;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreLoanRequest extends FormRequest
@@ -9,6 +10,36 @@ class StoreLoanRequest extends FormRequest
     public function authorize(): bool
     {
         return true; // nanti bisa pakai policy
+    }
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+
+            $user = $this->user();
+            if (!$user) return;
+
+            // 1. user restriction
+            if ($user->is_restricted) {
+                $validator->errors()->add(
+                    'user',
+                    'Anda sedang dibatasi dan tidak dapat mengajukan peminjaman.'
+                );
+            }
+
+            // 2. guard biar tidak query kalau kosong
+            $unitCode = $this->unit_code;
+            if (!$unitCode) return;
+
+            $unit = ToolUnit::where('code', $unitCode)->first();
+
+            if ($unit && $unit->status !== 'available') {
+                $validator->errors()->add(
+                    'unit_code',
+                    'Unit tidak tersedia.'
+                );
+            }
+        });
     }
 
     public function rules(): array

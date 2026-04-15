@@ -10,6 +10,8 @@ import type {
     CreateLoanPayload,
     CreateLoanResponse,
     LoanListResponse,
+    LoanReviewPayload,
+    LoanReviewResponse,
 } from "@/types/loan";
 
 export const loanApi = {
@@ -70,6 +72,30 @@ export const loanApi = {
         const res = await apiClient.get<LoanListResponse>("/loans/my", {
             params,
         });
+
+        return res.data;
+    },
+
+    approveLoan: async (
+        loanId: number,
+        payload?: LoanReviewPayload,
+    ): Promise<LoanReviewResponse> => {
+        const res = await apiClient.post<LoanReviewResponse>(
+            `/loans/${loanId}/approve`,
+            payload,
+        );
+
+        return res.data;
+    },
+
+    rejectLoan: async (
+        loanId: number,
+        payload?: LoanReviewPayload,
+    ): Promise<LoanReviewResponse> => {
+        const res = await apiClient.post<LoanReviewResponse>(
+            `/loans/${loanId}/reject`,
+            payload,
+        );
 
         return res.data;
     },

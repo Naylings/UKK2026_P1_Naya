@@ -38,6 +38,23 @@ class LoanResource extends JsonResource
                 'code' => $this->unit_code,
                 'status' => $this->whenLoaded('unit', fn() => $this->unit->status),
             ],
+            'review' => [
+                'employee_id' => $this->employee_id,
+                'notes' => $this->notes,
+
+                'employee' => $this->whenLoaded('employee', fn() => [
+                    'id' => $this->employee->id,
+                    'email' => $this->employee->email,
+                    'role' => $this->employee->role,
+                    'details' => $this->whenLoaded('employee') && $this->employee->detail ? [
+                        'nik'           => $this->employee->detail->nik,
+                        'name'          => $this->employee->detail->name,
+                        'no_hp'         => $this->employee->detail->no_hp,
+                        'address'       => $this->employee->detail->address,
+                        'birth_date'    => $this->employee->detail->birth_date?->toIso8601String(),
+                    ] : null,
+                ]),
+            ],
         ];
     }
 }
