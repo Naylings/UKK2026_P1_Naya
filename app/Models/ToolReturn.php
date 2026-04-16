@@ -21,15 +21,12 @@ class ToolReturn extends Model
     ];
 
     protected $casts = [
-        'return_date' => 'datetime',
+    'return_date' => 'datetime',
+    'reviewed' => 'boolean',
         'created_at'  => 'datetime',
     ];
 
-    protected $with = [
-        'employee',
-        'conditions',
-        'violation',
-    ];
+
 
     public function loan(): BelongsTo
     {

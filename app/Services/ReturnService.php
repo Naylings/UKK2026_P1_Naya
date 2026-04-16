@@ -49,6 +49,10 @@ class ReturnService
                 'notes'        => $data['notes'] ?? null,
             ]);
             
+            $loan->update([
+                'status' => 'returned'
+            ]);
+            
             return $loan->fresh(['toolReturn', 'tool', 'unit']);
         });
     }
@@ -117,9 +121,6 @@ class ReturnService
             // =========================
             // FINALIZE
             // =========================
-            $loan->update([
-                'status' => 'returned'
-            ]);
 
             $loan->user()->update([
                 'is_restricted' => 0

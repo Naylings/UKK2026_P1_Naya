@@ -66,8 +66,9 @@ export const loanApi = {
 
     getMyLoans: async (params?: {
         status?: string;
-        per_page?: number;
+        search?: string;
         page?: number;
+        per_page?: number;
     }): Promise<LoanListResponse> => {
         const res = await apiClient.get<LoanListResponse>("/loans/my", {
             params,

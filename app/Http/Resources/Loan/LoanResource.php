@@ -55,6 +55,39 @@ class LoanResource extends JsonResource
                     ] : null,
                 ]),
             ],
+
+            'tool_return' => $this->whenLoaded('toolReturn', fn() => [
+                'id' => $this->toolReturn->id,
+                'return_date' => $this->toolReturn->return_date,
+                'proof' => $this->toolReturn->proof,
+                'notes' => $this->toolReturn->notes,
+                'employee' => $this->whenLoaded('toolReturn.employee', fn() => [
+                    'id' => $this->toolReturn->employee->id,
+                    'email' => $this->toolReturn->employee->email,
+                    'details' => $this->toolReturn->employee->detail ? [
+                        'name' => $this->toolReturn->employee->detail->name,
+                        'no_hp' => $this->toolReturn->employee->detail->no_hp,
+                    ] : null,
+                ]),
+            ]),
+
+            'violation' => $this->whenLoaded('violation', fn() => [
+                'id' => $this->violation->id,
+                'type' => $this->violation->type,
+                'total_score' => $this->violation->total_score,
+                'fine' => $this->violation->fine,
+                'description' => $this->violation->description,
+                'status' => $this->violation->status,
+                'settlement' => $this->violation->settlement ? [
+                    'id' => $this->violation->settlement->id,
+                    'amount' => $this->violation->settlement->amount,
+                    'settled_at' => $this->violation->settlement->settled_at,
+                    'notes' => $this->violation->settlement->notes,
+                    'employee' => $this->violation->settlement->employee ? [
+                        'name' => $this->violation->settlement->employee->detail?->name,
+                    ] : null,
+                ] : null,
+            ]),
         ];
     }
 }

@@ -47,7 +47,7 @@ onBeforeMount(() => {
 </script>
 
 <template>
-    <LoanTable
+    <LoanTablePetugas
         :loans="loans"
         :loading="loading"
         :meta="meta"

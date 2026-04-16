@@ -30,11 +30,12 @@ class LoanService
             }
 
             $conflict = Loan::where('unit_code', $data['unit_code'])
-->whereIn('status', ['pending', 'approved'])
+                ->whereIn('status', ['pending', 'approved'])
                 ->where(function ($q) use ($data) {
-                    $q->whereBetween('loan_date', [$data['loan_date'], $data['due_date']])
-                        ->orWhereBetween('due_date', [$data['loan_date'], $data['due_date']]);
+                    $q->where('loan_date', '<=', $data['due_date'])
+                      ->where('due_date', '>=', $data['loan_date']);
                 })
+                ->lockForUpdate()
                 ->exists();
 
             if ($conflict) {
@@ -63,7 +64,14 @@ class LoanService
     public function getAll(array $filters = [])
     {
         return Loan::query()
-            ->with(['user.detail', 'tool', 'unit', 'employee.detail'])
+            ->with([
+                'user.detail',
+                'tool',
+                'unit',
+                'employee.detail',
+                'toolReturn.employee.detail',
+                'violation.settlement.employee.detail'
+            ])
             ->when($filters['status'] ?? null, function ($q, $status) {
                 $q->where('status', $status);
             })
@@ -84,7 +92,14 @@ class LoanService
     public function getByUserId(int $userId, array $filters = [])
     {
         return Loan::query()
-            ->with(['tool', 'unit', 'employee.detail', 'user.detail'])
+            ->with([
+                'user.detail',
+                'tool',
+                'unit',
+                'employee.detail',
+                'toolReturn.employee.detail',
+                'violation.settlement.employee.detail'
+            ])
             ->where('user_id', $userId)
             ->when($filters['status'] ?? null, function ($q, $status) {
                 $q->where('status', $status);
@@ -119,6 +134,10 @@ class LoanService
 
             $hasActiveLoan = Loan::where('unit_code', $loan->unit_code)
                 ->where('status', 'approved')
+                ->where(function ($q) use ($loan) {
+                    $q->where('loan_date', '<=', $loan->due_date)
+                      ->where('due_date', '>=', $loan->loan_date);
+                })
                 ->lockForUpdate()
                 ->exists();
 

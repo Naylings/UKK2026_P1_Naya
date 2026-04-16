@@ -91,6 +91,6 @@ public function isExpired(): bool
 
     public function isOverdue(): bool
     {
-return $this->isApproved() && now()->toDateString() > $this->due_date->toDateString();
+        return $this->isApproved() && now()->toDateString() > $this->due_date->toDateString();
     }
 }

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('password', 255)->comment('Password ter-hash   (  bcrypt)');
             $table->enum('role', ["Admin","Employee","User"]);
             $table->integer('credit_score')->comment('Akumulasi poin pelanggaran  ,   bertambah tiap melanggar. Makin tinggi makin terbatas alat yang bisa dipinjam');
-            $table->tinyInteger('is_restricted')->comment('1 = sedang ada pinjaman aktif atau belum settlement  ,   tidak bisa ajukan pinjaman baru');
+            $table->tinyInteger('is_restricted')->default(0)->comment('1 = sedang ada pinjaman aktif atau belum settlement  ,   tidak bisa ajukan pinjaman baru');
             $table->timestamp('created_at')->nullable();
             $table->timestamp('updated_at')->nullable();
         });

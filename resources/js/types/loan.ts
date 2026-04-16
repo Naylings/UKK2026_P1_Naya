@@ -19,7 +19,7 @@ export interface AvailableToolUnitsResponse {
     message: string;
 }
 
-export type LoanStatus = "pending" | "approve" | "rejected" | "expired";
+export type LoanStatus = "pending" | "approved" | "rejected" | "expired";
 
 export interface LoanFilters {
     status: string;
@@ -64,6 +64,7 @@ export interface LoanListResponse {
     meta?: {
         current_page: number;
         last_page: number;
+        per_page: number
         total: number;
     };
 }
@@ -120,14 +121,12 @@ export interface LoanResponse {
     loan_date: string;
     due_date: string;
     purpose: string;
-    notes?: string | null;
 
     user?: LoanUser;
     tool?: LoanTool;
     unit?: LoanUnit;
     review?: LoanReview;
 
-    employee?: LoanEmployee | null;
 
     created_at: string;
 }

@@ -22,7 +22,7 @@ class DummyUsers  extends Seeder
                 'password' => Hash::make('password'),
                 'role' => 'User',
                 'credit_score' => rand(0, 100),
-                'is_restricted' => rand(0, 1),
+                'is_restricted' => 0,
                 'created_at' => now(),
                 'updated_at' => now(),
             ];
@@ -42,6 +42,6 @@ class DummyUsers  extends Seeder
         DB::table('users')->insert($users);
         DB::table('user_details')->insert($userDetails);
     }
-    
-    
+
+
 }
