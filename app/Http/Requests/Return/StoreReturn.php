@@ -16,7 +16,6 @@ class StoreReturn extends FormRequest
     {
         return [
             'proof'        => ['nullable', 'file', 'image', 'max:2048'],
-            'notes'        => ['nullable', 'string', 'max:1000'],
         ];
     }
 

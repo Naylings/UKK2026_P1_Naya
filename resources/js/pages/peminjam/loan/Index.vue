@@ -37,9 +37,10 @@ const handleSubmitReturn = async (payload: any) => {
 const statusOptions = [
   { label: "Semua Status", value: "" },
   { label: "Pending", value: "pending" },
-  { label: "Approve", value: "approve" },
+  { label: "Approved", value: "approve" },
   { label: "Rejected", value: "rejected" },
-  { label: "Expired", value: "expired" },
+    { label: "Expired", value: "expired" },
+  
 ];
 
 onBeforeMount(() => {

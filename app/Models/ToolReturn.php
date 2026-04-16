@@ -17,7 +17,7 @@ class ToolReturn extends Model
         'employee_id',
         'return_date',
         'proof',
-        'notes',
+        'reviewed',
     ];
 
     protected $casts = [

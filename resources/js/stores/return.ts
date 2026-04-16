@@ -1,82 +1,99 @@
-import { returnService } from "@/services/returnService";
-import type { ReturnResponse } from "@/types/return";
 import { defineStore } from "pinia";
 import { ref } from "vue";
+import { returnService } from "@/services/returnService";
+import type {
+  ReturnResponse,
+  ReviewReturnPayload,
+  CreateReturnPayload,
+} from "@/types/return";
 
 export const useReturnStore = defineStore("return", () => {
+  // ── State ──────────────────────────────────────────────
 
-    const proof = ref<File | null>(null);
-    const notes = ref<string | null>(null);
+  const returns = ref<ReturnResponse[]>([]);
+  const meta = ref<any>(null);
 
-    const loading = ref(false);
-    const error = ref<string | null>(null);
-    const successMessage = ref<string | null>(null);
+  const loading = ref(false);
+  const error = ref<string | null>(null);
+  const successMessage = ref<string | null>(null);
 
-    const returns = ref<ReturnResponse[]>([]);
-    const meta = ref<any>(null);
+  // ── Actions ────────────────────────────────────────────
 
-    function reset() {
-        proof.value = null;
-        notes.value = null;
-        error.value = null;
-        successMessage.value = null;
+  function reset() {
+    error.value = null;
+    successMessage.value = null;
+  }
+
+  /** User: Submit return request */
+  async function createReturn(
+    loanId: number,
+    payload: CreateReturnPayload,
+  ): Promise<boolean> {
+    loading.value = true;
+    error.value = null;
+
+    try {
+      const res = await returnService.createReturn(loanId, payload);
+      successMessage.value = res.message;
+      return true;
+    } catch (err: any) {
+      error.value = err;
+      return false;
+    } finally {
+      loading.value = false;
     }
+  }
 
-    async function createReturn(loanId: number): Promise<boolean> {
-        loading.value = true;
-        error.value = null;
+  /** Employee/Admin: Fetch list of returns */
+  async function fetchReturns(params?: any) {
+    loading.value = true;
+    error.value = null;
 
-        try {
-            const res = await returnService.createReturn(loanId, {
-                proof: proof.value,
-                notes: notes.value,
-            });
-
-            successMessage.value = res.message;
-
-            reset();
-            return true;
-
-        } catch (err: any) {
-            error.value = err;
-            return false;
-
-        } finally {
-            loading.value = false;
-        }
+    try {
+      const res = await returnService.getReturns(params);
+      returns.value = res.data;
+      meta.value = res.meta ?? null;
+      return true;
+    } catch (err: any) {
+      error.value = err;
+      return false;
+    } finally {
+      loading.value = false;
     }
+  }
 
-    async function fetchReturns(params?: any) {
-        loading.value = true;
-        error.value = null;
+  /** Employee: Confirm/Review a return */
+  async function confirmReturn(
+    loanId: number,
+    payload: ReviewReturnPayload,
+  ): Promise<boolean> {
+    loading.value = true;
+    error.value = null;
 
-        try {
-            const res = await returnService.getReturns(params);
-
-            returns.value = res.data;
-            meta.value = res.meta ?? null;
-
-            return true;
-
-        } catch (err: any) {
-            error.value = err;
-            return false;
-
-        } finally {
-            loading.value = false;
-        }
+    try {
+      const res = await returnService.confirmReturn(loanId, payload);
+      successMessage.value = res.message;
+      return true;
+    } catch (err: any) {
+      error.value = err;
+      return false;
+    } finally {
+      loading.value = false;
     }
+  }
 
-    return {
-        proof,
-        notes,
-        loading,
-        error,
-        successMessage,
-        returns,
-        meta,
-        reset,
-        createReturn,
-        fetchReturns,
-    };
+  return {
+    // state
+    returns,
+    meta,
+    loading,
+    error,
+    successMessage,
+
+    // actions
+    reset,
+    createReturn,
+    fetchReturns,
+    confirmReturn,
+  };
 });

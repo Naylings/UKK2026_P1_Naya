@@ -1,75 +1,82 @@
 import apiClient from "./client";
 import type {
-    CreateReturnPayload,
-    CreateReturnResponse,
-    ReturnListResponse,
+  CreateReturnPayload,
+  CreateReturnResponse,
+  ReturnListResponse,
+  ReturnResponse,
+  ReviewReturnPayload,
 } from "@/types/return";
 
 export const returnApi = {
-    // =========================
-    // CREATE RETURN (BY LOAN ID)
-    // POST /returns/{loanId}
-    // =========================
-    createReturn: async (
-        loanId: number,
-        payload: CreateReturnPayload,
-    ): Promise<CreateReturnResponse> => {
-        const formData = new FormData();
+  /**
+   * POST /api/returns/{loanId}
+   * Submit return request (User)
+   */
+  createReturn: async (
+    loanId: number,
+    payload: CreateReturnPayload,
+  ): Promise<CreateReturnResponse> => {
+    const formData = new FormData();
 
-        if (payload.notes) {
-            formData.append("notes", payload.notes);
-        }
 
-        if (payload.proof) {
-            formData.append("proof", payload.proof);
-        }
+    if (payload.proof) {
+      formData.append("proof", payload.proof);
+    }
 
-        const res = await apiClient.post<CreateReturnResponse>(
-            `/returns/${loanId}`,
-            formData,
-            {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                },
-            },
-        );
+    const res = await apiClient.post<CreateReturnResponse>(
+      `/returns/${loanId}`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      },
+    );
 
-        return res.data;
-    },
+    return res.data;
+  },
 
-    // =========================
-    // LIST RETURNS
-    // GET /returns
-    // =========================
-    getReturns: async (params?: {
-        status?: string;
-        search?: string;
-        page?: number;
-        per_page?: number;
-    }): Promise<ReturnListResponse> => {
-        const res = await apiClient.get<ReturnListResponse>("/returns", {
-            params,
-        });
+  /**
+   * GET /api/returns
+   * List returns (Petugas/Admin)
+   */
+  getReturns: async (params?: {
+    status?: string;
+    search?: string;
+    page?: number;
+    per_page?: number;
+  }): Promise<ReturnListResponse> => {
+    const res = await apiClient.get<ReturnListResponse>("/returns", {
+      params,
+    });
 
-        return res.data;
-    },
+    return res.data;
+  },
 
-    // =========================
-    // GET RETURN DETAIL
-    // GET /returns/{id}
-    // (INI RETURN ID, BUKAN LOAN ID)
-    // =========================
-    getReturnById: async (returnId: number) => {
-        const res = await apiClient.get(`/returns/${returnId}`);
-        return res.data;
-    },
+  /**
+   * GET /api/returns/{id}
+   * Get return detail
+   */
+  getReturnById: async (
+    returnId: number,
+  ): Promise<{ data: ReturnResponse }> => {
+    const res = await apiClient.get(`/returns/${returnId}`);
+    return res.data;
+  },
 
-    // =========================
-    // CONFIRM RETURN (EMPLOYEE)
-    // POST /returns/{loanId}/confirm
-    // =========================
-    confirmReturn: async (loanId: number) => {
-        const res = await apiClient.post(`/returns/${loanId}/confirm`);
-        return res.data;
-    },
+  /**
+   * POST /api/returns/{loanId}/confirm
+   * Confirm/Review return (Employee)
+   */
+  confirmReturn: async (
+    loanId: number,
+    payload: ReviewReturnPayload,
+  ): Promise<CreateReturnResponse> => {
+    const res = await apiClient.post<CreateReturnResponse>(
+      `/returns/${loanId}/confirm`,
+      payload,
+    );
+
+    return res.data;
+  },
 };

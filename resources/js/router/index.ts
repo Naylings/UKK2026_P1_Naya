@@ -102,6 +102,15 @@ const router = createRouter({
                         roles: ["Employee"],
                     },
                 },
+                {
+                    path: "/staff/returns",
+                    name: "petugas-returns",
+                    component: () => import("@/pages/petugas/return/Index.vue"),
+                    meta: {
+                        title: "Pengembalian Peminjaman",
+                        roles: ["Employee"],
+                    },
+                }
             ],
         },
         {

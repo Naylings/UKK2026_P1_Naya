@@ -216,6 +216,13 @@ async function openDetail(unit: ToolUnit) {
                         striped-rows
                         responsive-layout="scroll"
                         class="rounded-xl overflow-hidden"
+
+                        :paginator="availableUnits.length > 5"
+                        :rows="5"
+                        :rowsPerPageOptions="[5, 10, 20]"
+                        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                        currentPageReportTemplate="Menampilkan {first} sampai {last} dari {totalRecords} unit"
+
                         :row-class="
                             (row) =>
                                 row.code === selectedUnit?.code
@@ -342,4 +349,3 @@ async function openDetail(unit: ToolUnit) {
         />
     </div>
 </template>
-

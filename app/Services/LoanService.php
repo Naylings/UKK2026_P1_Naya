@@ -64,14 +64,16 @@ class LoanService
     public function getAll(array $filters = [])
     {
         return Loan::query()
-            ->with([
-                'user.detail',
-                'tool',
-                'unit',
-                'employee.detail',
-                'toolReturn.employee.detail',
-                'violation.settlement.employee.detail'
-            ])
+        ->with([
+            'user.detail',
+            'tool',
+            'unit',
+            'employee.detail',
+            'toolReturn.employee.detail',
+            'toolReturn.conditions',
+            'toolReturn.violation',
+            'violation.settlement.employee.detail'
+        ])
             ->when($filters['status'] ?? null, function ($q, $status) {
                 $q->where('status', $status);
             })
@@ -92,14 +94,16 @@ class LoanService
     public function getByUserId(int $userId, array $filters = [])
     {
         return Loan::query()
-            ->with([
-                'user.detail',
-                'tool',
-                'unit',
-                'employee.detail',
-                'toolReturn.employee.detail',
-                'violation.settlement.employee.detail'
-            ])
+        ->with([
+            'user.detail',
+            'tool',
+            'unit',
+            'employee.detail',
+            'toolReturn.employee.detail',
+            'toolReturn.conditions',
+            'toolReturn.violation',
+            'violation.settlement.employee.detail'
+        ])
             ->where('user_id', $userId)
             ->when($filters['status'] ?? null, function ($q, $status) {
                 $q->where('status', $status);

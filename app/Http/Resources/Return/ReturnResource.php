@@ -14,81 +14,102 @@ class ReturnResource extends JsonResource
 
             'return_date' => $this->return_date,
             'proof' => $this->proof,
-            'notes' => $this->notes,
 
             'created_at' => $this->created_at,
 
             // =========================================
             // EMPLOYEE (PETUGAS YANG VALIDASI RETURN)
             // =========================================
-            'employee' => [
-                'id' => $this->whenLoaded('employee', fn() => $this->employee->id),
-                'email' => $this->whenLoaded('employee', fn() => $this->employee->email),
-                'role' => $this->whenLoaded('employee', fn() => $this->employee->role),
-
-                'details' => $this->whenLoaded('employee') && $this->employee?->detail ? [
-                    'nik'        => $this->employee->detail->nik,
+            'employee' => $this->whenLoaded('employee', fn() => [
+                'id' => $this->employee->id,
+                'email' => $this->employee->email,
+                'role' => $this->employee->role,
+                'details' => $this->employee->detail ? [
                     'name'       => $this->employee->detail->name,
                     'no_hp'      => $this->employee->detail->no_hp,
-                    'address'    => $this->employee->detail->address,
-                    'birth_date' => $this->employee->detail->birth_date?->toIso8601String(),
                 ] : null,
-            ],
-
-            // =========================================
-            // CONDITION (HASIL INSPEKSI UNIT)
-            // =========================================
-            'conditions' => $this->whenLoaded('conditions', function () {
-                return $this->conditions->map(fn($c) => [
-                    'id' => $c->id,
-                    'unit_code' => $c->unit_code,
-                    'conditions' => $c->conditions,
-                    'notes' => $c->notes,
-                    'recorded_at' => $c->recorded_at?->toIso8601String(),
-                ]);
-            }),
+            ]),
 
             // =========================================
             // LOAN INFO (CONTEXT PENGEMBALIAN)
             // =========================================
-            'loan' => [
-                'id' => $this->loan?->id,
+            'loan' => $this->whenLoaded('loan', fn() => [
+                'id' => $this->loan->id,
+                'status' => $this->loan->status,
+                'loan_date' => $this->loan->loan_date,
+                'due_date' => $this->loan->due_date,
+                'purpose' => $this->loan->purpose,
+                'created_at' => $this->loan->created_at,
 
-                'status' => $this->loan?->status,
-                'loan_date' => $this->loan?->loan_date,
-                'due_date' => $this->loan?->due_date,
+                'user' => [
+                    'id' => $this->loan->user_id,
+                    'details' => $this->loan->user->detail ? [
+                        'name' => $this->loan->user->detail->name,
+                        'email' => $this->loan->user->email,
+                        'no_hp' => $this->loan->user->detail->no_hp,
+                        'nik' => $this->loan->user->detail->nik,
+                        'address' => $this->loan->user->detail->address,
+                    ] : null,
+                ],
 
-                'tool' => $this->whenLoaded('loan', fn() => [
+                'tool' => [
                     'id' => $this->loan->tool_id,
                     'name' => $this->loan->tool?->name,
-                ]),
+                    'price' => $this->loan->tool?->price,
+                    'item_type' => $this->loan->tool?->item_type,
+                    'code_slug' => $this->loan->tool?->code_slug,
+                    'bundle_components' => $this->loan->tool && $this->loan->tool->item_type === 'bundle'
+                        ? $this->loan->tool->bundleComponents->map(fn($bc) => [
+                            'name' => $bc->tool?->name,
+                            'qty' => $bc->qty,
+                            'code' => $bc->tool?->code_slug,
+                            'price' => $bc->tool?->price, // 🔥 Added price for calculation
+                        ]) : null,                ],
 
-                'unit' => $this->whenLoaded('loan', fn() => [
+                'unit' => [
                     'code' => $this->loan->unit_code,
                     'status' => $this->loan->unit?->status,
-                ]),
-            ],
+                ],
 
-            // =========================================
-            // VIOLATION (JIKA ADA MASALAH)
-            // =========================================
-            'violation' => $this->whenLoaded('loan', function () {
+                'review' => [
+                    'employee' => $this->loan->employee ? [
+                        'details' => [
+                            'name' => $this->loan->employee->detail?->name,
+                        ],
+                        'email' => $this->loan->employee->email,
+                    ] : null,
+                ],
 
-                $violation = $this->violation ?? null;
+                'tool_return' => [
+                    'id' => $this->id,
+                    'return_date' => $this->return_date,
+                    'proof' => $this->proof,
+                    'employee' => $this->employee ? [
+                        'details' => [
+                            'name' => $this->employee->detail?->name,
+                        ]
+                    ] : null,
+                ],
 
-                if (!$violation) {
-                    return null;
-                }
+                'violation' => $this->violation ? [
+                    'id' => $this->violation->id,
+                    'type' => $this->violation->type,
+                    'total_score' => $this->violation->total_score,
+                    'fine' => $this->violation->fine,
+                    'description' => $this->violation->description,
+                    'status' => $this->violation->status,
+                ] : null,
 
-                return [
-                    'id' => $violation->id,
-                    'type' => $violation->type,
-                    'fine' => $violation->fine,
-                    'total_score' => $violation->total_score,
-                    'description' => $violation->description,
-                    'status' => $violation->status,
-                ];
-            }),
+                'conditions' => $this->whenLoaded('conditions', function () {
+                    return $this->conditions->map(fn($c) => [
+                        'id' => $c->id,
+                        'unit_code' => $c->unit_code,
+                        'conditions' => $c->conditions,
+                        'notes' => $c->notes,
+                        'recorded_at' => $c->recorded_at,
+                    ]);
+                }),
+            ]),
         ];
     }
 }

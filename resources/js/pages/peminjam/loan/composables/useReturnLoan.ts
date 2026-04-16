@@ -35,10 +35,9 @@ export function useReturnLoan() {
     error.value = null;
 
     try {
-      returnStore.proof = payload.proof;
-      returnStore.notes = payload.notes ?? null;
-
-      const ok = await returnStore.createReturn(selectedLoan.value.id);
+      const ok = await returnStore.createReturn(selectedLoan.value.id, {
+        proof: payload.proof,
+      });
 
       if (ok) {
         successMessage.value = returnStore.successMessage;

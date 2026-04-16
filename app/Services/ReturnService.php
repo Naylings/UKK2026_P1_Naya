@@ -46,13 +46,12 @@ class ReturnService
                 'employee_id'  => null,
                 'return_date'  => now(),
                 'proof'        => $this->storeProof($data['proof'] ?? null),
-                'notes'        => $data['notes'] ?? null,
             ]);
-            
+
             $loan->update([
                 'status' => 'returned'
             ]);
-            
+
             return $loan->fresh(['toolReturn', 'tool', 'unit']);
         });
     }
@@ -61,13 +60,21 @@ class ReturnService
     {
         return DB::transaction(function () use ($loanId, $employeeId, $data) {
 
-            $loan = Loan::lockForUpdate()->find($loanId);
+            $loan = Loan::with([
+                'tool',
+                'unit',
+                'user.detail',
+                'employee.detail',
+                'toolReturn.employee.detail',
+                'toolReturn.conditions',
+                'toolReturn.violation'
+            ])->lockForUpdate()->find($loanId);
 
             if (!$loan) {
                 throw ReturnException::notFound();
             }
 
-            if ($loan->status !== 'approved') {
+            if ($loan->status !== 'returned') {
                 throw ReturnException::notApproved();
             }
 
@@ -82,16 +89,31 @@ class ReturnService
 
             $return = $loan->toolReturn;
 
-            $return->update([
-                'employee_id'  => $employeeId,
-                'notes'        => $data['notes'] ?? null,
+            // =========================
+            // 1. UNIT CONDITION (First Step)
+            // =========================
+            UnitCondition::create([
+                'id'          => (string) Str::uuid(),
+                'unit_code'   => $loan->unit_code,
+                'return_id'   => $return->id,
+                'conditions'  => $data['condition'],
+                'notes'       => $data['condition_notes'] ?? '-',
+                'recorded_at' => now(),
             ]);
 
             // =========================
-            // VIOLATION HANDLING
+            // 2. UPDATE RETURN
             // =========================
-            if (!empty($data['violation_type'])) {
+            $return->update([
+                'employee_id'  => $employeeId,
+            ]);
 
+            // =========================
+            // 3. VIOLATION HANDLING (Receive raw values from FE)
+            // =========================
+            $hasViolation = !empty($data['violation_type']);
+
+            if ($hasViolation) {
                 Violation::create([
                     'loan_id'     => $loan->id,
                     'user_id'     => $loan->user_id,
@@ -99,44 +121,53 @@ class ReturnService
                     'type'        => $data['violation_type'],
                     'total_score' => $data['total_score'] ?? 0,
                     'fine'        => $data['fine'] ?? 0,
-                    'description' => $data['description'] ?? '',
+                    'description' => $data['condition_notes'] ?? "Pelanggaran dicatat oleh petugas.",
                     'status'      => 'active',
+                    'created_at'  => now(),
                 ]);
 
-                $loan->user->decrement('credit_score', $data['total_score'] ?? 0);
+                // Kurangi credit score user
+                $loan->user->update([
+                    'credit_score' => max(0, $loan->user->credit_score - ($data['total_score'] ?? 0))
+                ]);
             }
 
             // =========================
-            // UNIT CONDITION
+            // 4. UNIT STATUS UPDATE
             // =========================
-            UnitCondition::create([
-                'id'          => (string) Str::uuid(),
-                'unit_code'   => $loan->unit_code,
-                'return_id'   => $return->id,
-                'conditions'  => $data['conditions'] ?? 'good',
-                'notes'       => $data['condition_notes'] ?? null,
-                'recorded_at' => now(),
+            // Unit kembali available HANYA jika kondisi 'good' dan tidak hilang
+            $violationType = $data['violation_type'] ?? null;
+
+            $newUnitStatus = ($data['condition'] === 'good' && $violationType !== 'lost')
+                ? 'available'
+                : 'nonactive';
+
+            $loan->unit->update([
+                'status' => $newUnitStatus
             ]);
 
             // =========================
-            // FINALIZE
+            // 5. FINALIZE LOAN & USER
             // =========================
 
-            $loan->user()->update([
-                'is_restricted' => 0
-            ]);
+            // Angkat restriction HANYA jika tidak ada pelanggaran aktif
+            if (!$hasViolation) {
+                $loan->user()->update([
+                    'is_restricted' => 0
+                ]);
+            }
 
             return $loan->fresh([
-                'toolReturn',
+                'toolReturn.conditions',
+                'toolReturn.violation',
+                'toolReturn.employee.detail',
                 'user.detail',
                 'tool',
                 'unit',
-                'violation',
-                'toolReturn.employee'
+                'violation'
             ]);
         });
     }
-
     private function storeProof(?UploadedFile $file): ?string
     {
         if (!$file) {
@@ -168,25 +199,45 @@ class ReturnService
     {
         return \App\Models\ToolReturn::query()
             ->with([
-                'loan.tool',
+                'loan.tool.bundleComponents.tool',
                 'loan.unit',
+                'loan.user.detail',
+                'loan.employee.detail',
                 'employee.detail',
                 'conditions',
                 'violation'
             ])
-            ->when($filters['status'] ?? null, function ($q, $status) {
-                // ready = belum diverifikasi employee
-                if ($status === 'ready') {
-                    $q->whereNull('employee_id');
-                } else {
-                    $q->whereHas('loan', fn($q) => $q->where('status', $status));
-                }
-            })
+
+            // 🔍 SEARCH (tool name + user name)
             ->when($filters['search'] ?? null, function ($q, $search) {
-                $q->whereHas('loan.tool', function ($q2) use ($search) {
-                    $q2->where('name', 'like', "%{$search}%");
+                $q->where(function ($query) use ($search) {
+
+                    // cari nama alat
+                    $query->whereHas('loan.tool', function ($q2) use ($search) {
+                        $q2->where('name', 'like', "%{$search}%");
+                    });
+
+                    // ATAU cari nama user
+                    $query->orWhereHas('loan.user.detail', function ($q3) use ($search) {
+                        $q3->where('name', 'like', "%{$search}%");
+                    });
+
+                    // kalau nama langsung di tabel users (tanpa detail), pakai ini:
+                    // $query->orWhereHas('loan.user', function ($q3) use ($search) {
+                    //     $q3->where('name', 'like', "%{$search}%");
+                    // });
                 });
             })
+
+            // 📌 FILTER REVIEW STATUS
+            ->when(isset($filters['reviewed']), function ($q) use ($filters) {
+                if ($filters['reviewed'] === true || $filters['reviewed'] === 'true') {
+                    $q->whereNotNull('employee_id'); // sudah direview
+                } else {
+                    $q->whereNull('employee_id'); // belum direview
+                }
+            })
+
             ->latest()
             ->paginate($filters['per_page'] ?? 10);
     }

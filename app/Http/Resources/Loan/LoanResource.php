@@ -55,21 +55,35 @@ class LoanResource extends JsonResource
                     ] : null,
                 ]),
             ],
+            'tool_return' => $this->whenLoaded('toolReturn', function () {
+                return [
+                    'id' => $this->toolReturn->id,
+                    'return_date' => $this->toolReturn->return_date,
+                    'proof' => $this->toolReturn->proof,
 
-            'tool_return' => $this->whenLoaded('toolReturn', fn() => [
-                'id' => $this->toolReturn->id,
-                'return_date' => $this->toolReturn->return_date,
-                'proof' => $this->toolReturn->proof,
-                'notes' => $this->toolReturn->notes,
-                'employee' => $this->whenLoaded('toolReturn.employee', fn() => [
-                    'id' => $this->toolReturn->employee->id,
-                    'email' => $this->toolReturn->employee->email,
-                    'details' => $this->toolReturn->employee->detail ? [
-                        'name' => $this->toolReturn->employee->detail->name,
-                        'no_hp' => $this->toolReturn->employee->detail->no_hp,
+                    'employee' => $this->toolReturn->employee ? [
+                        'id' => $this->toolReturn->employee->id,
+                        'details' => $this->toolReturn->employee->detail ? [
+                            'name' => $this->toolReturn->employee->detail->name,
+                        ] : null,
                     ] : null,
-                ]),
-            ]),
+
+                    'conditions' => $this->toolReturn->conditions?->map(function ($c) {
+                        return [
+                            'conditions' => $c->conditions,
+                            'notes' => $c->notes,
+                            'recorded_at' => $c->recorded_at,
+                        ];
+                    }),
+
+                    'violation' => $this->toolReturn->violation ? [
+                        'type' => $this->toolReturn->violation->type,
+                        'description' => $this->toolReturn->violation->description,
+                    ] : null,
+                ];
+            }),
+
+
 
             'violation' => $this->whenLoaded('violation', fn() => [
                 'id' => $this->violation->id,

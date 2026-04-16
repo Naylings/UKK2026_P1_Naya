@@ -19,10 +19,8 @@ return new class extends Migration
             $table->foreign('loan_id')->references('id')->on('loans');
             $table->integer('employee_id')->nullable()->comment('FK ke users   (  Employee  )   yang mencatat pengembalian');
             $table->foreign('employee_id')->references('id')->on('users');
-            $table->boolean('reviewed')->default(false)->comment('Apakah pengembalian sudah di-review oleh Employee');
             $table->timestamp('return_date')->comment('Tanggal aktual alat dikembalikan');
             $table->string('proof')->nullable()->comment('foto/video bukti');
-            $table->text('notes')->nullable()->comment('Catatan pengembalian dari Employee');
             $table->timestamps();
         });
 

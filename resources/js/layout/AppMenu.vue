@@ -61,6 +61,12 @@ const model = ref<AppMenuLinkItem[]>([
                 icon: "pi pi-fw pi-list",
                 to: "/staff/loans",
             },
+            {
+                label: "Pengembalian Barang",
+                icon: "pi pi-fw pi-list",
+                to: "/staff/returns",
+            },
+            
         ],
     },
 ]);
