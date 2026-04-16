@@ -7,6 +7,7 @@ use App\Http\Requests\Tool\StoreToolRequest;
 use App\Http\Requests\Tool\UpdateToolRequest;
 use App\Http\Resources\Tool\ToolResource;
 use App\Models\Tool;
+use App\Services\ActivityLogService;
 use App\Services\ToolManagementService;
 use Illuminate\Http\Request;
 
@@ -34,6 +35,12 @@ class ToolController extends Controller
             $request->validated(),
             $photoFile
         );
+        app(ActivityLogService::class)->log(
+            'tool.created',
+            'tools',
+            "Membuat alat {$tool->name}.",
+            ['tool_id' => $tool->id, 'item_type' => $tool->item_type]
+        );
 
         return (new ToolResource($tool))
             ->additional([
@@ -57,6 +64,12 @@ class ToolController extends Controller
             $request->validated(),
             $request->file('photo')
         );
+        app(ActivityLogService::class)->log(
+            'tool.updated',
+            'tools',
+            "Mengupdate alat {$tool->name}.",
+            ['tool_id' => $tool->id, 'item_type' => $tool->item_type]
+        );
 
         return (new ToolResource($tool))
             ->additional([
@@ -66,7 +79,14 @@ class ToolController extends Controller
 
     public function destroy(Tool $tool)
     {
+        $meta = ['tool_id' => $tool->id, 'name' => $tool->name];
         $this->toolService->deleteTool($tool);
+        app(ActivityLogService::class)->log(
+            'tool.deleted',
+            'tools',
+            "Menghapus alat {$meta['name']}.",
+            $meta
+        );
 
         return response()->json([
             'message' => 'Alat berhasil dihapus.',

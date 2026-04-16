@@ -68,6 +68,12 @@ const router = createRouter({
                     meta: { title: "Konfigurasi Aplikasi", roles: ["Admin"] },
                 },
                 {
+                    path: "/activity-logs",
+                    name: "activity logs",
+                    component: () => import("@/pages/admin/activity-logs/Index.vue"),
+                    meta: { title: "Activity Log", roles: ["Admin"] },
+                },
+                {
                     path: "/tools/user",
                     name: "user tools",
                     component: () => import("@/pages/peminjam/tools/Index.vue"),
@@ -108,6 +114,15 @@ const router = createRouter({
                     component: () => import("@/pages/petugas/return/Index.vue"),
                     meta: {
                         title: "Pengembalian Peminjaman",
+                        roles: ["Employee"],
+                    },
+                },
+                {
+                    path: "/staff/violations",
+                    name: "petugas-violations",
+                    component: () => import("@/pages/petugas/violation/Index.vue"),
+                    meta: {
+                        title: "Pelanggaran",
                         roles: ["Employee"],
                     },
                 }

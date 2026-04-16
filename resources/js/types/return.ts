@@ -1,10 +1,7 @@
-
 export interface CreateReturnPayload {
   proof?: File | null;
-
 }
 
-/** Payload for employee review/confirmation */
 export interface ReviewReturnPayload {
   condition: ReturnConditionType;
   condition_notes?: string | null;
@@ -42,14 +39,13 @@ export interface ReturnLoan {
   status: string;
   loan_date: string;
   due_date: string;
-  purpose: string; // 🔥 Added purpose
-
+  purpose: string;
   tool?: {
     id: number;
     name: string;
     price: number;
     item_type: "single" | "bundle" | "bundle_tool";
-    code_slug?: string; // 🔥 Added code_slug
+    code_slug?: string;
     bundle_components?: Array<{
       name: string;
       qty: number;

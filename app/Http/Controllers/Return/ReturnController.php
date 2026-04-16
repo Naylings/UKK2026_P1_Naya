@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Return\StoreReturn;
 use App\Http\Requests\Return\ReviewReturn;
 use App\Http\Resources\Return\ReturnResource;
+use App\Services\ActivityLogService;
 use App\Services\ReturnService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -25,6 +26,15 @@ class ReturnController extends Controller
             $loanId,
             $request->validated()
         );
+        app(ActivityLogService::class)->log(
+            'return.created',
+            'returns',
+            "Mengajukan pengembalian untuk loan #{$loan->id}.",
+            [
+                'loan_id' => $loan->id,
+                'return_id' => $loan->toolReturn?->id,
+            ]
+        );
 
         return response()->json([
             'message' => 'Pengembalian berhasil dikirim',
@@ -42,6 +52,28 @@ class ReturnController extends Controller
             $request->user()->id,
             $request->validated()
         );
+        app(ActivityLogService::class)->log(
+            'return.confirmed',
+            'returns',
+            "Memverifikasi pengembalian untuk loan #{$loan->id}.",
+            [
+                'loan_id' => $loan->id,
+                'return_id' => $loan->toolReturn?->id,
+            ]
+        );
+
+        if ($loan->violation) {
+            app(ActivityLogService::class)->log(
+                'violation.created',
+                'violations',
+                "Membuat violation #{$loan->violation->id} untuk loan #{$loan->id}.",
+                [
+                    'violation_id' => $loan->violation->id,
+                    'loan_id' => $loan->id,
+                    'type' => $loan->violation->type,
+                ]
+            );
+        }
 
         return response()->json([
             'message' => 'Pengembalian berhasil diverifikasi',

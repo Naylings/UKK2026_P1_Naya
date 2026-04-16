@@ -8,6 +8,7 @@ use App\Http\Requests\User\UpdateUserCreditRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Http\Resources\User\UserResource;
 use App\Models\User;
+use App\Services\ActivityLogService;
 use App\Services\UserManagementService;
 use Illuminate\Http\Request;
 
@@ -32,6 +33,12 @@ class UserController extends Controller
     public function store(StoreUserRequest $request)
     {
         $user = $this->userService->createUser($request->validated());
+        app(ActivityLogService::class)->log(
+            'user.created',
+            'users',
+            "Membuat user {$user->email}.",
+            ['user_id' => $user->id, 'role' => $user->role]
+        );
 
         return (new UserResource($user))
             ->additional([
@@ -51,6 +58,12 @@ class UserController extends Controller
     public function update(UpdateUserRequest $request, User $user)
     {
         $user = $this->userService->updateUser($user, $request->validated());
+        app(ActivityLogService::class)->log(
+            'user.updated',
+            'users',
+            "Mengupdate user {$user->email}.",
+            ['user_id' => $user->id, 'role' => $user->role]
+        );
 
         return (new UserResource($user))
             ->additional([
@@ -60,7 +73,14 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
+        $meta = ['user_id' => $user->id, 'email' => $user->email];
         $this->userService->deleteUser($user);
+        app(ActivityLogService::class)->log(
+            'user.deleted',
+            'users',
+            "Menghapus user {$meta['email']}.",
+            $meta
+        );
 
         return response()->json([
             'message' => 'User berhasil dihapus.',
@@ -72,6 +92,12 @@ class UserController extends Controller
         $user = $this->userService->updateUserCredit(
             $user,
             $request->validated()['credit']
+        );
+        app(ActivityLogService::class)->log(
+            'user.credit_updated',
+            'users',
+            "Mengupdate credit user {$user->email}.",
+            ['user_id' => $user->id, 'credit_score' => $user->credit_score]
         );
 
         return (new UserResource($user))

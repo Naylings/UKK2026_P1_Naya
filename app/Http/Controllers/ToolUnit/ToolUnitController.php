@@ -11,6 +11,7 @@ use App\Http\Requests\ToolUnit\UpdateToolUnitRequest;
 use App\Http\Resources\ToolUnit\AvailableUnitResource;
 use App\Http\Resources\ToolUnit\ToolUnitResource;
 use App\Http\Resources\ToolUnit\UnitConditionResource;
+use App\Services\ActivityLogService;
 use App\Services\ToolUnitService;
 use Illuminate\Http\Request;
 
@@ -83,6 +84,12 @@ class ToolUnitController extends Controller
                     $data['condition'] ?? 'good',
                 );
                 $unit = $units[0];
+                app(ActivityLogService::class)->log(
+                    'tool_unit.created',
+                    'tool_units',
+                    "Membuat unit {$unit->code}.",
+                    ['unit_code' => $unit->code, 'tool_id' => $unit->tool_id]
+                );
 
                 return (new ToolUnitResource($unit))
                     ->additional(['message' => 'Unit berhasil dibuat.'])
@@ -102,6 +109,13 @@ class ToolUnitController extends Controller
 
                 $units[] = $created[0];
             }
+
+            app(ActivityLogService::class)->log(
+                'tool_unit.bulk_created',
+                'tool_units',
+                "Membuat {$quantity} unit baru.",
+                ['quantity' => $quantity, 'tool_id' => $data['tool_id']]
+            );
 
             return response()->json([
                 'data'    => ToolUnitResource::collection($units),
@@ -134,6 +148,12 @@ class ToolUnitController extends Controller
             if (isset($data['notes'])) {
                 $unit->update(['notes' => $data['notes']]);
             }
+            app(ActivityLogService::class)->log(
+                'tool_unit.updated',
+                'tool_units',
+                "Mengupdate unit {$unit->code}.",
+                ['unit_code' => $unit->code, 'status' => $unit->status]
+            );
 
             return (new ToolUnitResource($unit))
                 ->additional(['message' => 'Unit berhasil diupdate.']);
@@ -157,7 +177,14 @@ class ToolUnitController extends Controller
     public function destroy(string $code)
     {
         try {
+            $meta = ['unit_code' => $code];
             $this->unitService->deleteUnit($code);
+            app(ActivityLogService::class)->log(
+                'tool_unit.deleted',
+                'tool_units',
+                "Menghapus unit {$code}.",
+                $meta
+            );
 
             return response()->json([
                 'message' => 'Unit berhasil dihapus.',
@@ -188,6 +215,16 @@ class ToolUnitController extends Controller
                 $data['condition'],
                 $data['notes'] ?? '',
                 $data['return_id'] ?? null,
+            );
+            app(ActivityLogService::class)->log(
+                'tool_unit.condition_recorded',
+                'tool_units',
+                "Mencatat kondisi unit {$code}.",
+                [
+                    'unit_code' => $code,
+                    'condition' => $data['condition'],
+                    'return_id' => $data['return_id'] ?? null,
+                ]
             );
 
             return (new UnitConditionResource($condition))

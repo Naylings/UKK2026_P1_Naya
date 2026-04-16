@@ -47,6 +47,11 @@ const model = ref<AppMenuLinkItem[]>([
                 to: "/app-config",
             },
             {
+                label: "Activity Log",
+                icon: "pi pi-fw pi-history",
+                to: "/activity-logs",
+            },
+            {
                 label: "Daftar Alat",
                 icon: "pi pi-fw pi-wrench",
                 to: "/tools/user",
@@ -65,6 +70,11 @@ const model = ref<AppMenuLinkItem[]>([
                 label: "Pengembalian Barang",
                 icon: "pi pi-fw pi-list",
                 to: "/staff/returns",
+            },
+            {
+                label: "Pelanggaran",
+                icon: "pi pi-fw pi-list",
+                to: "/staff/violations",
             },
             
         ],

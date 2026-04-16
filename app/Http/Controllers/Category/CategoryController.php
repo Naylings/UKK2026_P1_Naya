@@ -7,6 +7,7 @@ use App\Http\Requests\Category\StoreCategoryRequest;
 use App\Http\Requests\Category\UpdateCategoryRequest;
 use App\Http\Resources\Category\CategoryResource;
 use App\Models\Category;
+use App\Services\ActivityLogService;
 use App\Services\CategoryManagementService;
 use Illuminate\Http\Request;
 
@@ -30,6 +31,12 @@ class CategoryController extends Controller
     public function store(StoreCategoryRequest $request)
     {
         $cat = $this->catService->createCategory($request->validated());
+        app(ActivityLogService::class)->log(
+            'category.created',
+            'categories',
+            "Membuat kategori {$cat->name}.",
+            ['category_id' => $cat->id]
+        );
 
         return (new CategoryResource($cat))
             ->additional([
@@ -42,6 +49,12 @@ class CategoryController extends Controller
     public function update(UpdateCategoryRequest $request, Category $category)
     {
         $category = $this->catService->updateCategory($category, $request->validated());
+        app(ActivityLogService::class)->log(
+            'category.updated',
+            'categories',
+            "Mengupdate kategori {$category->name}.",
+            ['category_id' => $category->id]
+        );
 
         return (new CategoryResource($category))
             ->additional([
@@ -51,7 +64,14 @@ class CategoryController extends Controller
 
     public function destroy(Category $category)
     {
+        $meta = ['category_id' => $category->id, 'name' => $category->name];
         $this->catService->deleteCategory($category);
+        app(ActivityLogService::class)->log(
+            'category.deleted',
+            'categories',
+            "Menghapus kategori {$meta['name']}.",
+            $meta
+        );
 
         return response()->json([
             'message' => 'Category berhasil dihapus.',

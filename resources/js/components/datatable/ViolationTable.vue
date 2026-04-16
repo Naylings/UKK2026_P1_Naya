@@ -1,15 +1,13 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
-import { useFormatter } from "@/utils/useFormatter";
-
-const { formatDate } = useFormatter();
 
 const props = defineProps<{
-  loans: any[];
+  violations: any[];
   loading: boolean;
   meta: any;
   filters: any;
   statusOptions: Array<{ label: string; value: string }>;
+  typeOptions: Array<{ label: string; value: string }>;
 }>();
 
 const emit = defineEmits<{
@@ -17,12 +15,12 @@ const emit = defineEmits<{
   (e: "page-change", value: any): void;
   (e: "search", value: string): void;
   (e: "reset"): void;
-  (e: "review", loan: any): void;
-  (e: "detail", loan: any): void;
+  (e: "detail", violation: any): void;
 }>();
 
 const globalFilter = ref("");
 
+// Debounce search agar tidak terlalu sering hit API
 let timeout: any;
 watch(globalFilter, (val) => {
   clearTimeout(timeout);
@@ -32,15 +30,11 @@ watch(globalFilter, (val) => {
 });
 
 const getStatusSeverity = (status: string) => {
-  switch (status.toLowerCase()) {
-    case "approved":
+  switch (status?.toLowerCase()) {
+    case "settled":
       return "success";
-    case "pending":
+    case "active":
       return "warn";
-    case "rejected":
-      return "danger";
-    case "returned":
-      return "info";
     default:
       return "secondary";
   }
@@ -49,9 +43,8 @@ const getStatusSeverity = (status: string) => {
 
 <template>
   <div class="card">
-    <div class="font-semibold text-xl mb-4">Daftar Peminjaman</div>
+    <div class="font-semibold text-xl mb-4">Daftar Pelanggaran (Violation)</div>
 
-    <!-- FILTER -->
     <div
       class="mb-6 flex flex-wrap gap-3 rounded-2xl border border-gray-100 bg-gray-50 p-4"
     >
@@ -62,7 +55,7 @@ const getStatusSeverity = (status: string) => {
           </InputGroupAddon>
           <InputText
             v-model="globalFilter"
-            placeholder="Cari peminjam atau alat..."
+            placeholder="Cari user atau alat..."
           />
         </InputGroup>
       </div>
@@ -76,6 +69,18 @@ const getStatusSeverity = (status: string) => {
         class="w-full md:w-56"
         @update:modelValue="
           (val) => emit('update:filters', { ...filters, status: val, page: 1 })
+        "
+      />
+
+      <Select
+        :modelValue="filters.type"
+        :options="typeOptions"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Tipe"
+        class="w-full md:w-56"
+        @update:modelValue="
+          (val) => emit('update:filters', { ...filters, type: val, page: 1 })
         "
       />
 
@@ -94,14 +99,13 @@ const getStatusSeverity = (status: string) => {
       />
     </div>
 
-    <!-- TABLE -->
     <DataTable
-      :value="loans"
+      :value="violations"
       :loading="loading"
       paginator
+      lazy
       :rows="meta?.per_page || 10"
       :totalRecords="meta?.total || 0"
-      lazy
       class="p-datatable-sm"
       @page="(e) => $emit('page-change', e)"
     >
@@ -113,45 +117,40 @@ const getStatusSeverity = (status: string) => {
         </template>
       </Column>
 
-      <Column header="Informasi Peminjaman">
+      <Column header="User & Alat">
         <template #body="{ data }">
           <div class="flex flex-col">
-            <span class="font-bold text-surface-900 dark:text-surface-0">{{
-              data.tool?.name
-            }}</span>
-            <small class="text-muted-color">{{ data.purpose }}</small>
+            <span class="font-bold text-surface-900 dark:text-surface-0">
+              {{ data.user?.details?.name || "-" }}
+            </span>
+            <small class="text-muted-color">{{ data.loan?.tool?.name || "-" }}</small>
           </div>
         </template>
       </Column>
 
-      <Column header="Unit">
+      <Column header="Tipe">
         <template #body="{ data }">
-          <Tag
-            :value="data.unit?.code"
-            severity="secondary"
+          <Tag 
+            :value="data.type?.toUpperCase()" 
+            severity="danger" 
             variant="outline"
+            style="font-size: 10px"
           />
         </template>
       </Column>
 
-      <Column header="Jadwal">
+      <Column header="Denda">
         <template #body="{ data }">
-          <div class="flex items-center gap-2 text-sm">
-            <i class="pi pi-calendar text-primary text-xs" />
-            <div class="flex flex-col">
-              <span>{{ formatDate(data.loan_date) }}</span>
-              <span class="text-xs text-muted-color italic"
-                >s/d {{ formatDate(data.due_date) }}</span
-              >
-            </div>
-          </div>
+          <span class="font-semibold text-red-500">
+            Rp {{ data.fine?.toLocaleString() || 0 }}
+          </span>
         </template>
       </Column>
 
       <Column header="Status">
         <template #body="{ data }">
           <Tag
-            :value="data.status.toUpperCase()"
+            :value="data.status?.toUpperCase()"
             :severity="getStatusSeverity(data.status)"
           />
         </template>
@@ -159,24 +158,15 @@ const getStatusSeverity = (status: string) => {
 
       <Column
         header="Aksi"
-        headerStyle="width: 8rem"
+        headerStyle="width: 5rem"
         bodyStyle="text-align: center"
       >
         <template #body="{ data }">
-          <div class="flex gap-2 justify-center">
-            <Button
-              v-if="data.status === 'pending'"
-              icon="pi pi-check-circle"
-              v-tooltip.top="'Review'"
-              severity="success"
-              rounded
-              text
-              @click="$emit('review', data)"
-            />
+          <div class="flex justify-center">
             <Button
               icon="pi pi-search"
-              v-tooltip.top="'Detail'"
-              severity="info"
+              v-tooltip.top="'Lihat Detail'"
+              severity="secondary"
               rounded
               text
               @click="$emit('detail', data)"
@@ -184,6 +174,10 @@ const getStatusSeverity = (status: string) => {
           </div>
         </template>
       </Column>
+
+      <template #empty>
+        <div class="text-center p-4 text-muted-color">Tidak ada data ditemukan.</div>
+      </template>
     </DataTable>
   </div>
 </template>

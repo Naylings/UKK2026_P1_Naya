@@ -1,13 +1,16 @@
 <?php
 
 use App\Http\Controllers\AppConfig\AppConfigController;
+use App\Http\Controllers\ActivityLog\ActivityLogController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Category\CategoryController;
 use App\Http\Controllers\Loan\LoanController;
 use App\Http\Controllers\Return\ReturnController;
+use App\Http\Controllers\Settlement\SettlementController;
 use App\Http\Controllers\Tool\ToolController;
 use App\Http\Controllers\ToolUnit\ToolUnitController;
 use App\Http\Controllers\User\UserController;
+use App\Http\Controllers\Violation\ViolationController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -190,4 +193,34 @@ Route::prefix('returns')->middleware('auth:api')->group(function () {
 
     // DETAIL return
     Route::get('/{id}', [ReturnController::class, 'show']);
+});
+
+
+
+
+/*
+|--------------------------------------------------------------------------
+| Settlements Routes
+|--------------------------------------------------------------------------
+|
+| prefix  : /api/settlements
+| middleware: auth:api (JWT protected)
+|
+*/
+
+
+Route::middleware('auth:api')->post('/violations/{violationId}/settle', [SettlementController::class, 'store']);
+
+Route::prefix('violations')->middleware('auth:api')->group(function () {
+    Route::get('/', [ViolationController::class, 'index']);
+    Route::get('/{id}', [ViolationController::class, 'show']);
+});
+
+Route::prefix('settlements')->middleware('auth:api')->group(function () {
+    Route::get('/', [SettlementController::class, 'index']);
+    Route::get('/{id}', [SettlementController::class, 'show']);
+});
+Route::prefix('activity-logs')->middleware('auth:api')->group(function () {
+    Route::get('/', [ActivityLogController::class, 'index']);
+    Route::get('/{id}', [ActivityLogController::class, 'show']);
 });

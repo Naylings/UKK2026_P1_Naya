@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Loan;
 
 use App\Services\LoanService;
+use App\Services\ActivityLogService;
 use Illuminate\Http\JsonResponse;
 use App\Http\Requests\Loan\StoreLoanRequest;
 use App\Http\Resources\Loan\LoanResource;
@@ -18,6 +19,16 @@ class LoanController extends Controller
     public function store(StoreLoanRequest $request): JsonResponse
     {
         $loan = $this->loanService->create($request->validated());
+        app(ActivityLogService::class)->log(
+            'loan.created',
+            'loans',
+            "Membuat pengajuan peminjaman #{$loan->id}.",
+            [
+                'loan_id' => $loan->id,
+                'tool_id' => $loan->tool_id,
+                'unit_code' => $loan->unit_code,
+            ]
+        );
 
         return response()->json([
             'message' => 'Pengajuan peminjaman berhasil',
@@ -50,6 +61,12 @@ class LoanController extends Controller
             $request->user()->id,
             $request->input('notes')
         );
+        app(ActivityLogService::class)->log(
+            'loan.approved',
+            'loans',
+            "Menyetujui peminjaman #{$loan->id}.",
+            ['loan_id' => $loan->id, 'notes' => $loan->notes]
+        );
 
         return response()->json([
             'message' => 'Peminjaman disetujui',
@@ -64,6 +81,12 @@ class LoanController extends Controller
             $loanId,
             $request->user()->id,
             $request->input('notes')
+        );
+        app(ActivityLogService::class)->log(
+            'loan.rejected',
+            'loans',
+            "Menolak peminjaman #{$loan->id}.",
+            ['loan_id' => $loan->id, 'notes' => $loan->notes]
         );
 
         return response()->json([
