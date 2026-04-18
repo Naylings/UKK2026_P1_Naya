@@ -7,9 +7,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class UserDetail extends Model
 {
-    /**
-     * Primary key bukan id integer, melainkan NIK (string).
-     */
     protected $primaryKey = 'nik';
     public $incrementing  = false;
     protected $keyType    = 'string';
@@ -27,9 +24,9 @@ class UserDetail extends Model
         'birth_date' => 'date',
     ];
 
-    // -------------------------------------------------------------------------
-    // Relations
-    // -------------------------------------------------------------------------
+    
+    
+    
 
     public function user(): BelongsTo
     {

@@ -39,38 +39,38 @@ class ToolManagementService
             default => 'file upload tidak valid',
         };
     }
-    // ─────────────────────────────────────────────────────────────────────────
-    // Code Slug Prefix Rules
-    //
-    //  single      → no prefix,  e.g.  GERINDA
-    //  bundle      → SET-,       e.g.  SET-GERINDA
-    //  bundle_tool → SUB-,       e.g.  SUB-GERINDA-1
-    //
-    // Prefix SUB- pada bundle_tool mencegah collision dengan single
-    // yang kebetulan punya nama sama dengan komponen bundle-nya.
-    // ─────────────────────────────────────────────────────────────────────────
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     private function applyCodeSlugPrefix(string $slug, string $itemType): string
     {
-        // Strip prefix lama jika ada, lalu uppercase
+        
         $slug = Str::upper($slug);
         $slug = preg_replace('/^(SET-|SUB-)/', '', $slug);
 
         return match ($itemType) {
             'bundle'      => 'SET-' . $slug,
             'bundle_tool' => 'SUB-' . $slug,
-            default       => $slug, // single: no prefix
+            default       => $slug, 
         };
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // Public API
-    // ─────────────────────────────────────────────────────────────────────────
+    
+    
+    
 
     public function getAllTools(int $perPage = 10, ?string $search = null, ?string $category = null)
     {
         $query = Tool::with(['category', 'bundleComponents.tool'])
-            ->where('item_type', '!=', 'bundle_tool'); // Exclude bundle_tool dari list utama
+            ->where('item_type', '!=', 'bundle_tool'); 
 
         if ($search) {
             $query->where(function ($q) use ($search) {
@@ -102,11 +102,11 @@ class ToolManagementService
     {
         try {
             $tool = DB::transaction(function () use ($data, $photoFile) {
-                // Handle foto upload
+                
                 $photoPath = $this->storePhotoOrFail($photoFile);
                 $photoPath = $photoPath ?? ($data['photo_path'] ?? 'tools/placeholder-tool.png');
 
-                // Terapkan prefix sesuai item_type
+                
                 $codeSlug = $this->applyCodeSlugPrefix(
                     $data['code_slug'],
                     $data['item_type']
@@ -199,9 +199,9 @@ class ToolManagementService
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // Bundle component helpers
-    // ─────────────────────────────────────────────────────────────────────────
+    
+    
+    
 
     private function syncBundleComponents(Tool $tool, ?array $components): void
     {
@@ -223,7 +223,7 @@ class ToolManagementService
                     'name'             => $component['name'],
                     'item_type'        => 'bundle_tool',
                     'price'            => $component['price'],
-                    // min_credit_score bundle_tool selalu ikut parent
+                    
                     'min_credit_score' => $tool->min_credit_score,
                     'description'      => $component['description'] ?? $tool->description,
                     'code_slug'        => $this->generateComponentCodeSlug(
@@ -271,35 +271,27 @@ class ToolManagementService
         }
     }
 
-    /**
-     * Generate code slug untuk bundle_tool.
-     *
-     * Format: SUB-{baseParent}-{index}
-     * Contoh: parent = SET-GERINDA → SUB-GERINDA-1, SUB-GERINDA-2
-     *
-     * base diambil dari parent slug setelah prefix SET-/SUB- dicopot.
-     * Jika collision, counter naik sampai slug unik.
-     */
+    
     private function generateComponentCodeSlug(string $parentSlug, string $componentName, int $index): string
     {
-        // Ambil base dari parent: SET-GERINDA → GERINDA
+        
         $base = preg_replace('/^(SET-|SUB-)/', '', Str::upper($parentSlug));
 
-        // Fallback ke nama komponen jika base kosong
+        
         if ($base === '') {
             $base = Str::upper(
                 Str::of($componentName)->replaceMatches('/[^A-Za-z0-9]/', '')->substr(0, 10)
             );
         }
 
-        // Max total panjang slug = 20 char
-        // SUB- (4) + base + - (1) + suffix
+        
+        
         $suffix    = (string) $index;
         $maxBase   = max(1, 20 - 4 - 1 - strlen($suffix));
         $trimBase  = Str::substr($base, 0, $maxBase);
         $candidate = "SUB-{$trimBase}-{$suffix}";
 
-        // Loop sampai slug benar-benar unik
+        
         $counter = $index;
         while (Tool::query()->where('code_slug', $candidate)->exists()) {
             $counter++;

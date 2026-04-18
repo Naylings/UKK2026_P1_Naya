@@ -23,7 +23,6 @@ async function handleLogin() {
       life: 3000 
     });
 
-    // Redirect berdasarkan role, bukan hardcode satu nama route
     const role = authStore.user.role;
     setTimeout(() => {
       if (role === 'Admin' || role === 'Employee') {
@@ -37,7 +36,6 @@ async function handleLogin() {
 </script>
 
 <template>
-  <!-- <FloatingConfigurator /> -->
   <div
     class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-screen overflow-hidden"
   >

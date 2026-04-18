@@ -8,7 +8,7 @@ import type {
 } from "@/types/return";
 
 export const useReturnStore = defineStore("return", () => {
-  // ── State ──────────────────────────────────────────────
+  
 
   const returns = ref<ReturnResponse[]>([]);
   const meta = ref<any>(null);
@@ -17,14 +17,13 @@ export const useReturnStore = defineStore("return", () => {
   const error = ref<string | null>(null);
   const successMessage = ref<string | null>(null);
 
-  // ── Actions ────────────────────────────────────────────
+  
 
   function reset() {
     error.value = null;
     successMessage.value = null;
   }
 
-  /** User: Submit return request */
   async function createReturn(
     loanId: number,
     payload: CreateReturnPayload,
@@ -44,7 +43,6 @@ export const useReturnStore = defineStore("return", () => {
     }
   }
 
-  /** Employee/Admin: Fetch list of returns */
   async function fetchReturns(params?: any) {
     loading.value = true;
     error.value = null;
@@ -62,7 +60,6 @@ export const useReturnStore = defineStore("return", () => {
     }
   }
 
-  /** Employee: Confirm/Review a return */
   async function confirmReturn(
     loanId: number,
     payload: ReviewReturnPayload,
@@ -83,17 +80,26 @@ export const useReturnStore = defineStore("return", () => {
   }
 
   return {
-    // state
+    
     returns,
     meta,
     loading,
     error,
     successMessage,
 
-    // actions
+    
     reset,
     createReturn,
     fetchReturns,
     confirmReturn,
+
+    
+    $reset() {
+      returns.value = [];
+      meta.value = null;
+      loading.value = false;
+      error.value = null;
+      successMessage.value = null;
+    },
   };
 });

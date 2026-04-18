@@ -89,9 +89,9 @@ class ReturnService
 
             $return = $loan->toolReturn;
 
-            // =========================
-            // 1. UNIT CONDITION (First Step)
-            // =========================
+            
+            
+            
             UnitCondition::create([
                 'id'          => (string) Str::uuid(),
                 'unit_code'   => $loan->unit_code,
@@ -101,16 +101,16 @@ class ReturnService
                 'recorded_at' => now(),
             ]);
 
-            // =========================
-            // 2. UPDATE RETURN
-            // =========================
+            
+            
+            
             $return->update([
                 'employee_id'  => $employeeId,
             ]);
 
-            // =========================
-            // 3. VIOLATION HANDLING (Receive raw values from FE)
-            // =========================
+            
+            
+            
             $hasViolation = !empty($data['violation_type']);
 
             if ($hasViolation) {
@@ -126,16 +126,16 @@ class ReturnService
                     'created_at'  => now(),
                 ]);
 
-                // Kurangi credit score user
+                
                 $loan->user->update([
                     'credit_score' => max(0, $loan->user->credit_score - ($data['total_score'] ?? 0))
                 ]);
             }
 
-            // =========================
-            // 4. UNIT STATUS UPDATE
-            // =========================
-            // Unit kembali available HANYA jika kondisi 'good' dan tidak hilang
+            
+            
+            
+            
             $violationType = $data['violation_type'] ?? null;
 
             $newUnitStatus = ($data['condition'] === 'good' && $violationType !== 'lost')
@@ -146,11 +146,11 @@ class ReturnService
                 'status' => $newUnitStatus
             ]);
 
-            // =========================
-            // 5. FINALIZE LOAN & USER
-            // =========================
+            
+            
+            
 
-            // Angkat restriction HANYA jika tidak ada pelanggaran aktif
+            
             if (!$hasViolation) {
                 $loan->user()->update([
                     'is_restricted' => 0
@@ -208,33 +208,33 @@ class ReturnService
                 'violation'
             ])
 
-            // 🔍 SEARCH (tool name + user name)
+            
             ->when($filters['search'] ?? null, function ($q, $search) {
                 $q->where(function ($query) use ($search) {
 
-                    // cari nama alat
+                    
                     $query->whereHas('loan.tool', function ($q2) use ($search) {
                         $q2->where('name', 'like', "%{$search}%");
                     });
 
-                    // ATAU cari nama user
+                    
                     $query->orWhereHas('loan.user.detail', function ($q3) use ($search) {
                         $q3->where('name', 'like', "%{$search}%");
                     });
 
-                    // kalau nama langsung di tabel users (tanpa detail), pakai ini:
-                    // $query->orWhereHas('loan.user', function ($q3) use ($search) {
-                    //     $q3->where('name', 'like', "%{$search}%");
-                    // });
+                    
+                    
+                    
+                    
                 });
             })
 
-            // 📌 FILTER REVIEW STATUS
+            
             ->when(isset($filters['reviewed']), function ($q) use ($filters) {
                 if ($filters['reviewed'] === true || $filters['reviewed'] === 'true') {
-                    $q->whereNotNull('employee_id'); // sudah direview
+                    $q->whereNotNull('employee_id'); 
                 } else {
-                    $q->whereNull('employee_id'); // belum direview
+                    $q->whereNull('employee_id'); 
                 }
             })
 

@@ -7,13 +7,7 @@ use App\Models\Category;
 
 class CategoryManagementService
 {
-    /**
-     * Get all categories dengan pagination, search
-     * 
-     * @param int $perPage
-     * @param string|null $search
-     * @return \Illuminate\Pagination\LengthAwarePaginator
-     */
+    
     public function getAllCategories(int $perPage = 10, ?string $search = null)
     {
         $query = Category::query();
@@ -25,30 +19,21 @@ class CategoryManagementService
 
         $result = $query->paginate($perPage);
 
-        // if (!$result->count()) {
-        //     throw CategoryException::notFound();
-        // }
+        
+        
+        
 
         return $result;
     }
 
 
 
-    /**
-     * Create category baru
-     * 
-     * @param array{
-     *   name: string,
-     *   description?: string
-     * } $data
-     * @return Category
-     * @throws CategoryException
-     */
+    
     public function createCategory(array $data): Category
     {
 
         try {
-            // Create category
+            
             $category = Category::create([
                 'name' => $data['name'],
                 'description' => $data['description'] ?? null,
@@ -60,17 +45,7 @@ class CategoryManagementService
         }
     }
 
-    /**
-     * Update category
-     * 
-     * @param Category $category
-     * @param array{
-     *   name?: string,
-     *   description?: string
-     * } $data
-     * @return Category
-     * @throws CategoryException
-     */
+    
     public function updateCategory(Category $category, array $data): Category
     {
         try {
@@ -87,16 +62,10 @@ class CategoryManagementService
         }
     }
 
-    /**
-     * Delete category
-     * 
-     * @param Category $category
-     * @return void
-     * @throws CategoryException
-     */
+    
     public function deleteCategory(Category $category): void
     {
-        // check relations
+        
         if ($category->tools()->exists()) {
             throw CategoryException::hasRelations();
         }

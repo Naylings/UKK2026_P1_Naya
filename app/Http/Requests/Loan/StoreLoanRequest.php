@@ -9,7 +9,7 @@ class StoreLoanRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true; // nanti bisa pakai policy
+        return true;
     }
 
     public function withValidator($validator)
@@ -19,7 +19,6 @@ class StoreLoanRequest extends FormRequest
             $user = $this->user();
             if (!$user) return;
 
-            // 1. user restriction
             if ($user->is_restricted) {
                 $validator->errors()->add(
                     'user',
@@ -27,7 +26,6 @@ class StoreLoanRequest extends FormRequest
                 );
             }
 
-            // 2. guard biar tidak query kalau kosong
             $unitCode = $this->unit_code;
             if (!$unitCode) return;
 

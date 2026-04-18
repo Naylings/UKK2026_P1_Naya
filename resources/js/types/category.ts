@@ -1,7 +1,7 @@
-// ─────────────────────────────────────────────
-// types/category.ts
-// Semua type yang berhubungan dengan category domain
-// ─────────────────────────────────────────────
+
+
+
+
 
 
 export interface Category {
@@ -30,7 +30,7 @@ export interface CategoryResponse {
   data: Category;
 }
 
-// types/category.ts - ADD this
+
 export interface PaginatedCategoriesResponse {
   data: Category[];
   meta: {

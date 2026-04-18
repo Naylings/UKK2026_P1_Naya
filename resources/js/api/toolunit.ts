@@ -1,7 +1,3 @@
-// ─────────────────────────────────────────────
-// api/toolunit.ts
-// Pure HTTP calls untuk tool unit management — tidak ada side effect
-// ─────────────────────────────────────────────
 
 import type {
     PaginatedToolUnitsResponse,
@@ -18,10 +14,7 @@ import type { ApiMessageResponse, LaravelApiResponse } from "@/types/auth";
 import type { AvailableToolUnitsResponse } from "@/types/loan";
 
 export const toolUnitApi = {
-    /**
-     * GET /api/tool-units
-     * Ambil semua unit dengan pagination, filter, dan search
-     */
+    
     list: async (params?: {
         search?: string;
         tool_id?: number;
@@ -38,10 +31,7 @@ export const toolUnitApi = {
         return res.data;
     },
 
-    /**
-     * GET /api/tool-units/:code
-     * Ambil detail unit berdasarkan code
-     */
+    
     get: async (code: string): Promise<ToolUnit> => {
         const res = await apiClient.get<ToolUnitResponse>(
             `/tool-units/${code}`,
@@ -49,10 +39,7 @@ export const toolUnitApi = {
         return res.data.data;
     },
 
-    /**
-     * POST /api/tool-units
-     * Buat unit baru (single atau bulk)
-     */
+    
     create: async (
         payload: CreateToolUnitPayload,
     ): Promise<LaravelApiResponse<ToolUnit | ToolUnit[]>> => {
@@ -62,10 +49,7 @@ export const toolUnitApi = {
         return res.data;
     },
 
-    /**
-     * PUT /api/tool-units/:code
-     * Update status unit
-     */
+    
     update: async (
         code: string,
         payload: UpdateToolUnitPayload,
@@ -77,10 +61,7 @@ export const toolUnitApi = {
         return res.data;
     },
 
-    /**
-     * DELETE /api/tool-units/:code
-     * Hapus unit
-     */
+    
     delete: async (code: string): Promise<ApiMessageResponse> => {
         const res = await apiClient.delete<ApiMessageResponse>(
             `/tool-units/${code}`,
@@ -88,10 +69,7 @@ export const toolUnitApi = {
         return res.data;
     },
 
-    /**
-     * POST /api/tool-units/:code/record-condition
-     * Catat kondisi unit baru
-     */
+    
     recordCondition: async (
         code: string,
         payload: RecordConditionPayload,
@@ -103,10 +81,7 @@ export const toolUnitApi = {
         return res.data;
     },
 
-    /**
-     * GET /api/tool-units/:code/history
-     * Ambil history kondisi unit
-     */
+    
     getConditionHistory: async (
         code: string,
     ): Promise<ConditionHistoryResponse> => {

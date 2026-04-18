@@ -11,17 +11,11 @@ use Illuminate\Support\Str;
 
 class ToolUnitService
 {
-    /**
-     * Generate kode unit unik berdasarkan tool.
-     * Format: {code_slug}-{index}
-     * Contoh: LPT-001, SET-PK-001
-     */
     private function generateUnitCode(Tool $tool, int $index): string
     {
         $base = $tool->code_slug;
         $code = "{$base}-" . str_pad($index, 3, '0', STR_PAD_LEFT);
 
-        // Loop sampai kode benar-benar unik
         $counter = $index;
         while (ToolUnit::where('code', $code)->exists()) {
             $counter++;
@@ -31,12 +25,6 @@ class ToolUnitService
         return $code;
     }
 
-    /**
-     * Map kondisi ke status unit
-     * good -> available
-     * broken -> nonactive
-     * maintenance -> nonactive
-     */
     private function getStatusFromCondition(string $condition): string
     {
         return match ($condition) {
@@ -47,9 +35,6 @@ class ToolUnitService
         };
     }
 
-    /**
-     * Generate default notes berdasarkan condition
-     */
     private function getDefaultNotes(string $condition): string
     {
         return match ($condition) {
@@ -60,9 +45,6 @@ class ToolUnitService
         };
     }
 
-    /**
-     * Ambil semua unit dengan pagination dan filter
-     */
     public function getAllUnits(
         int $perPage = 10,
         ?int $toolId = null,
@@ -89,9 +71,6 @@ class ToolUnitService
         return $query->paginate($perPage);
     }
 
-    /**
-     * Ambil unit berdasarkan code
-     */
     public function getUnitByCode(string $code): ToolUnit
     {
         $unit = ToolUnit::with(['tool', 'latestCondition', 'conditions'])->find($code);
@@ -103,10 +82,6 @@ class ToolUnitService
         return $unit;
     }
 
-    /**
-     * Buat unit baru untuk tool
-     * Support single atau multiple units (bulk)
-     */
     public function createUnit(
         int $toolId,
         int $quantity = 1,
@@ -120,23 +95,19 @@ class ToolUnitService
                     throw ToolUnitException::invalidToolId();
                 }
 
-                // Validasi quantity
                 if ($quantity < 1 || $quantity > 999) {
                     throw new \Exception('Quantity harus antara 1-999');
                 }
 
                 $units = [];
 
-                // Query count ONCE sebelum loop untuk menghindari kalkulasi yang salah
                 $baseCount = ToolUnit::where('tool_id', $toolId)->count();
 
                 for ($i = 0; $i < $quantity; $i++) {
-                    // Hitung unit terbaru untuk tool ini
                     $lastIndex = $baseCount + 1 + $i;
 
                     $code = $this->generateUnitCode($tool, $lastIndex);
 
-                    // Cek jika code sudah ada (precaution)
                     if (ToolUnit::where('code', $code)->exists()) {
                         throw ToolUnitException::codeAlreadyExists($code);
                     }
@@ -149,15 +120,12 @@ class ToolUnitService
                         'created_at' => now(),
                     ]);
 
-                    // Catat kondisi awal
-                    // Pass user's notes ke recordCondition, let it handle default logic
                     $this->recordCondition(
                         $code,
                         $initialCondition,
                         $notes,
                     );
 
-                    // Reload unit dari database untuk memastikan status terupdate setelah recordCondition
                     $unit = ToolUnit::with(['tool', 'latestCondition'])->find($code);
                     $units[] = $unit;
                 }
@@ -171,9 +139,6 @@ class ToolUnitService
         }
     }
 
-    /**
-     * Update notes unit saja (tidak mengubah status)
-     */
     public function updateUnitNotes(string $code, string $notes): ToolUnit
     {
         try {
@@ -188,9 +153,6 @@ class ToolUnitService
         }
     }
 
-    /**
-     * Update status unit
-     */
     public function updateStatus(string $code, string $newStatus): ToolUnit
     {
         try {
@@ -201,7 +163,6 @@ class ToolUnitService
             $unit = $this->getUnitByCode($code);
 
             if ($newStatus === 'lent' && $unit->status === 'lent') {
-                // Sudah dalam status lent, tidak perlu update
                 return $unit;
             }
 
@@ -215,10 +176,6 @@ class ToolUnitService
         }
     }
 
-    /**
-     * Catat kondisi unit
-     * Auto-update: status berdasarkan condition, notes dengan latest condition
-     */
     public function recordCondition(
         string $unitCode,
         string $condition,
@@ -226,21 +183,17 @@ class ToolUnitService
         ?int $returnId = null,
     ): UnitCondition {
         try {
-            // Validasi unit ada
             $unit = ToolUnit::find($unitCode);
             if (!$unit) {
                 throw ToolUnitException::notFound();
             }
 
-            // Validasi condition value
             if (!in_array($condition, ['good', 'broken', 'maintenance'])) {
                 throw new \Exception('Kondisi tidak valid. Gunakan: good, broken, maintenance.');
             }
 
-            // Gunakan provided notes atau default notes
             $finalNotes = !empty(trim($notes)) ? $notes : $this->getDefaultNotes($condition);
 
-            // Buat condition record
             $conditionRecord = UnitCondition::create([
                 'id'           => Str::uuid()->toString(),
                 'unit_code'    => $unitCode,
@@ -250,18 +203,15 @@ class ToolUnitService
                 'recorded_at'  => now(),
             ]);
 
-            // Update unit notes dengan latest condition notes
             $unit->update([
                 'notes' => $finalNotes,
             ]);
 
-            // Update unit status berdasarkan condition
             $newStatus = $this->getStatusFromCondition($condition);
             $unit->update([
                 'status' => $newStatus,
             ]);
 
-            // Reload unit dari database untuk memastikan relasi terbaru (latestCondition, dll)
             $unit = ToolUnit::with(['tool', 'latestCondition'])->find($unitCode);
 
             return $conditionRecord;
@@ -272,15 +222,11 @@ class ToolUnitService
         }
     }
 
-    /**
-     * Hapus unit
-     */
     public function deleteUnit(string $code): void
     {
         try {
             $unit = $this->getUnitByCode($code);
 
-            // Check apakah unit memiliki loans
             if ($unit->loans()->exists()) {
                 throw new \Exception('Unit tidak bisa dihapus karena masih memiliki history peminjaman');
             }
@@ -289,10 +235,8 @@ class ToolUnitService
                 throw ToolUnitException::unitIsLent();
             }
 
-            // Hapus conditions terlebih dahulu
             $unit->conditions()->delete();
 
-            // Hapus unit
             $unit->delete();
         } catch (ToolUnitException $e) {
             throw $e;
@@ -301,18 +245,11 @@ class ToolUnitService
         }
     }
 
-    /**
-     * Bulk create units untuk tool
-     * @deprecated Gunakan createUnit dengan quantity parameter
-     */
     public function createBulkUnits(int $toolId, int $quantity, string $notes = '', string $initialCondition = 'good'): array
     {
         return $this->createUnit($toolId, $quantity, $notes, $initialCondition);
     }
 
-    /**
-     * Get conditions history untuk unit
-     */
     public function getConditionsHistory(string $unitCode): array
     {
         $unit = $this->getUnitByCode($unitCode);
@@ -322,9 +259,6 @@ class ToolUnitService
             ->toArray();
     }
 
-    /**
-     * Get loans untuk unit (untuk timeline peminjaman)
-     */
     public function getUnitLoans(string $unitCode): array
     {
         $unit = $this->getUnitByCode($unitCode);

@@ -1,7 +1,7 @@
-// ─────────────────────────────────────────────
-// types/settlement.ts
-// Semua type terkait settlement (pelunasan)
-// ─────────────────────────────────────────────
+
+
+
+
 
 import type { User } from "./user";
 
@@ -10,10 +10,10 @@ export interface Settlement {
   settled_at: string;
   description: string;
 
-  // Petugas yang mencatat pelunasan
+  
   employee: User;
 
-  // Relasi ke violation (opsional tergantung endpoint)
+  
   violation?: {
     id: number;
     type: "late" | "damaged" | "lost" | "other";
@@ -21,7 +21,7 @@ export interface Settlement {
     fine: number;
     status: "active" | "settled";
 
-    // user yang melanggar (penting untuk table/search)
+    
     user?: {
       id: number;
       details?: {

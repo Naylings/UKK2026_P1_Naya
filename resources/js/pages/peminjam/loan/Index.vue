@@ -30,7 +30,6 @@ const {
 
 const handleSubmitReturn = async (payload: any) => {
   await originalSubmitReturn(payload);
-  // Jika tidak ada error di store, maka berhasil
   loadMyLoans();
 };
 
@@ -49,7 +48,6 @@ onBeforeMount(() => {
 </script>
 
 <template>
-  <!-- TABLE -->
   <LoanTableUser
     :loans="loans"
     :loading="loading"

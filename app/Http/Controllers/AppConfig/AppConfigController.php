@@ -14,9 +14,6 @@ class AppConfigController extends Controller
         private readonly AppConfigManagementService $appConfigService
     ) {}
 
-    /**
-     * Ambil konfigurasi aplikasi
-     */
     public function show()
     {
         $config = $this->appConfigService->getConfig();
@@ -24,9 +21,6 @@ class AppConfigController extends Controller
         return new AppConfigResource($config);
     }
 
-    /**
-     * Update konfigurasi aplikasi
-     */
     public function update(UpdateAppConfigRequest $request)
     {
         $config = $this->appConfigService->updateConfig($request->validated());

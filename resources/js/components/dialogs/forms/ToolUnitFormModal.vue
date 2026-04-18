@@ -6,7 +6,6 @@ import type {
   ConditionType,
 } from "@/types/toolunit";
 
-// ── Props & Emits ─────────────────────────────────────────────────────────
 
 interface Props {
   visible: boolean;
@@ -25,14 +24,12 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emits>();
 
-// ── State ─────────────────────────────────────────────────────────────────
 
 const quantity = ref<number>(1);
 const condition = ref<ConditionType>("good");
 const notes = ref<string>("");
 const errors = ref<Record<string, string>>({});
 
-// ── Computed ────────────────────────────────────────────────────────────
 
 const dialogTitle = computed(() => "Tambah Unit Baru");
 
@@ -42,7 +39,6 @@ const isFormValid = computed(() => {
 
 const submitButtonLabel = computed(() => "Buat Unit");
 
-// ── Watchers ──────────────────────────────────────────────────────────────
 
 watch(
   () => props.visible,
@@ -53,7 +49,6 @@ watch(
   },
 );
 
-// ── Methods ───────────────────────────────────────────────────────────────
 
 function resetForm() {
   quantity.value = 1;
@@ -121,7 +116,6 @@ function formatDate(dateStr: string): string {
   });
 }
 
-// ── Options ───────────────────────────────────────────────────────────────
 
 const conditionOptions = [
   { label: "Baik", value: "good" },
@@ -140,7 +134,6 @@ const conditionOptions = [
     @update:visible="handleClose"
   >
     <div class="space-y-4">
-      <!-- Quantity -->
       <div class="field">
         <label for="quantity" class="text-sm font-semibold block mb-2">
           Jumlah Unit
@@ -161,7 +154,6 @@ const conditionOptions = [
         </div>
       </div>
 
-      <!-- Kondisi Awal -->
       <div class="field">
         <label for="condition" class="text-sm font-semibold block mb-2">
           Kondisi Awal
@@ -180,7 +172,6 @@ const conditionOptions = [
         </div>
       </div>
 
-      <!-- Catatan (Optional) -->
       <div class="field">
         <label for="notes" class="text-sm font-semibold block mb-2">
           Catatan (Opsional)
@@ -201,7 +192,6 @@ const conditionOptions = [
 
     </div>
 
-    <!-- Footer -->
     <template #footer>
       <Button
         label="Batal"

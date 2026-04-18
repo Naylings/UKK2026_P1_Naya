@@ -20,16 +20,15 @@ class Settlement extends Model
         'settled_at' => 'datetime',
     ];
 
-    // -------------------------------------------------------------------------
-    // Relations
-    // -------------------------------------------------------------------------
+    
+    
+    
 
     public function violation(): BelongsTo
     {
         return $this->belongsTo(Violation::class);
     }
 
-    /** Employee yang mencatat pelunasan */
     public function employee(): BelongsTo
     {
         return $this->belongsTo(User::class, 'employee_id');

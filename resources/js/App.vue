@@ -5,10 +5,8 @@ import router from "@/router/index";
 
 const authStore = useAuthStore();
 
-// Cek session satu kali saat app mount
 onMounted(() => authStore.fetchMe());
 
-// Dengarkan event global 401 dari axios interceptor
 window.addEventListener("auth:unauthenticated", () => {
     authStore.clearSession();
     router.push({ name: "login" });

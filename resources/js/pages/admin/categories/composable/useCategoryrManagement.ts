@@ -1,7 +1,3 @@
-// ─────────────────────────────────────────────
-// pages/admin/Category/composables/useCategoryManagement.ts
-// Logic untuk category management page
-// ─────────────────────────────────────────────
 
 import { ref, computed } from "vue";
 import { useCategoryStore } from "@/stores/category";
@@ -22,14 +18,12 @@ export function useCategoryManagement() {
     const toast = useToast();
     const confirm = useConfirm();
 
-    // ── Dialog state ──────────────────────────────────────────────────────────
 
     const formVisible = ref(false);
     const detailVisible = ref(false);
     const creditVisible = ref(false);
     const isEditMode = ref(false);
 
-    // ── Form data ─────────────────────────────────────────────────────────────
 
     const form = ref<Partial<CategoryForm>>({
         name: null,
@@ -40,18 +34,15 @@ export function useCategoryManagement() {
         credit_score: 0,
     });
 
-    // ── Selected category ─────────────────────────────────────────────────────
 
     const selectedCategory = ref<Category | null>(null);
     const selectedCategoryId = ref<number | null>(null);
 
-    // ── Filters ───────────────────────────────────────────────────────────────
 
     const filters = ref({
         search: "",
     });
 
-    // ── Computed ──────────────────────────────────────────────────────────────
 
     const dialogTitle = computed(() =>
         isEditMode.value ? "Edit Category" : "Tambah Category Baru",
@@ -61,11 +52,8 @@ export function useCategoryManagement() {
         isEditMode.value ? "Update" : "Buat Category",
     );
 
-    // ── Actions ───────────────────────────────────────────────────────────────
 
-    /**
-     * Pagination handler
-     */
+    
 
     async function onPageChange(event: any) {
         const page = event.page;
@@ -73,9 +61,7 @@ export function useCategoryManagement() {
         await loadCategories({ page, per_page: perPage });
     }
 
-    /**
-     * Muat semua categories
-     */
+    
     async function loadCategories(params?: {
         page?: number;
         per_page?: number;
@@ -96,18 +82,14 @@ export function useCategoryManagement() {
         }
     }
 
-    /**
-     * Buka dialog create
-     */
+    
     function openCreateDialog() {
         isEditMode.value = false;
         resetForm();
         formVisible.value = true;
     }
 
-    /**
-     * Buka dialog edit
-     */
+    
     function openEditDialog(category: Category) {
         isEditMode.value = true;
         selectedCategory.value = category;
@@ -120,13 +102,10 @@ export function useCategoryManagement() {
         formVisible.value = true;
     }
 
-    /**
-     * Submit form (create atau update)
-     */
+    
     async function submitForm() {
         if (!form.value) return;
 
-        // Tentukan pesan konfirmasi
         const action = isEditMode.value ? "update" : "buat";
         const categoryName = form.value.name || "";
         const confirmMessage = `Apakah Anda yakin ingin ${action} category "${categoryName}"?`;
@@ -195,9 +174,7 @@ export function useCategoryManagement() {
         });
     }
 
-    /**
-     * Konfirmasi delete
-     */
+    
     function confirmDelete(category: Category) {
         confirm.require({
             message: `Apakah Anda yakin ingin menghapus category "${category.name}"?`,
@@ -225,9 +202,7 @@ export function useCategoryManagement() {
         });
     }
 
-    /**
-     * Reset form
-     */
+    
     function resetForm() {
         form.value = {
             name: null,
@@ -236,9 +211,7 @@ export function useCategoryManagement() {
         selectedCategory.value = null;
     }
 
-    /**
-     * Clear filter
-     */
+    
     function clearFilter() {
         filters.value = {
             search: "",

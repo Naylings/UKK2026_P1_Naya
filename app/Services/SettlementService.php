@@ -10,9 +10,7 @@ use App\Exceptions\SettlementException;
 
 class SettlementService
 {
-    /**
-     * Create settlement (pelunasan pelanggaran)
-     */
+    
      public function settle(int $violationId, int $employeeId, string $description): Settlement
      {
          return DB::transaction(function () use ($violationId, $employeeId, $description) {
@@ -27,7 +25,7 @@ class SettlementService
                  throw SettlementException::alreadySettled();
              }
 
-             // Create settlement
+             
              $settlement = Settlement::create([
                  'violation_id' => $violation->id,
                  'employee_id'  => $employeeId,
@@ -35,12 +33,12 @@ class SettlementService
                  'settled_at'   => now(),
              ]);
 
-             // Update violation
+             
              $violation->update([
                  'status' => 'settled',
              ]);
 
-             // Lepas restriction user
+             
              $violation->user->update([
                  'is_restricted' => 0,
              ]);
@@ -53,9 +51,7 @@ class SettlementService
      }
 
 
-    /**
-     * Get all settlements (with filter)
-     */
+    
     public function getAll(array $filters = [])
     {
         return Settlement::query()
@@ -72,9 +68,7 @@ class SettlementService
             ->paginate($filters['per_page'] ?? 10);
     }
 
-    /**
-     * Get by ID
-     */
+    
     public function getById(int $id): Settlement
     {
         $settlement = Settlement::with([

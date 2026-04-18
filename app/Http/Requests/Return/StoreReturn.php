@@ -35,7 +35,6 @@ class StoreReturn extends FormRequest
             $user = $this->user();
             if (!$user) return;
 
-            // user dibatasi tidak boleh return
 if ($user->is_restricted && !$this->route('loanId')) {
                 $validator->errors()->add(
                     'user',

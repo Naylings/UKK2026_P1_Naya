@@ -9,7 +9,7 @@ import type {
 } from "@/types/loan";
 
 export const useLoanStore = defineStore("loan", () => {
-    // ── State (Loan Flow) ──────────────────────────────────────────────
+    
 
     const toolId = ref<number | null>(null);
     const loanDate = ref<string | null>(null);
@@ -26,14 +26,14 @@ export const useLoanStore = defineStore("loan", () => {
     const reviewError = ref<string | null>(null);
     const reviewSuccess = ref<string | null>(null);
 
-    // ── State (Loan Lists) ─────────────────────────────────────────────
+    
 
     const myLoans = ref<LoanResponse[]>([]);
     const allLoans = ref<LoanResponse[]>([]);
 
     const meta = ref<LoanListResponse["meta"] | null>(null);
 
-    // ── Actions ────────────────────────────────────────────
+    
 
     async function searchAvailableUnits() {
         if (!toolId.value || !loanDate.value || !dueDate.value) return;
@@ -89,9 +89,9 @@ export const useLoanStore = defineStore("loan", () => {
         }
     }
 
-    // ─────────────────────────────────────────────
-    // 🆕 LOAN LIST (USER)
-    // ─────────────────────────────────────────────
+    
+    
+    
 
     async function fetchMyLoans(params?: {
         status?: string;
@@ -116,9 +116,9 @@ export const useLoanStore = defineStore("loan", () => {
         }
     }
 
-    // ─────────────────────────────────────────────
-    // 🆕 LOAN LIST (ADMIN / PETUGAS)
-    // ─────────────────────────────────────────────
+    
+    
+    
 
     async function fetchAllLoans(params?: {
         status?: string;
@@ -202,43 +202,61 @@ export const useLoanStore = defineStore("loan", () => {
         }
     }
 
-    // ── Return ─────────────────────────────────────────────
+    
 
     return {
-        // state (flow)
+        
         toolId,
         loanDate,
         dueDate,
         availableUnits,
         selectedUnit,
 
-        // state (ui)
+        
         loading,
         error,
         successMessage,
 
-        //  review state
+        
         reviewLoading,
         reviewError,
         reviewSuccess,
 
-        // state (lists)
+        
         myLoans,
         allLoans,
         meta,
 
-        // actions (flow)
+        
         searchAvailableUnits,
         selectUnit,
         resetLoanFlow,
         createRequest,
 
-        // actions (lists)
+        
         fetchMyLoans,
         fetchAllLoans,
 
-         //  review actions
-        approveLoan,
+         
+         approveLoan,
         rejectLoan,
+
+        
+        $reset() {
+          toolId.value = null;
+          loanDate.value = null;
+          dueDate.value = null;
+          availableUnits.value = [];
+          selectedUnit.value = null;
+          loading.value = false;
+          error.value = null;
+          successMessage.value = null;
+          reviewLoading.value = false;
+          reviewError.value = null;
+          reviewSuccess.value = null;
+          myLoans.value = [];
+          allLoans.value = [];
+          meta.value = null;
+        },
     };
 });

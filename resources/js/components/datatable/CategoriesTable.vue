@@ -2,7 +2,6 @@
 import { computed, ref, watch } from "vue";
 import type { Category } from "@/types/category";
 
-// Props dan Emit
 interface Props {
     categories: Category[];
     loading?: boolean;
@@ -33,7 +32,6 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emits>();
 
-// State lokal
 const localFilters = computed({
     get: () => props.filters,
     set: (val) => emit("update:filters", val),
@@ -41,7 +39,6 @@ const localFilters = computed({
 const localCurrentPage = ref(props.currentPage);
 let timeout: any = null;
 
-// Watcher
 watch(
     () => props.currentPage,
     (val) => (localCurrentPage.value = val),
@@ -63,10 +60,7 @@ const handlePageChange = (event: any) => {
 
 <template>
     <div class="card">
-        <!-- Header -->
-        <!-- Filter & Create Button -->
         <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-            <!-- Filter Inputs -->
             <div class="flex flex-1 gap-2 min-w-75">
                 <InputText
                     v-model="localFilters.search"
@@ -85,7 +79,6 @@ const handlePageChange = (event: any) => {
                 />
             </div>
 
-            <!-- Create Category Button -->
             <Button
                 icon="pi pi-plus"
                 label="Tambah Kategori"
@@ -94,7 +87,6 @@ const handlePageChange = (event: any) => {
             />
         </div>
 
-        <!-- Data Table -->
         <DataTable
             lazy
             :value="categories"

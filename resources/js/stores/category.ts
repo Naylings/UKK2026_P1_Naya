@@ -1,7 +1,7 @@
-// ─────────────────────────────────────────────
-// stores/user.ts
-// Pinia store untuk user management — state, getters, actions
-// ─────────────────────────────────────────────
+
+
+
+
 
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
@@ -13,7 +13,7 @@ import type {
 } from "@/types/category";
 
 export const useCategoryStore = defineStore("category", () => {
-  // ── State ──────────────────────────────────────────────────────────────
+  
 
   const categories = ref<Category[]>([]);
   const currentCategory = ref<Category | null>(null);
@@ -21,23 +21,21 @@ export const useCategoryStore = defineStore("category", () => {
   const error = ref<string | null>(null);
   const successMessage = ref<string | null>(null);
 
-  // ── Pagination ────────────────────────────────────────────────────────────
+  
 
   const currentPage = ref(1);
   const lastPage = ref(1);
   const total = ref(0);
   const perPage = ref(10);
 
-  // ── Getters ────────────────────────────────────────────────────────────
+  
 
   const categoryCount = computed(() => categories.value.length);
   const hasCategories = computed(() => categories.value.length > 0);
 
-  // ── Actions ────────────────────────────────────────────────────────────
+  
 
-  /**
-   * Ambil list semua category.
-   */
+  
   async function fetchCategories(params?: {
     search?: string;
     per_page?: number;
@@ -67,9 +65,7 @@ export const useCategoryStore = defineStore("category", () => {
   }
 
   
-  /**
-   * Buat category baru.
-   */
+  
   async function createCategory(payload: CreateCategoryPayload): Promise<boolean> {
     loading.value = true;
     error.value = null;
@@ -88,9 +84,7 @@ export const useCategoryStore = defineStore("category", () => {
     }
   }
 
-  /**
-   * Update category.
-   */
+  
   async function updateCategory(
     id: number,
     payload: UpdateCategoryPayload,
@@ -104,13 +98,13 @@ export const useCategoryStore = defineStore("category", () => {
       const updated = result.category;
       successMessage.value = result.message;
 
-      // Update di local list
+      
       const index = categories.value.findIndex((c) => c.id === id);
       if (index !== -1) {
         categories.value[index] = updated;
       }
 
-      // Update currentCategory jika sedang diedit
+      
       if (currentCategory.value?.id === id) {
         currentCategory.value = updated;
       }
@@ -124,9 +118,7 @@ export const useCategoryStore = defineStore("category", () => {
     }
   }
 
-  /**
-   * Hapus category.
-   */
+  
   async function deleteCategory(id: number): Promise<boolean> {
     loading.value = true;
     error.value = null;
@@ -135,10 +127,10 @@ export const useCategoryStore = defineStore("category", () => {
     try {
       successMessage.value = await categoryService.delete(id);
 
-      // Hapus dari list
+      
       categories.value = categories.value.filter((c) => c.id !== id);
 
-      // Clear currentCategory jika yang dihapus sedang dilihat
+      
       if (currentCategory.value?.id === id) {
         currentCategory.value = null;
       }
@@ -153,16 +145,12 @@ export const useCategoryStore = defineStore("category", () => {
   }
 
   
-  /**
-   * Bersihkan error dari state.
-   */
+  
   function clearError(): void {
     error.value = null;
   }
 
-  /**
-   * Bersihkan semua state.
-   */
+  
   function reset(): void {
     categories.value = [];
     currentCategory.value = null;
@@ -175,21 +163,34 @@ export const useCategoryStore = defineStore("category", () => {
     perPage,
     lastPage,
     total,
-    // state
+    
     categories,
     currentCategory,
     loading,
     error,
     successMessage,
-    // getters
+    
     categoryCount,
     hasCategories,
-    // actions
+    
     fetchCategories,
     createCategory,
     updateCategory,
     deleteCategory,
     clearError,
     reset,
+
+    
+    $reset() {
+      categories.value = [];
+      currentCategory.value = null;
+      loading.value = false;
+      error.value = null;
+      successMessage.value = null;
+      currentPage.value = 1;
+      lastPage.value = 1;
+      total.value = 0;
+      perPage.value = 10;
+    },
   };
 });

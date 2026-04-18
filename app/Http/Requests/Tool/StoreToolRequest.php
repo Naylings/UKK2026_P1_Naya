@@ -28,7 +28,6 @@ class StoreToolRequest extends FormRequest
         $isBundle = $this->input('item_type') === 'bundle';
 
         return [
-            // Tool fields
             'category_id'       => ['required', 'exists:categories,id'],
             'name'              => ['required', 'string', 'max:255', 'unique:tools,name'],
             'item_type'         => ['required', 'string', Rule::in(['single', 'bundle', 'bundle_tool'])],
@@ -39,7 +38,6 @@ class StoreToolRequest extends FormRequest
             'photo_path'        => ['nullable', 'string', 'max:255'],
             'photo'             => ['nullable', 'file', 'image', 'max:2048'],
 
-            // Bundle components (only if bundle)
             'bundle_components' => ['nullable', 'array', Rule::requiredIf($isBundle)],
             'bundle_components.*.name' => ['required_with:bundle_components', 'string', 'max:255'],
             'bundle_components.*.price' => ['required_with:bundle_components', 'numeric', 'min:0'],

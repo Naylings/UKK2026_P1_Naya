@@ -1,7 +1,3 @@
-// ─────────────────────────────────────────────
-// services/toolunitService.ts
-// Business logic FE: parsing response, error handling
-// ─────────────────────────────────────────────
 
 import { AxiosError } from "axios";
 import { toolUnitApi } from "@/api/toolunit";
@@ -27,12 +23,8 @@ interface ConditionRecordResult {
     message: string;
 }
 
-// ── Error helper ──────────────────────────────────────────────────────────
 
-/**
- * Ekstrak pesan error dari response BE maupun network error.
- * Selalu mengembalikan string yang siap ditampilkan ke user.
- */
+
 export function parseToolUnitError(error: unknown): string {
     if (error instanceof AxiosError) {
         const data = error.response?.data as ApiErrorResponse | undefined;
@@ -56,12 +48,9 @@ export function parseToolUnitError(error: unknown): string {
     return "Terjadi kesalahan tidak diketahui.";
 }
 
-// ── Service methods ───────────────────────────────────────────────────────
 
 export const toolunitService = {
-    /**
-     * Ambil semua unit dengan pagination, filter, dan search.
-     */
+    
     async getAll(
         params?: ToolUnitQueryParams,
     ): Promise<PaginatedToolUnitsResponse> {
@@ -72,9 +61,7 @@ export const toolunitService = {
         }
     },
 
-    /**
-     * Ambil unit berdasarkan code.
-     */
+    
     async getByCode(code: string): Promise<ToolUnit> {
         try {
             return await toolUnitApi.get(code);
@@ -83,9 +70,7 @@ export const toolunitService = {
         }
     },
 
-    /**
-     * Buat unit baru (single atau bulk).
-     */
+    
     async create(
         payload: CreateToolUnitPayload,
     ): Promise<ToolUnitMutationResult> {
@@ -108,9 +93,7 @@ export const toolunitService = {
         }
     },
 
-    /**
-     * Update status unit.
-     */
+    
     async update(
         code: string,
         payload: UpdateToolUnitPayload,
@@ -127,9 +110,7 @@ export const toolunitService = {
         }
     },
 
-    /**
-     * Hapus unit.
-     */
+    
     async delete(code: string): Promise<string> {
         try {
             const response = await toolUnitApi.delete(code);
@@ -139,9 +120,7 @@ export const toolunitService = {
         }
     },
 
-    /**
-     * Catat kondisi unit.
-     */
+    
     async recordCondition(
         code: string,
         payload: RecordConditionPayload,
@@ -157,9 +136,7 @@ export const toolunitService = {
         }
     },
 
-    /**
-     * Ambil history kondisi unit.
-     */
+    
     async getConditionHistory(code: string): Promise<UnitCondition[]> {
         try {
             const response = await toolUnitApi.getConditionHistory(code);

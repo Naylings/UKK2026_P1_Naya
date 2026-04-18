@@ -1,7 +1,3 @@
-// ─────────────────────────────────────────────
-// api/settlement.ts
-// Pure HTTP calls untuk settlement (pelunasan)
-// ─────────────────────────────────────────────
 
 import apiClient from "./client";
 import type {
@@ -13,10 +9,7 @@ import type {
 import type { LaravelApiResponse } from "@/types/auth";
 
 export const settlementApi = {
-  /**
-   * POST /api/violations/:id/settle
-   * Melakukan pelunasan pelanggaran
-   */
+  
   settle: async (
     violationId: number,
     payload: CreateSettlementPayload,
@@ -28,10 +21,7 @@ export const settlementApi = {
     return res.data;
   },
 
-  /**
-   * GET /api/settlements
-   * Ambil list settlement (optional/reporting)
-   */
+  
   list: async (params?: {
     search?: string;
     per_page?: number;
@@ -44,10 +34,7 @@ export const settlementApi = {
     return res.data;
   },
 
-  /**
-   * GET /api/settlements/:id
-   * Detail settlement
-   */
+  
   get: async (id: number): Promise<Settlement> => {
     const res = await apiClient.get<SettlementResponse>(
       `/settlements/${id}`,

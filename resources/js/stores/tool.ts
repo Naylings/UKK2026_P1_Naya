@@ -1,7 +1,7 @@
-// ─────────────────────────────────────────────
-// stores/tool.ts
-// Pinia store untuk tool management — state, getters, actions
-// ─────────────────────────────────────────────
+
+
+
+
 
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
@@ -9,7 +9,7 @@ import { toolService } from "@/services/toolService";
 import type { Tool } from "@/types/tool";
 
 export const useToolStore = defineStore("tool", () => {
-  // ── State ──────────────────────────────────────────────────────────────
+  
 
   const tools = ref<Tool[]>([]);
   const currentTool = ref<Tool | null>(null);
@@ -17,21 +17,21 @@ export const useToolStore = defineStore("tool", () => {
   const error = ref<string | null>(null);
   const successMessage = ref<string | null>(null);
 
-  // ── Pagination ────────────────────────────────────────────────────────────
+  
 
   const currentPage = ref(1);
   const lastPage = ref(1);
   const total = ref(0);
   const perPage = ref(10);
 
-  // ── Getters ────────────────────────────────────────────────────────────
+  
 
   const toolCount = computed(() => tools.value.length);
   const hasTools = computed(() => tools.value.length > 0);
   const isLoading = computed(() => loading.value);
   const hasError = computed(() => error.value !== null);
 
-  // ── Actions ────────────────────────────────────────────────────────────
+  
 
   async function fetchTools(params?: {
     search?: string;
@@ -75,9 +75,7 @@ export const useToolStore = defineStore("tool", () => {
     }
   }
 
-  /**
-   * Buat tool baru.
-   */
+  
   async function createTool(payload: FormData): Promise<boolean> {
     loading.value = true;
     error.value = null;
@@ -187,5 +185,18 @@ export const useToolStore = defineStore("tool", () => {
     deleteTool,
     clearError,
     reset,
+
+    
+    $reset() {
+      tools.value = [];
+      currentTool.value = null;
+      loading.value = false;
+      error.value = null;
+      successMessage.value = null;
+      currentPage.value = 1;
+      lastPage.value = 1;
+      total.value = 0;
+      perPage.value = 10;
+    },
   };
 });

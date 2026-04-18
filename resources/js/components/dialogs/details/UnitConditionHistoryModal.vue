@@ -2,7 +2,6 @@
 import { computed } from "vue";
 import type { ToolUnit, UnitCondition } from "@/types/toolunit";
 
-// ── Loan Type Definition ──────────────────────────────────────────────────
 
 interface LoanRecord {
     id: number;
@@ -12,7 +11,6 @@ interface LoanRecord {
     status: "active" | "returned" | "overdue";
 }
 
-// ── Props & Emits ─────────────────────────────────────────────────────────
 
 interface Props {
     visible: boolean;
@@ -38,7 +36,6 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emits>();
 
-// ── Computed ────────────────────────────────────────────────────────────
 
 const isAdmin = computed(() => props.mode === "admin");
 
@@ -75,7 +72,6 @@ const filteredLoans = computed(() => {
     return props.loans;
 });
 
-// ── Methods ─────────────────────────────────────────────────────────────
 
 function handleClose() {
     emit("update:visible", false);
@@ -393,7 +389,6 @@ function getLoanStatusBadge(status: string) {
 </template>
 
 <style scoped>
-/* Modern Table */
 :deep(.modern-table .p-datatable-thead > tr > th) {
     background: #f8fafc;
     color: #64748b;

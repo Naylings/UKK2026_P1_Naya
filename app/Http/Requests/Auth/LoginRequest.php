@@ -8,7 +8,6 @@ class LoginRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        // Endpoint login terbuka untuk semua (belum terautentikasi)
         return true;
     }
 

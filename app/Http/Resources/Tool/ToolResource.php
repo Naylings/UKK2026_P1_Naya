@@ -40,9 +40,9 @@ class ToolResource extends JsonResource
                 ]
             )->values()),
             'created_at'        => $this->created_at?->toIso8601String(),
-            // ─────────────────────────────────────────────────────────────────
-            // Metadata untuk frontend decision making
-            // ─────────────────────────────────────────────────────────────────
+            
+            
+            
             'has_units'         => $this->units()->exists(),
             'units_count'       => $this->units()->count(),
             'available_units'   => $this->units()->where('status', 'available')->count(),

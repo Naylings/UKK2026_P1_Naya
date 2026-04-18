@@ -1,7 +1,3 @@
-// ─────────────────────────────────────────────
-// services/settlementService.ts
-// Business logic FE untuk settlement
-// ─────────────────────────────────────────────
 
 import { AxiosError } from "axios";
 import type { Settlement } from "@/types/settlement";
@@ -13,7 +9,6 @@ interface SettlementMutationResult {
   message: string;
 }
 
-// ── Error helper ──────────────────────────────────────────
 
 export function parseSettlementError(error: unknown): string {
   if (error instanceof AxiosError) {
@@ -40,12 +35,9 @@ export function parseSettlementError(error: unknown): string {
   return "Terjadi kesalahan tidak diketahui.";
 }
 
-// ── Service methods ───────────────────────────────────────
 
 export const settlementService = {
-  /**
-   * Ambil semua settlement
-   */
+  
   async getAll(params?: {
     search?: string;
     per_page?: number;
@@ -58,9 +50,7 @@ export const settlementService = {
     }
   },
 
-  /**
-   * Ambil detail settlement
-   */
+  
   async getById(id: number): Promise<Settlement> {
     try {
       return await settlementApi.get(id);
@@ -69,9 +59,7 @@ export const settlementService = {
     }
   },
 
-  /**
-   * Proses pelunasan pelanggaran
-   */
+  
   async settle(
     violationId: number,
     description: string

@@ -1,15 +1,15 @@
 import type { ToolUnit } from "./toolunit";
 
-// ─────────────────────────────────────────────
-// types/loan.ts
-// Semua type yang berhubungan dengan loan request domain
-// Availability (Loan search feature)
-// ─────────────────────────────────────────────
+
+
+
+
+
 
 export interface ToolUnitAvailabilityParams {
     tool_id: number;
-    loan_date: string; // YYYY-MM-DD
-    due_date: string; // YYYY-MM-DD
+    loan_date: string; 
+    due_date: string; 
 }
 export interface AvailableToolUnit extends ToolUnit {
     availability_reason: string;
@@ -49,8 +49,8 @@ export interface Loan {
 export interface CreateLoanPayload {
     tool_id: number;
     unit_code: string;
-    loan_date: string; // YYYY-MM-DD
-    due_date: string; // YYYY-MM-DD
+    loan_date: string; 
+    due_date: string; 
     purpose: string;
 }
 

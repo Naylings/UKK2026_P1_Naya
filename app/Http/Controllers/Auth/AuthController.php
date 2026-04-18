@@ -14,9 +14,6 @@ class AuthController extends Controller
         private readonly AuthService $authService,
     ) {}
 
-    /**
-     * POST /api/auth/login
-     */
     public function login(LoginRequest $request): JsonResponse
     {
         $result = $this->authService->login($request->validated());
@@ -29,9 +26,6 @@ class AuthController extends Controller
             ->setStatusCode(200);
     }
 
-    /**
-     * POST /api/auth/logout
-     */
     public function logout(): JsonResponse
     {
         $this->authService->logout();
@@ -41,9 +35,6 @@ class AuthController extends Controller
         ]);
     }
 
-    /**
-     * POST /api/auth/refresh
-     */
     public function refresh(): JsonResponse
     {
         $result = $this->authService->refresh();
@@ -53,9 +44,6 @@ class AuthController extends Controller
             ->setStatusCode(200);
     }
 
-    /**
-     * GET /api/auth/me
-     */
     public function me(): JsonResponse
     {
         $result = $this->authService->me();

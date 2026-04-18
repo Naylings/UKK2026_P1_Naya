@@ -1,20 +1,12 @@
-// ─────────────────────────────────────────────
-// api/client.ts
-// Axios instance terpusat — satu-satunya tempat config HTTP
-// ─────────────────────────────────────────────
 
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios';
 import type { ApiErrorResponse } from '@/types/auth';
 
 const TOKEN_KEY = 'access_token';
 
-// ── Instance ──────────────────────────────────────────────────────────────
 
 const apiClient = axios.create({
-  /**
-   * Laravel SPA: Vue dan Laravel satu domain → baseURL cukup '/api'.
-   * Jika berbeda domain, ganti dengan full URL: 'https://api.example.com/api'
-   */
+  
   baseURL: '/api',
   headers: {
     Accept: 'application/json',
@@ -22,7 +14,6 @@ const apiClient = axios.create({
   },
 });
 
-// ── Request interceptor — inject token ────────────────────────────────────
 
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
@@ -35,7 +26,6 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error),
 );
 
-// ── Response interceptor — handle 401 global ──────────────────────────────
 
 apiClient.interceptors.response.use(
   (response) => response,
@@ -43,10 +33,8 @@ apiClient.interceptors.response.use(
     const status = error.response?.status;
 
     if (status === 401) {
-      // Token expired / tidak valid → bersihkan storage dan redirect ke login
       localStorage.removeItem(TOKEN_KEY);
 
-      // Hindari import circular dengan useAuthStore — pakai event bus sederhana
       window.dispatchEvent(new CustomEvent('auth:unauthenticated'));
     }
 
@@ -54,7 +42,6 @@ apiClient.interceptors.response.use(
   },
 );
 
-// ── Token helpers (dipakai oleh authService) ──────────────────────────────
 
 export const tokenStorage = {
   get: (): string | null => localStorage.getItem(TOKEN_KEY),

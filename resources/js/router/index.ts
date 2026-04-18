@@ -100,6 +100,12 @@ const router = createRouter({
                     meta: { title: "Riwayat Peminjaman", roles: ["User"] },
                 },
                 {
+                    path: "/appeals",
+                    name: "peminjam-appeals",
+                    component: () => import("@/pages/peminjam/appeal/Index.vue"),
+                    meta: { title: "Pengajuan Appeal", roles: ["User"] },
+                },
+                {
                     path: "/staff/loans",
                     name: "petugas-loans",
                     component: () => import("@/pages/petugas/loan/Index.vue"),
@@ -125,6 +131,24 @@ const router = createRouter({
                         title: "Pelanggaran",
                         roles: ["Employee"],
                     },
+                },
+                {
+                    path: "/staff/reports",
+                    name: "petugas-reports",
+                    component: () => import("@/pages/petugas/Reports.vue"),
+                    meta: {
+                        title: "Buat Laporan",
+                        roles: ["Employee"],
+                    },
+                },
+                {
+                    path: "/staff/appeals",
+                    name: "petugas-appeals",
+                    component: () => import("@/pages/petugas/Appeal.vue"),
+                    meta: {
+                        title: "Pengajuan Appeal",
+                        roles: ["Admin"],
+                    },
                 }
             ],
         },
@@ -138,7 +162,7 @@ const router = createRouter({
             path: "/auth/login",
             name: "login",
             component: () => import("@/pages/auth/Login.vue"),
-            meta: { title: "Login", guest: true }, // ← tambah guest: true
+            meta: { title: "Login", guest: true },
         },
         {
             path: "/auth/access",
@@ -159,7 +183,6 @@ const router = createRouter({
     ],
 });
 
-// ── Helper: tentukan dashboard berdasarkan role ───────────────────────────
 
 function getDashboardByRole(role: string): string {
     if (role === "Admin" || role === "Employee") {
@@ -168,25 +191,20 @@ function getDashboardByRole(role: string): string {
     return "dashboard";
 }
 
-// ── Guard ─────────────────────────────────────────────────────────────────
 
 router.beforeEach(async (to) => {
     const auth = useAuthStore();
 
-    // Pastikan session sudah dicek sebelum guard berjalan
     await auth.fetchMe();
 
-    // Halaman guest (login): redirect ke dashboard sesuai role jika sudah login
     if (to.meta.guest && auth.isLoggedIn && auth.user) {
         return { name: getDashboardByRole(auth.user.role) };
     }
 
-    // Halaman protected: redirect ke login jika belum login
     if (to.meta.auth && !auth.isLoggedIn) {
         return { name: "login" };
     }
 
-    // Role tidak diizinkan: redirect ke accessDenied
     const allowedRoles = to.meta.roles as string[] | undefined;
     if (allowedRoles && auth.user && !allowedRoles.includes(auth.user.role)) {
         return { name: "accessDenied" };

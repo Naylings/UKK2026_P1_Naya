@@ -29,7 +29,7 @@ const triggerFileInput = () => {
   fileInput.value?.click();
 };
 
-// reset saat modal ditutup
+reset saat modal ditutup
 watch(
   () => props.visible,
   (val) => {

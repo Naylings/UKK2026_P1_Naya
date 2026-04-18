@@ -6,6 +6,12 @@ import { useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import { useAppConfigStore } from "@/stores/appconfig";
 import { storeToRefs } from "pinia";
+import { onMounted } from "vue";
+import { useLogout } from "./composables/logout";
+
+
+const { handleLogout } = useLogout();
+
 
 const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
 const op = ref(null);
@@ -20,7 +26,6 @@ function userMenu(event) {
 const appConfigStore = useAppConfigStore();
 const { config } = storeToRefs(appConfigStore);        
 
-import { onMounted } from "vue";
 
 onMounted(() => {
   if (!config.value) {
@@ -28,28 +33,7 @@ onMounted(() => {
   }
 });
 
-async function handleLogout() {
-    try {
-        const message = await authStore.logout();
 
-        toast.add({ 
-          severity: "success", 
-          summary: "Berhasil", 
-          detail: message,
-          life: 3000 
-        });
-
-        setTimeout(() => {
-            router.push({ name: "login" });
-        }, 500);
-    } catch (error) {
-        toast.add({ 
-          severity: "error", 
-          summary: "Gagal", 
-          detail: error instanceof Error ? error.message : "Logout gagal"
-        });
-    }
-};
 </script>
 
 <template>

@@ -27,39 +27,33 @@ class Violation extends Model
         'created_at' => 'datetime',
     ];
 
-    // -------------------------------------------------------------------------
-    // Relations
-    // -------------------------------------------------------------------------
+    
+    
+    
 
     public function loan(): BelongsTo
     {
         return $this->belongsTo(Loan::class);
     }
 
-    /** User yang dikenakan pelanggaran */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * Return terkait pelanggaran ini.
-     * NULL jika type = lost (tidak ada proses pengembalian).
-     */
     public function toolReturn(): BelongsTo
     {
         return $this->belongsTo(ToolReturn::class, 'return_id');
     }
 
-    /** Settlement (pelunasan) dari pelanggaran ini (1-to-1) */
     public function settlement(): HasOne
     {
         return $this->hasOne(Settlement::class);
     }
 
-    // -------------------------------------------------------------------------
-    // Helpers
-    // -------------------------------------------------------------------------
+    
+    
+    
 
     public function isActive(): bool
     {

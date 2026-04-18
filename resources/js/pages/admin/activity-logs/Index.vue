@@ -56,21 +56,16 @@ const allActionOptions = [
   { label: "app_config.updated", value: "app_config.updated", module: "app_config" },
 ];
 
-// 2. Buat computed property untuk memfilter opsi aksi
 const actionOptions = computed(() => {
-  // Jika tidak ada modul yang dipilih (Semua Modul), tampilkan semua aksi
   if (!filters.module) {
     return allActionOptions;
   }
 
-  // Filter aksi yang memiliki module yang sama dengan filter yang terpilih
-  // Kita tetap sertakan "Semua Aksi" (value: "") agar user bisa reset filter aksi
   return allActionOptions.filter(
     (option) => option.value === "" || option.module === filters.module
   );
 });
 
-// 3. (Opsional) Reset filter action jika modul diganti agar tidak terjadi mismatch
 watch(() => filters.module, () => {
   filters.action = ""; 
 });

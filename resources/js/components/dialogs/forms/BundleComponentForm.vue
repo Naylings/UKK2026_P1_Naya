@@ -26,7 +26,6 @@ const localForm = ref<BundleComponentPayload>({
   photo_path: null,
 });
 
-// sync dari parent ke local
 watch(
   () => props.modelValue,
   (val) => {

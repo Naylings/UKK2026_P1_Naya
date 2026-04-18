@@ -5,7 +5,6 @@ import { useToast } from "primevue";
 
 export function useAllLoansList() {
     const toast = useToast();
-    // ── State ──────────────────────────────────────────────
 
     const loans = ref<LoanResponse[]>([]);
     const loading = ref(false);
@@ -27,7 +26,6 @@ export function useAllLoansList() {
     const showDetailModal = ref(false);
     const detailLoan = ref<LoanResponse | null>(null);
 
-    // ── Actions ────────────────────────────────────────────
 
     async function loadAllLoans(params?: any) {
         loading.value = true;
@@ -98,7 +96,7 @@ export function useAllLoansList() {
             const res = await loanRequestService.approveLoan(
                 selectedLoan.value.id,
                 {
-                    notes: notes?.trim() || null, // optional
+                    notes: notes?.trim() || null,
                 },
             );
 
@@ -152,7 +150,6 @@ export function useAllLoansList() {
         }
     }
 
-    // helper
     function updateLoanInList(updated: LoanResponse) {
         const index = loans.value.findIndex((l) => l.id === updated.id);
         if (index !== -1) {

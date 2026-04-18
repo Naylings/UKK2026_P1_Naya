@@ -32,12 +32,10 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emits>();
 
-// ── State ─────────────────────────────────────────────────────────────────
 
 const selectedRows = ref<ToolUnit[]>([]);
 const statusFilter = ref<string>(props.filters?.status ?? "");
 
-// ── Status & Condition Styling ────────────────────────────────────────────
 
 const statusMap: Record<string, { label: string; severity: string }> = {
   available: { label: "Tersedia", severity: "success" },
@@ -51,7 +49,6 @@ const conditionMap: Record<string, { label: string; severity: string }> = {
   broken: { label: "Rusak", severity: "danger" },
 };
 
-// ── Watchers ──────────────────────────────────────────────────────────────
 
 watch(statusFilter, (val) => {
   emit("update:filters", { status: val });
@@ -65,7 +62,6 @@ watch(
   { deep: true },
 );
 
-// ── Handlers ──────────────────────────────────────────────────────────────
 
 function onPageChange(event: any) {
   emit("page-change", { page: event.page + 1, rows: event.rows });
@@ -86,7 +82,6 @@ function handleViewDetail(unit: ToolUnit) {
 
 <template>
   <div class="space-y-4">
-    <!-- Header: Create Button + Filter -->
     <div class="flex items-center justify-between gap-4 flex-wrap">
       <Button
         label="Tambah Unit"
@@ -118,7 +113,6 @@ function handleViewDetail(unit: ToolUnit) {
       </div>
     </div>
 
-    <!-- DataTable -->
     <DataTable
       lazy
       v-model:selection="selectedRows"
@@ -135,7 +129,6 @@ function handleViewDetail(unit: ToolUnit) {
       class="text-sm"
       @page="onPageChange"
     >
-      <!-- Kode Unit -->
       <Column field="code" header="Kode Unit" style="width: 12rem">
         <template #body="{ data: unit }">
           <div>
@@ -147,7 +140,6 @@ function handleViewDetail(unit: ToolUnit) {
         </template>
       </Column>
 
-      <!-- Status -->
       <Column field="status" header="Status" style="width: 10rem">
         <template #body="{ data: unit }">
           <Tag
@@ -158,7 +150,6 @@ function handleViewDetail(unit: ToolUnit) {
         </template>
       </Column>
 
-      <!-- Kondisi Terkini -->
       <Column header="Kondisi Terkini" style="width: 13rem">
         <template #body="{ data: unit }">
           <div v-if="unit.latest_condition" class="space-y-1">
@@ -177,7 +168,6 @@ function handleViewDetail(unit: ToolUnit) {
         </template>
       </Column>
 
-      <!-- Catatan -->
       <Column field="notes" header="Catatan" style="width: 16rem">
         <template #body="{ data: unit }">
           <p v-if="unit.notes" class="text-sm text-surface-600 line-clamp-2">
@@ -187,14 +177,12 @@ function handleViewDetail(unit: ToolUnit) {
         </template>
       </Column>
 
-      <!-- Dibuat -->
       <Column header="Dibuat" style="width: 10rem">
         <template #body="{ data: unit }">
           <div class="text-sm">{{ formatDate(unit.created_at) }}</div>
         </template>
       </Column>
 
-      <!-- Aksi -->
       <Column
         header="Aksi"
         style="width: 18rem"
@@ -239,7 +227,6 @@ function handleViewDetail(unit: ToolUnit) {
         </template>
       </Column>
 
-      <!-- Empty State -->
       <template #empty>
         <div class="text-center py-12 text-surface-400">
           <i class="pi pi-inbox text-4xl block mb-3" />

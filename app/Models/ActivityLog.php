@@ -20,18 +20,14 @@ class ActivityLog extends Model
     ];
 
     protected $casts = [
-        'meta'       => 'array',   // JSON string → array otomatis
+        'meta'       => 'array',   
         'created_at' => 'datetime',
     ];
 
-    // -------------------------------------------------------------------------
-    // Relations
-    // -------------------------------------------------------------------------
+    
+    
+    
 
-    /**
-     * User yang melakukan aksi.
-     * NULL jika aksi otomatis oleh sistem.
-     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

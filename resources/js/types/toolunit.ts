@@ -1,14 +1,14 @@
-// ─────────────────────────────────────────────
-// types/toolunit.ts
-// Semua type yang berhubungan dengan toolunit domain
-// ─────────────────────────────────────────────
+
+
+
+
 
 export type UnitStatus = "available" | "lent" | "nonactive";
 export type ConditionType = "good" | "broken" | "maintenance";
 
-// ─────────────────────────────────────────────
-// Tool (untuk relasi di unit)
-// ─────────────────────────────────────────────
+
+
+
 
 export interface UnitTool {
     id: number;
@@ -17,9 +17,9 @@ export interface UnitTool {
     item_type: string;
 }
 
-// ─────────────────────────────────────────────
-// Unit Condition
-// ─────────────────────────────────────────────
+
+
+
 
 export interface UnitCondition {
     id: string;
@@ -30,9 +30,9 @@ export interface UnitCondition {
     recorded_at: string;
 }
 
-// ─────────────────────────────────────────────
-// Tool Unit
-// ─────────────────────────────────────────────
+
+
+
 
 export interface ToolUnit {
     code: string;
@@ -42,9 +42,9 @@ export interface ToolUnit {
     notes: string | null;
     created_at: string;
 
-    // ─────────────────────────────────────────────────────────────────
-    // Metadata untuk UI decision making
-    // ─────────────────────────────────────────────────────────────────
+    
+    
+    
     latest_condition?: UnitCondition | null;
     is_available: boolean;
     is_lent: boolean;
@@ -52,20 +52,20 @@ export interface ToolUnit {
     has_loans: boolean;
 }
 
-// ─────────────────────────────────────────────
-// Create Payloads
-// ─────────────────────────────────────────────
+
+
+
 
 export interface CreateToolUnitPayload {
     tool_id: number;
-    quantity?: number; // Default: 1. Jika > 1, akan membuat bulk units
+    quantity?: number; 
     notes?: string;
-    condition?: ConditionType; // Default: 'good'
+    condition?: ConditionType; 
 }
 
-// ─────────────────────────────────────────────
-// Update Payloads
-// ─────────────────────────────────────────────
+
+
+
 
 export interface UpdateToolUnitPayload {
     status: UnitStatus;
@@ -78,9 +78,9 @@ export interface RecordConditionPayload {
     return_id?: number | null;
 }
 
-// ─────────────────────────────────────────────
-// Response Interfaces
-// ─────────────────────────────────────────────
+
+
+
 
 export interface ToolUnitResponse {
     data: ToolUnit;
@@ -118,9 +118,9 @@ export interface ConditionHistoryResponse {
     data: UnitCondition[];
 }
 
-// ─────────────────────────────────────────────
-// Query Parameters
-// ─────────────────────────────────────────────
+
+
+
 
 export interface ToolUnitQueryParams {
     per_page?: number;

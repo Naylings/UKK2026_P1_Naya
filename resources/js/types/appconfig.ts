@@ -1,7 +1,7 @@
-// ─────────────────────────────────────────────
-// types/appconfig.ts
-// Semua type yang berhubungan dengan app config domain
-// ─────────────────────────────────────────────
+
+
+
+
 
 export interface AppConfig {
   id: number;

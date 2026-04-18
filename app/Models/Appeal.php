@@ -25,25 +25,23 @@ class Appeal extends Model
         'reviewed_at' => 'datetime',
     ];
 
-    // -------------------------------------------------------------------------
-    // Relations
-    // -------------------------------------------------------------------------
+    
+    
+    
 
-    /** User (peminjam) yang mengajukan banding */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    /** Admin yang mereview banding */
     public function reviewer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'reviewed_by');
     }
 
-    // -------------------------------------------------------------------------
-    // Helpers
-    // -------------------------------------------------------------------------
+    
+    
+    
 
     public function isPending(): bool
     {

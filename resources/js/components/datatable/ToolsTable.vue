@@ -3,7 +3,6 @@ import { ref, watch, onMounted } from "vue";
 import type { Tool } from "@/types/tool";
 import { useCategoryStore } from "@/stores/category";
 
-// ── Props & Emits ─────────────────────────────────────────────────────────
 
 interface Props {
   tools: Tool[];
@@ -36,7 +35,6 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emits>();
 
-// ── Category store untuk dropdown filter ──────────────────────────────────
 
 const categoryStore = useCategoryStore();
 
@@ -46,20 +44,17 @@ onMounted(() => {
   }
 });
 
-// ── State ─────────────────────────────────────────────────────────────────
 
 const selectedRow = ref<Tool | null>(null);
 const expandedRows = ref<any[]>([]);
 const op = ref();
 
-// ── Local filters (writable copy agar bisa diedit di template) ────────────
 
 const localSearch = ref(props.filters?.search ?? "");
 const localCategory = ref<number | "">(
   props.filters?.category ? Number(props.filters.category) : "",
 );
 
-// Debounce search
 let searchTimeout: any = null;
 watch(localSearch, (val) => {
   clearTimeout(searchTimeout);
@@ -71,7 +66,6 @@ watch(localSearch, (val) => {
   }, 500);
 });
 
-// Langsung emit saat kategori berubah (tidak perlu debounce)
 watch(localCategory, (val) => {
   emit("update:filters", {
     search: localSearch.value,
@@ -79,7 +73,6 @@ watch(localCategory, (val) => {
   });
 });
 
-// Sync jika props.filters di-reset dari luar (clear filter)
 watch(
   () => props.filters,
   (val) => {
@@ -89,7 +82,6 @@ watch(
   { deep: true },
 );
 
-// ── Helpers ───────────────────────────────────────────────────────────────
 
 const categoryOptions = ref<{ label: string; value: number }[]>([]);
 watch(
@@ -100,14 +92,9 @@ watch(
   { immediate: true },
 );
 
-/**
- * Konversi path relatif storage Laravel ke URL yang bisa ditampilkan.
- * Menggunakan symlink storage (php artisan storage:link).
- * path: "tools/foto.jpg" → "/storage/tools/foto.jpg"
- */
+
 function storageUrl(path: string | null): string | null {
   if (!path) return null;
-  // Hindari double prefix jika path sudah lengkap
   if (path.startsWith("http") || path.startsWith("/storage")) return path;
   return `/storage/${path}`;
 }
@@ -126,7 +113,6 @@ const typeSeverity: Record<string, string> = {
   bundle_tool: "warning",
 };
 
-// ── Actions ───────────────────────────────────────────────────────────────
 
 const toggleMenu = (event: Event, tool: Tool) => {
   selectedRow.value = tool;
@@ -149,17 +135,14 @@ const clearFilters = () => {
 
 <template>
   <div>
-    <!-- Filter Bar + Create Button -->
     <div class="flex flex-wrap justify-between items-center mb-4 gap-3">
       <div class="flex flex-wrap gap-2 flex-1">
-        <!-- Search -->
         <InputText
           v-model="localSearch"
           placeholder="Cari nama atau kode..."
           class="min-w-48 flex-1"
         />
 
-        <!-- Filter Kategori -->
         <Select
           v-model="localCategory"
           :options="categoryOptions"
@@ -169,7 +152,6 @@ const clearFilters = () => {
           class="min-w-44"
         />
 
-        <!-- Clear -->
         <Button
           v-if="hasActiveFilter()"
           icon="pi pi-times"
@@ -184,7 +166,6 @@ const clearFilters = () => {
       <Button icon="pi pi-plus" label="Tambah Tool" @click="emit('create')" />
     </div>
 
-    <!-- DataTable -->
     <DataTable
       :value="tools"
       :loading="props.loading"
@@ -201,10 +182,8 @@ const clearFilters = () => {
       @page="handlePageChange"
       class="text-sm rounded-xl overflow-hidden"
     >
-      <!-- Expand -->
       <Column expander style="width: 3rem" />
 
-      <!-- Foto -->
       <Column header="Foto" style="width: 5rem">
         <template #body="{ data }">
           <div class="flex justify-center">
@@ -224,7 +203,6 @@ const clearFilters = () => {
         </template>
       </Column>
 
-      <!-- Nama + Kategori -->
       <Column header="Nama">
         <template #body="{ data }">
           <div class="flex flex-col gap-0.5">
@@ -235,7 +213,6 @@ const clearFilters = () => {
           </div>
         </template>
       </Column>
-      <!-- Deskripsi -->
       <Column header="Deskripsi">
         <template #body="{ data }">
           <p
@@ -246,7 +223,6 @@ const clearFilters = () => {
           </p>
         </template>
       </Column>
-      <!-- Kode -->
       <Column header="Kode" style="width: 1%; white-space: nowrap">
         <template #body="{ data }">
           <code
@@ -257,7 +233,6 @@ const clearFilters = () => {
         </template>
       </Column>
 
-      <!-- Tipe -->
       <Column header="Tipe" style="width: 7rem">
         <template #body="{ data }">
           <Tag
@@ -268,7 +243,6 @@ const clearFilters = () => {
         </template>
       </Column>
 
-      <!-- Harga -->
       <Column header="Harga" style="width: 10rem" body-class="text-right">
         <template #body="{ data }">
           <span class="font-semibold">
@@ -277,7 +251,6 @@ const clearFilters = () => {
         </template>
       </Column>
 
-      <!-- Units -->
       <Column header="Unit" style="width: 5rem" body-class="text-center">
         <template #body="{ data }">
           <span class="text-sm font-medium">
@@ -286,7 +259,6 @@ const clearFilters = () => {
         </template>
       </Column>
 
-      <!-- Actions -->
       <Column header="" style="width: 3rem" body-class="text-center">
         <template #body="{ data }">
           <Button
@@ -300,7 +272,6 @@ const clearFilters = () => {
         </template>
       </Column>
 
-      <!-- Expansion: bundle components -->
       <template #expansion="{ data }">
         <div v-if="data.item_type === 'bundle'" class="p-4">
           <p class="font-semibold mb-3 text-sm">
@@ -352,7 +323,6 @@ const clearFilters = () => {
       </template>
     </DataTable>
 
-    <!-- Overlay Menu -->
     <Popover ref="op">
       <div class="flex flex-col gap-1 min-w-40">
         <Button

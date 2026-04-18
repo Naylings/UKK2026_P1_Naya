@@ -8,7 +8,6 @@ import { useToast } from "primevue/usetoast";
 const toast = useToast();
 const appConfigStore = useAppConfigStore();
 
-// ── State ──────────────────────────────────────────────────────────────
 
 const form = reactive<UpdateAppConfigPayload>({
   name: "",
@@ -22,7 +21,6 @@ const form = reactive<UpdateAppConfigPayload>({
 
 const validationErrors = ref<string[]>([]);
 
-// ── Lifecycle ──────────────────────────────────────────────────────────
 
 onBeforeMount(async () => {
   await appConfigStore.fetchConfig();
@@ -32,13 +30,10 @@ onBeforeMount(async () => {
   }
 });
 
-// ── Handlers ───────────────────────────────────────────────────────────
 
 async function handleSubmit() {
-  // Clear previous errors
   validationErrors.value = [];
 
-  // Validate
   validationErrors.value = appConfigService.validatePayload(form);
   if (validationErrors.value.length > 0) {
     toast.add({
@@ -50,7 +45,6 @@ async function handleSubmit() {
     return;
   }
 
-  // Submit
   const success = await appConfigStore.updateConfig(form);
 
   if (success) {
@@ -61,7 +55,6 @@ async function handleSubmit() {
       life: 3000,
     });
 
-    // Refresh halaman setelah 1 detik
     setTimeout(() => {
       window.location.reload();
     }, 1000);
@@ -87,7 +80,6 @@ function handleReset() {
   <div class="card">
     <div class="font-semibold text-xl mb-6">Konfigurasi Aplikasi</div>
 
-    <!-- Alert: Validation Errors -->
     <Message
       v-if="validationErrors.length > 0"
       severity="error"
@@ -103,9 +95,7 @@ function handleReset() {
       </ul>
     </Message>
 
-    <!-- Form -->
     <form @submit.prevent="handleSubmit" class="space-y-6">
-      <!-- Name: Nama Aplikasi/Instansi (Topbar) -->
       <div class="field">
         <label for="name" class="font-semibold block mb-2">
           Nama Aplikasi/Instansi
@@ -123,13 +113,11 @@ function handleReset() {
         />
       </div>
 
-      <!-- Points Section -->
       <Divider align="left">
         <b>Poin Penalty</b>
       </Divider>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <!-- Late Point -->
         <div class="field">
           <label for="late_point" class="font-semibold block mb-2">
             Poin Keterlambatan
@@ -145,7 +133,6 @@ function handleReset() {
           />
         </div>
 
-        <!-- Broken Point -->
         <div class="field">
           <label for="broken_point" class="font-semibold block mb-2">
             Poin Kerusakan
@@ -161,7 +148,6 @@ function handleReset() {
           />
         </div>
 
-        <!-- Lost Point -->
         <div class="field">
           <label for="lost_point" class="font-semibold block mb-2">
             Poin Kehilangan
@@ -178,13 +164,11 @@ function handleReset() {
         </div>
       </div>
 
-      <!-- Fines Section -->
       <Divider align="left">
         <b>Denda (%)</b>
       </Divider>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <!-- Late Fine -->
         <div class="field">
           <label for="late_fine" class="font-semibold block mb-2">
             Denda Keterlambatan (%)
@@ -203,7 +187,6 @@ function handleReset() {
           />
         </div>
 
-        <!-- Broken Fine -->
         <div class="field">
           <label for="broken_fine" class="font-semibold block mb-2">
             Denda Kerusakan (%)
@@ -222,7 +205,6 @@ function handleReset() {
           />
         </div>
 
-        <!-- Lost Fine -->
         <div class="field">
           <label for="lost_fine" class="font-semibold block mb-2">
             Denda Kehilangan (%)
@@ -242,12 +224,10 @@ function handleReset() {
         </div>
       </div>
 
-      <!-- Last Updated -->
       <div v-if="appConfigStore.config?.updated_at" class="text-sm text-surface-500 italic">
         Terakhir diubah: {{ new Date(appConfigStore.config.updated_at).toLocaleString('id-ID') }}
       </div>
 
-      <!-- Action Buttons -->
       <div class="flex gap-3 pt-4">
         <Button
           type="submit"

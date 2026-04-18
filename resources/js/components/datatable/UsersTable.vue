@@ -2,7 +2,6 @@
 import { ref, computed, watch } from "vue";
 import type { User } from "@/types/user";
 
-// Props dan Emit
 interface Props {
   users: User[];
   loading?: boolean;
@@ -35,7 +34,6 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emits>();
 
-// State lokal
 const selectedRow = ref<User | null>(null);
 const op = ref();
 const localFilters = computed({
@@ -46,7 +44,6 @@ const localCurrentPage = ref(props.currentPage);
 const roles = ["Admin", "Employee", "User"];
 let timeout: any = null;
 
-// Watcher
 watch(
   () => props.currentPage,
   (val) => (localCurrentPage.value = val),
@@ -61,7 +58,6 @@ watch(
   { deep: true },
 );
 
-// Function
 const toggleMenu = (event: Event, user: User) => {
   selectedRow.value = user;
   op.value.toggle(event);
@@ -74,10 +70,7 @@ const handlePageChange = (event: any) => {
 
 <template>
   <div class="card">
-    <!-- Header -->
-    <!-- Filter & Create Button -->
     <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-      <!-- Filter Inputs -->
       <div class="flex flex-1 gap-2 min-w-75">
         <InputText
           v-model="localFilters.search"
@@ -103,7 +96,6 @@ const handlePageChange = (event: any) => {
         />
       </div>
 
-      <!-- Create User Button -->
       <Button
         icon="pi pi-plus"
         label="Tambah User"
@@ -112,7 +104,6 @@ const handlePageChange = (event: any) => {
       />
     </div>
 
-    <!-- Data Table -->
     <DataTable
       lazy
       :value="users"
@@ -163,7 +154,6 @@ const handlePageChange = (event: any) => {
       </Column>
     </DataTable>
 
-    <!-- Overlay Menu -->
     <Popover ref="op" append-to="body">
       <div class="flex flex-col gap-2 min-w-48">
         <Button

@@ -28,7 +28,7 @@ const emit = defineEmits<{
 
 const localSearch = ref(props.filters.search);
 
-// Debounce search
+Debounce search
 let timeout: any;
 watch(localSearch, (val) => {
   clearTimeout(timeout);

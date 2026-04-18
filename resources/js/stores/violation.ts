@@ -80,5 +80,17 @@ export const useViolationStore = defineStore("violation", () => {
     fetchViolations,
     fetchViolationById,
     reset,
+
+    
+    $reset() {
+      violations.value = [];
+      currentViolation.value = null;
+      loading.value = false;
+      error.value = null;
+      currentPage.value = 1;
+      lastPage.value = 1;
+      total.value = 0;
+      perPage.value = 10;
+    },
   };
 });

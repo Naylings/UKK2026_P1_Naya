@@ -1,7 +1,3 @@
-// ─────────────────────────────────────────────
-// api/users.ts
-// Pure HTTP calls untuk user management — tidak ada side effect
-// ─────────────────────────────────────────────
 
 import apiClient from "./client";
 import type {
@@ -14,10 +10,7 @@ import type {
 import type { ApiMessageResponse, LaravelApiResponse } from "@/types/auth";
 
 export const categoriesApi = {
-  /**
-   * GET /api/categories
-   * Ambil semua category
-   */
+  
   list: async (params?: {
     search?: string;
     per_page?: number;
@@ -27,10 +20,7 @@ export const categoriesApi = {
     return res.data;
   },
 
-  /**
-   * POST /api/categories
-   * Buat category baru 
-   */
+  
   create: async (
     payload: CreateCategoryPayload,
   ): Promise<LaravelApiResponse<Category>> => {
@@ -41,10 +31,7 @@ export const categoriesApi = {
     return res.data;
   },
 
-  /**
-   * PUT /api/categories/:id
-   * Update category (name + description fields only)
-   */
+  
   update: async (
     id: number,
     payload: UpdateCategoryPayload,
@@ -56,10 +43,7 @@ export const categoriesApi = {
     return res.data;
   },
 
-  /**
-   * DELETE /api/categories/:id
-   * Hapus category (dengan validasi relasi)
-   */
+  
   delete: async (id: number): Promise<string> => {
     const res = await apiClient.delete<ApiMessageResponse>(`/categories/${id}`);
     return res.data.message;

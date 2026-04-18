@@ -6,9 +6,6 @@ namespace App\Exceptions;
 class UserException extends ApiException
 {
 
-    // -------------------------------------------------------------------------
-    // Named constructors — satu tempat untuk semua skenario error user
-    // -------------------------------------------------------------------------
 
     public static function nikAlreadyExists(): self
     {

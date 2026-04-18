@@ -53,7 +53,6 @@ class LoanController extends Controller
         return LoanResource::collection($loans);
     }
 
-    // 🔥 REVIEW APPROVE
     public function approve(int $loanId, Request $request): JsonResponse
     {
         $loan = $this->loanService->approve(
@@ -74,7 +73,6 @@ class LoanController extends Controller
         ]);
     }
 
-    // 🔥 REVIEW REJECT
     public function reject(int $loanId, Request $request): JsonResponse
     {
         $loan = $this->loanService->reject(

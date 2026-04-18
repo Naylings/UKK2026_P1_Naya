@@ -1,7 +1,3 @@
-// ─────────────────────────────────────────────
-// api/loan.ts
-// Pure HTTP calls untuk loan & tool access
-// ─────────────────────────────────────────────
 
 import type { Tool } from "@/types/tool";
 import apiClient from "./client";
@@ -15,19 +11,13 @@ import type {
 } from "@/types/loan";
 
 export const loanApi = {
-    /**
-     * GET /api/tools/:id
-     * Ambil detail tool
-     */
+    
     getTool: async (toolId: number): Promise<Tool> => {
         const res = await apiClient.get<Tool>(`/tools/${toolId}`);
         return res.data;
     },
 
-    /**
-     * GET /api/tools/:id/units/available
-     * Ambil unit yang tersedia berdasarkan tanggal
-     */
+    
 
     getAvailable: async (params: {
         tool_id: number;
@@ -42,10 +32,7 @@ export const loanApi = {
         return res.data;
     },
 
-    /**
-     * POST /api/loans
-     * Submit request peminjaman
-     */
+    
     createLoan: async (
         payload: CreateLoanPayload,
     ): Promise<CreateLoanResponse> => {

@@ -2,7 +2,6 @@
 import { ref, computed } from "vue";
 import type { RecordConditionPayload } from "@/types/toolunit";
 
-// ── Props & Emits ─────────────────────────────────────────────────────────
 
 interface Props {
   visible: boolean;
@@ -21,19 +20,16 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emits>();
 
-// ── State ─────────────────────────────────────────────────────────────────
 
 const condition = ref<"good" | "broken" | "maintenance" | null>(null);
 const notes = ref("");
 const errors = ref<Record<string, string>>({});
 
-// ── Computed ────────────────────────────────────────────────────────────
 
 const isFormValid = computed(() => {
   return condition.value !== null;
 });
 
-// ── Methods ───────────────────────────────────────────────────────────────
 
 function validateForm(): boolean {
   errors.value = {};
@@ -68,7 +64,6 @@ function resetForm() {
   errors.value = {};
 }
 
-// Handle dialog show
 function onDialogShow() {
   resetForm();
 }

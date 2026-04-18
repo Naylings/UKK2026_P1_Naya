@@ -1,6 +1,3 @@
-// ─────────────────────────────────────────────
-// pages/admin/tools/composables/useToolManagement.ts
-// ─────────────────────────────────────────────
 
 import { ref, computed } from "vue";
 import { useToolStore } from "@/stores/tool";
@@ -25,13 +22,11 @@ export function useToolManagement() {
   const toast = useToast();
   const confirm = useConfirm();
 
-  // ── Dialog state ──────────────────────────────────────────────────────────
 
   const formVisible = ref(false);
   const isEditMode = ref(false);
   const editWarningAcknowledged = ref(false);
 
-  // ── Form data ─────────────────────────────────────────────────────────────
 
   const form = ref<ToolFormData>({
     name: null,
@@ -45,12 +40,10 @@ export function useToolManagement() {
     bundle_components: null,
   });
 
-  // Handler untuk update:form emit dari ToolForm (karena form pakai local refs di child)
   function handleFormUpdate(newForm: ToolFormData) {
     form.value = newForm;
   }
 
-  // ── Photo upload state ────────────────────────────────────────────────────
 
   const photoFile = ref<File | null>(null);
   const photoPreview = ref<string | null>(null);
@@ -63,11 +56,9 @@ export function useToolManagement() {
   function removePhoto() {
     photoFile.value = null;
     photoPreview.value = null;
-    // Hapus juga photo_path di form agar BE tahu foto dihapus
     form.value.photo_path = null;
   }
 
-  // ── Bundle component form ─────────────────────────────────────────────────
 
   const bundleComponentForm = ref<BundleComponentPayload>({
     name: "",
@@ -80,18 +71,15 @@ export function useToolManagement() {
   const showBundleComponentModal = ref(false);
   const editingComponentIndex = ref<number | null>(null);
 
-  // ── Selected tool ─────────────────────────────────────────────────────────
 
   const selectedTool = ref<Tool | null>(null);
 
-  // ── Filters ───────────────────────────────────────────────────────────────
 
   const filters = ref({
     category: "",
     search: "",
   });
 
-  // ── Computed ──────────────────────────────────────────────────────────────
 
   const dialogTitle = computed(() =>
     isEditMode.value ? "Edit Tool" : "Tambah Tool Baru",
@@ -107,7 +95,6 @@ export function useToolManagement() {
     () => form.value.bundle_components?.length ?? 0,
   );
 
-  // ── Actions ───────────────────────────────────────────────────────────────
 
   async function onPageChange(event: any) {
     const page = event.page;
@@ -165,9 +152,7 @@ export function useToolManagement() {
     isEditMode.value = true;
     selectedTool.value = tool;
 
-    // Reset photo state
     photoFile.value = null;
-    // Set photoPreview ke path dari BE — ToolForm akan konversi ke /storage/...
     photoPreview.value = tool.photo_path ?? null;
 
     form.value = {
@@ -411,7 +396,6 @@ export function useToolManagement() {
   }
 
   return {
-    // State
     formVisible,
     isEditMode,
     form,
@@ -422,14 +406,11 @@ export function useToolManagement() {
     editingComponentIndex,
     photoFile,
     photoPreview,
-    // Computed
     dialogTitle,
     submitButtonLabel,
     isBundle,
     bundleComponentsCount,
-    // Store
     toolStore,
-    // Actions
     onPageChange,
     loadTools,
     openCreateDialog,

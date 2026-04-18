@@ -1,7 +1,3 @@
-// ─────────────────────────────────────────────
-// api/appconfig.ts
-// Pure HTTP calls untuk app config management — tidak ada side effect
-// ─────────────────────────────────────────────
 
 import apiClient from "./client";
 import type { AppConfig, UpdateAppConfigPayload, AppConfigResponse } from "@/types/appconfig";

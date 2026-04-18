@@ -8,20 +8,17 @@ class ReviewReturn extends FormRequest
 {
     public function authorize(): bool
     {
-        return true; // nanti bisa policy: employee only
+        return true; 
     }
 
     public function rules(): array
     {
         return [
-            // kondisi final unit (untuk UnitCondition)
             'condition' => ['required', 'in:good,broken,maintenance'],
             'condition_notes' => ['nullable', 'string', 'max:1000'],
 
-            // Catatan petugas untuk proses return
             'notes' => ['nullable', 'string', 'max:1000'],
 
-            // optional violation
             'violation_type' => ['nullable', 'in:late,damaged,lost,other'],
             'total_score' => ['nullable', 'integer', 'min:0'],
             'fine' => ['nullable', 'numeric', 'min:0'],

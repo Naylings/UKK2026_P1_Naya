@@ -12,9 +12,6 @@ import type {
     ToolUnitAvailabilityParams,
 } from "@/types/loan";
 
-// ─────────────────────────────────────────────
-// Error parser
-// ─────────────────────────────────────────────
 
 export function parseLoanError(error: unknown): string {
     if (error instanceof AxiosError) {
@@ -39,14 +36,9 @@ export function parseLoanError(error: unknown): string {
     return "Terjadi kesalahan tidak diketahui.";
 }
 
-// ─────────────────────────────────────────────
-// Loan Service (DOMAIN LAYER)
-// ─────────────────────────────────────────────
 
 export const loanRequestService = {
-    /**
-     * Cari unit yang tersedia untuk peminjaman
-     */
+    
     async getAvailableUnits(
         params: ToolUnitAvailabilityParams,
     ): Promise<AvailableToolUnit[]> {
@@ -58,9 +50,7 @@ export const loanRequestService = {
         }
     },
 
-    /**
-     * Submit loan request
-     */
+    
     async submitLoan(payload: CreateLoanPayload): Promise<CreateLoanResponse> {
         try {
             const res = await loanApi.createLoan(payload);
@@ -70,9 +60,6 @@ export const loanRequestService = {
         }
     },
 
-    // ─────────────────────────────────────────────
-    // 🆕 ADMIN / PETUGAS: ALL LOANS
-    // ─────────────────────────────────────────────
     async getAllLoans(params?: {
         status?: string;
         search?: string;
@@ -87,9 +74,6 @@ export const loanRequestService = {
         }
     },
 
-    // ─────────────────────────────────────────────
-    // 🆕 USER: MY LOANS
-    // ─────────────────────────────────────────────
     async getMyLoans(params?: {
         status?: string;
         search?: string;
@@ -105,9 +89,6 @@ export const loanRequestService = {
         }
     },
 
-    // ─────────────────────────────────────────────
-    // 🆕 REVIEW: APPROVE LOAN
-    // ─────────────────────────────────────────────
     async approveLoan(
         loanId: number,
         payload?: LoanReviewPayload,
@@ -120,9 +101,6 @@ export const loanRequestService = {
         }
     },
 
-    // ─────────────────────────────────────────────
-    // 🆕 REVIEW: REJECT LOAN
-    // ─────────────────────────────────────────────
     async rejectLoan(
         loanId: number,
         payload?: LoanReviewPayload,

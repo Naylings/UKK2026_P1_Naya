@@ -15,7 +15,7 @@ export default defineConfig({
       dirs: ["resources/js/components"],
       extensions: ["vue"],
       deep: true,
-      dts: "resources/js/components.d.ts", // optional
+      dts: "resources/js/components.d.ts", 
       resolvers: [PrimeVueResolver()],
     }),
     tailwindcss(),

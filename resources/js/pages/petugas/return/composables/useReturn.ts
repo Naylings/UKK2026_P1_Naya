@@ -9,10 +9,9 @@ export function useReturn() {
   const configStore = useAppConfigStore();
   const toast = useToast();
 
-  // ── List State ──────────────────────────────────────────
 
   const filters = reactive({
-    reviewed: "", // ganti dari status
+    reviewed: "",
     search: "",
     page: 1,
     per_page: 10,
@@ -48,7 +47,6 @@ export function useReturn() {
     loadReturns();
   }
 
-  // ── Review Modal State ────────────────────────────────────
 
   const showReviewModal = ref(false);
   const selectedReturn = ref<ReturnResponse | null>(null);
@@ -77,7 +75,6 @@ export function useReturn() {
     selectedReturn.value = null;
   }
 
-  // ── Calculation Logic ─────────────────────────────────────
 
   function calculateDefaultFine(type: string) {
     if (!selectedReturn.value?.loan?.tool?.price || !configStore.config) return;
@@ -103,7 +100,6 @@ export function useReturn() {
     reviewForm.total_score = points;
   }
 
-  // ── Submit Logic ──────────────────────────────────────────
 
   async function submitReview(payload: ReviewReturnPayload) {
     if (!selectedReturn.value?.loan?.id) return;
@@ -132,7 +128,6 @@ export function useReturn() {
     }
   }
 
-  // ── Detail Modal State ──────────────────────────────────────
   const detailLoan = ref<any>(null);
   const showDetailModal = ref(false);
 
@@ -147,7 +142,6 @@ export function useReturn() {
   }
 
   return {
-    // List
     filters,
     loading,
     returns,
@@ -156,7 +150,6 @@ export function useReturn() {
     onPageChange,
     clearFilter,
 
-    // Review
     showReviewModal,
     selectedReturn,
     reviewForm,
@@ -165,13 +158,11 @@ export function useReturn() {
     calculateDefaultFine,
     submitReview,
 
-    // Detail
     detailLoan,
     showDetailModal,
     openDetailModal,
     closeDetailModal,
 
-    // External data
     config: computed(() => configStore.config),
   };
 }

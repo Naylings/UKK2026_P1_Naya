@@ -6,7 +6,6 @@ import { toolService } from "@/services/toolService";
 import type { AvailableToolUnit } from "@/types/loan";
 
 export function useLoanRequest() {
-  // ── State ─────────────────────────────────────────────
 
   const router = useRouter();
   const toolId = ref<number | null>(null);
@@ -27,7 +26,6 @@ export function useLoanRequest() {
 
   const toast = useToast();
 
-  // ── Helpers ───────────────────────────────────────────
 
   function formatDate(date: Date | null): string {
     if (!date) return "";
@@ -47,7 +45,6 @@ export function useLoanRequest() {
     });
   }
 
-  // ── Actions ───────────────────────────────────────────
 
   function setToolId(id: number) {
     toolId.value = id;
@@ -139,10 +136,8 @@ export function useLoanRequest() {
     }
   }
 
-  // ── Return ────────────────────────────────────────────
 
   return {
-    // state
     toolId,
     loanDate,
     dueDate,
@@ -154,7 +149,6 @@ export function useLoanRequest() {
     error,
     tool,
 
-    // actions
     setToolId,
     searchAvailableUnits,
     selectUnit,

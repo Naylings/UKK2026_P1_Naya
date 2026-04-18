@@ -16,9 +16,6 @@ class SettlementController extends Controller
         private readonly SettlementService $service
     ) {}
 
-    // ─────────────────────────────────────────────
-    // CREATE (settle violation)
-    // ─────────────────────────────────────────────
     public function store(int $violationId, StoreSettlementRequest $request)
     {
         $employeeId = Auth::id();
@@ -46,9 +43,6 @@ class SettlementController extends Controller
             ->setStatusCode(201);
     }
 
-    // ─────────────────────────────────────────────
-    // LIST
-    // ─────────────────────────────────────────────
     public function index(Request $request)
     {
         $settlements = $this->service->getAll([
@@ -59,9 +53,6 @@ class SettlementController extends Controller
         return SettlementResource::collection($settlements);
     }
 
-    // ─────────────────────────────────────────────
-    // DETAIL
-    // ─────────────────────────────────────────────
     public function show(int $id)
     {
         $settlement = $this->service->getById($id);

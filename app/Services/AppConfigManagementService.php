@@ -7,11 +7,6 @@ use App\Models\AppConfig;
 
 class AppConfigManagementService
 {
-    /**
-     * Ambil konfigurasi aplikasi (hanya 1 record)
-     *
-     * @return AppConfig
-     */
     public function getConfig(): AppConfig
     {
         $config = AppConfig::first();
@@ -23,12 +18,6 @@ class AppConfigManagementService
         return $config;
     }
 
-    /**
-     * Update konfigurasi aplikasi
-     *
-     * @param array $data
-     * @return AppConfig
-     */
     public function updateConfig(array $data): AppConfig
     {
         $config = AppConfig::first();
@@ -46,12 +35,6 @@ class AppConfigManagementService
         return $config->fresh();
     }
 
-    /**
-     * Initialize konfigurasi aplikasi jika belum ada
-     *
-     * @param array $defaultConfig
-     * @return AppConfig
-     */
     public function initializeConfig(array $defaultConfig): AppConfig
     {
         $config = AppConfig::first();

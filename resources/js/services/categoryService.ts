@@ -1,7 +1,3 @@
-// ─────────────────────────────────────────────
-// services/userService.ts
-// Business logic FE: parsing response, error handling
-// ─────────────────────────────────────────────
 
 import { AxiosError } from "axios";
 import { categoriesApi } from "@/api/categories";
@@ -18,19 +14,14 @@ interface CategoryMutationResult {
     message: string;
 }
 
-// ── Error helper ──────────────────────────────────────────────────────────
 
-/**
- * Ekstrak pesan error dari response BE maupun network error.
- * Selalu mengembalikan string yang siap ditampilkan ke user.
- */
+
 export function parseCategoryError(error: unknown): string {
     if (error instanceof AxiosError) {
         const data = error.response?.data as ApiErrorResponse | undefined;
 
         if (data?.message) return data.message;
 
-        // Fallback berdasarkan HTTP status
         switch (error.response?.status) {
             case 401:
                 return "Sesi tidak valid. Silakan login ulang.";
@@ -48,12 +39,9 @@ export function parseCategoryError(error: unknown): string {
     return "Terjadi kesalahan tidak diketahui.";
 }
 
-// ── Service methods ───────────────────────────────────────────────────────
 
 export const categoryService = {
-    /**
-     * Ambil semua category.
-     */
+    
     async getAll(params?: {
         search?: string;
         role?: string;
@@ -68,9 +56,7 @@ export const categoryService = {
         }
     },
 
-    /**
-     * Buat category baru.
-     */
+    
     async create(payload: CreateCategoryPayload): Promise<CategoryMutationResult> {
         try {
             const response = await categoriesApi.create(payload);
@@ -83,9 +69,7 @@ export const categoryService = {
         }
     },
 
-    /**
-     * Update category (name + description fields).
-     */
+    
     async update(
         id: number,
         payload: UpdateCategoryPayload,
@@ -101,10 +85,7 @@ export const categoryService = {
         }
     },
 
-    /**
-     * Hapus category.
-     * Melempar error jika category masih punya relasi atau ada masalah constraint.
-     */
+    
     async delete(id: number): Promise<string> {
         try {
             const response = await categoriesApi.delete(id);

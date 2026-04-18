@@ -6,10 +6,6 @@ use App\Exceptions\ApiException;
 
 class LoanException extends ApiException
 {
-    // -------------------------------------------------------------------------
-    // Named constructors — semua skenario error peminjaman
-    // -------------------------------------------------------------------------
-
     public static function unitNotAvailable(): self
     {
         return new self(

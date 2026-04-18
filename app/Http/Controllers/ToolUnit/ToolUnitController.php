@@ -21,10 +21,6 @@ class ToolUnitController extends Controller
         private readonly ToolUnitService $unitService
     ) {}
 
-    /**
-     * GET /api/tool-units
-     * Ambil semua unit dengan pagination dan filter
-     */
     public function index(Request $request)
     {
         try {
@@ -44,10 +40,6 @@ class ToolUnitController extends Controller
         }
     }
 
-    /**
-     * GET /api/tool-units/{code}
-     * Ambil detail unit berdasarkan code
-     */
     public function show(string $code)
     {
         try {
@@ -66,10 +58,6 @@ class ToolUnitController extends Controller
         }
     }
 
-    /**
-     * POST /api/tool-units
-     * Buat unit baru (single atau bulk)
-     */
     public function store(StoreToolUnitRequest $request)
     {
         try {
@@ -134,17 +122,12 @@ class ToolUnitController extends Controller
         }
     }
 
-    /**
-     * PUT /api/tool-units/{code}
-     * Update status unit
-     */
     public function update(UpdateToolUnitRequest $request, string $code)
     {
         try {
             $data = $request->validated();
             $unit = $this->unitService->updateStatus($code, $data['status']);
 
-            // Update notes jika ada
             if (isset($data['notes'])) {
                 $unit->update(['notes' => $data['notes']]);
             }
@@ -170,10 +153,6 @@ class ToolUnitController extends Controller
         }
     }
 
-    /**
-     * DELETE /api/tool-units/{code}
-     * Hapus unit
-     */
     public function destroy(string $code)
     {
         try {
@@ -202,10 +181,6 @@ class ToolUnitController extends Controller
         }
     }
 
-    /**
-     * POST /api/tool-units/{code}/record-condition
-     * Catat kondisi unit
-     */
     public function recordCondition(RecordConditionRequest $request, string $code)
     {
         try {
@@ -244,10 +219,6 @@ class ToolUnitController extends Controller
         }
     }
 
-    /**
-     * GET /api/tool-units/{code}/history
-     * Ambil history kondisi unit
-     */
     public function conditionHistory(string $code)
     {
         try {

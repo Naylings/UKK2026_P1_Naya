@@ -7,8 +7,6 @@
  * Place at: UKK2026_P1_Naya\resources\js\shims-vue.d.ts
  */
 
-/* eslint-disable */
-/* tslint:disable */
 
 declare module "*.vue" {
   import type { DefineComponent } from "vue";
@@ -98,11 +96,9 @@ declare module "@/*" {
  */
 declare global {
   interface Document {
-    // startViewTransition is experimental - may not exist on all platforms
     startViewTransition?: (callback: () => void) => void;
   }
 
-  // Relax window if code attaches custom globals
   interface Window {
     [key: string]: any;
   }

@@ -6,9 +6,7 @@ namespace App\Exceptions;
 class CategoryException extends ApiException
 {
 
-    // -------------------------------------------------------------------------
-    // Named constructors — satu tempat untuk semua skenario error kategori
-    // -------------------------------------------------------------------------
+  
     public static function NotFound(): self
     {
         return new self(

@@ -1,7 +1,3 @@
-// ─────────────────────────────────────────────
-// services/authService.ts
-// Business logic FE: parsing response, error handling, token management
-// ─────────────────────────────────────────────
 
 import { AxiosError } from 'axios';
 import { authApi } from '@/api/auth';
@@ -17,19 +13,14 @@ interface LoginResult {
   message: string;
 }
 
-// ── Error helper ──────────────────────────────────────────────────────────
 
-/**
- * Ekstrak pesan error dari response BE maupun network error.
- * Selalu mengembalikan string yang siap ditampilkan ke user.
- */
+
 export function parseAuthError(error: unknown): string {
   if (error instanceof AxiosError) {
     const data = error.response?.data as ApiErrorResponse | undefined;
 
     if (data?.message) return data.message;
 
-    // Fallback berdasarkan HTTP status
     switch (error.response?.status) {
       case 401: return 'Sesi tidak valid. Silakan login ulang.';
       case 403: return 'Akun Anda sedang dibatasi.';
@@ -41,13 +32,9 @@ export function parseAuthError(error: unknown): string {
   return 'Terjadi kesalahan tidak diketahui.';
 }
 
-// ── Service methods ───────────────────────────────────────────────────────
 
 export const authService = {
-  /**
-   * Login: kirim kredensial → simpan token → kembalikan user.
-   * Melempar string error jika gagal (siap untuk ditampilkan di UI).
-   */
+  
   async login(payload: LoginPayload): Promise<LoginResult> {
     try {
       const result = await authApi.login(payload);
@@ -61,12 +48,7 @@ export const authService = {
     }
   },
 
-  /**
-   * Logout: panggil BE untuk invalidate token → bersihkan storage.
-   * Tetap bersihkan storage meskipun request BE gagal
-   * (token sudah tidak relevan di sisi FE).
-   * Mengembalikan pesan dari BE jika tersedia.
-   */
+  
   async logout(): Promise<string> {
     let message = 'Logout berhasil';
     try {
@@ -75,16 +57,13 @@ export const authService = {
         message = response.data.message;
       }
     } catch {
-      // Diabaikan — token mungkin sudah expired di server
     } finally {
       tokenStorage.clear();
     }
     return message;
   },
 
-  /**
-   * Refresh: tukar token lama → simpan token baru → kembalikan user.
-   */
+  
   async refresh(): Promise<AuthUser> {
     try {
       const result = await authApi.refresh();
@@ -108,6 +87,5 @@ export const authService = {
     }
   },
 
-  /** Cek apakah ada token tersimpan di storage */
   hasToken: (): boolean => !!tokenStorage.get(),
 };

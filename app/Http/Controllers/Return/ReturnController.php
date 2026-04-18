@@ -17,9 +17,6 @@ class ReturnController extends Controller
         protected ReturnService $returnService
     ) {}
 
-    // =========================================
-    // USER: CREATE RETURN
-    // =========================================
     public function store(int $loanId, StoreReturn $request): JsonResponse
     {
         $loan = $this->returnService->createByUser(
@@ -42,9 +39,6 @@ class ReturnController extends Controller
         ], 201);
     }
 
-    // =========================================
-    // EMPLOYEE: CONFIRM RETURN
-    // =========================================
     public function confirm(int $loanId, ReviewReturn $request): JsonResponse
     {
         $loan = $this->returnService->confirmByEmployee(
@@ -81,9 +75,6 @@ class ReturnController extends Controller
         ]);
     }
 
-    // =========================================
-    // LIST RETURNS + FILTER
-    // =========================================
     public function index(Request $request)
     {
         $returns = $this->returnService->getAll($request->all());
@@ -91,9 +82,6 @@ class ReturnController extends Controller
         return ReturnResource::collection($returns);
     }
 
-    // =========================================
-    // GET RETURN BY ID
-    // =========================================
     public function show(int $id): JsonResponse
     {
         $return = $this->returnService->getById($id);

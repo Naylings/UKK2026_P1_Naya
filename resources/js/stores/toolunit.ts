@@ -1,7 +1,7 @@
-// ─────────────────────────────────────────────
-// stores/toolunit.ts
-// Pinia store untuk tool unit management — state, getters, actions
-// ─────────────────────────────────────────────
+
+
+
+
 
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
@@ -16,7 +16,7 @@ import type {
 } from "@/types/toolunit";
 
 export const useToolUnitStore = defineStore("toolunit", () => {
-  // ── State ──────────────────────────────────────────────────────────────
+  
 
   const toolUnits = ref<ToolUnit[]>([]);
   const currentUnit = ref<ToolUnit | null>(null);
@@ -25,14 +25,14 @@ export const useToolUnitStore = defineStore("toolunit", () => {
   const error = ref<string | null>(null);
   const successMessage = ref<string | null>(null);
 
-  // ── Pagination ────────────────────────────────────────────────────────────
+  
 
   const currentPage = ref(1);
   const lastPage = ref(1);
   const total = ref(0);
   const perPage = ref(10);
 
-  // ── Getters ────────────────────────────────────────────────────────────
+  
 
   const unitCount = computed(() => toolUnits.value.length);
   const hasUnits = computed(() => toolUnits.value.length > 0);
@@ -49,7 +49,7 @@ export const useToolUnitStore = defineStore("toolunit", () => {
     () => toolUnits.value.filter((u) => u.is_nonactive).length,
   );
 
-  // ── Actions ────────────────────────────────────────────────────────────
+  
 
   async function fetchUnits(params?: {
     search?: string;
@@ -94,9 +94,7 @@ export const useToolUnitStore = defineStore("toolunit", () => {
     }
   }
 
-  /**
-   * Buat unit baru (single atau bulk).
-   */
+  
   async function createUnit(payload: CreateToolUnitPayload): Promise<boolean> {
     loading.value = true;
     error.value = null;
@@ -105,7 +103,7 @@ export const useToolUnitStore = defineStore("toolunit", () => {
     try {
       const result = await toolunitService.create(payload);
 
-      // Handle both single unit dan bulk units
+      
       if (Array.isArray(result.units)) {
         toolUnits.value.push(...result.units);
       } else {
@@ -176,9 +174,7 @@ export const useToolUnitStore = defineStore("toolunit", () => {
     }
   }
 
-  /**
-   * Catat kondisi unit.
-   */
+  
   async function recordCondition(
     code: string,
     payload: RecordConditionPayload,
@@ -190,7 +186,7 @@ export const useToolUnitStore = defineStore("toolunit", () => {
     try {
       const result = await toolunitService.recordCondition(code, payload);
 
-      // Update currentUnit jika ada
+      
       if (currentUnit.value?.code === code && result.condition) {
         currentUnit.value.latest_condition = result.condition;
       }
@@ -205,9 +201,7 @@ export const useToolUnitStore = defineStore("toolunit", () => {
     }
   }
 
-  /**
-   * Ambil history kondisi unit.
-   */
+  
   async function fetchConditionHistory(code: string): Promise<boolean> {
     loading.value = true;
     error.value = null;
@@ -245,7 +239,7 @@ export const useToolUnitStore = defineStore("toolunit", () => {
   }
 
   return {
-    // State
+    
     toolUnits,
     currentUnit,
     conditionHistory,
@@ -257,7 +251,7 @@ export const useToolUnitStore = defineStore("toolunit", () => {
     lastPage,
     total,
 
-    // Getters
+    
     unitCount,
     hasUnits,
     isLoading,
@@ -266,7 +260,7 @@ export const useToolUnitStore = defineStore("toolunit", () => {
     lentUnits,
     nonactiveUnits,
 
-    // Actions
+    
     fetchUnits,
     fetchUnitByCode,
     createUnit,
@@ -277,5 +271,19 @@ export const useToolUnitStore = defineStore("toolunit", () => {
     clearError,
     clearSuccessMessage,
     reset,
+
+    
+    $reset() {
+      toolUnits.value = [];
+      currentUnit.value = null;
+      conditionHistory.value = [];
+      loading.value = false;
+      error.value = null;
+      successMessage.value = null;
+      currentPage.value = 1;
+      lastPage.value = 1;
+      total.value = 0;
+      perPage.value = 10;
+    },
   };
 });

@@ -1,7 +1,3 @@
-// ─────────────────────────────────────────────
-// services/userService.ts
-// Business logic FE: parsing response, error handling
-// ─────────────────────────────────────────────
 
 import { AxiosError } from "axios";
 import { usersApi } from "@/api/users";
@@ -19,19 +15,14 @@ interface UserMutationResult {
   message: string;
 }
 
-// ── Error helper ──────────────────────────────────────────────────────────
 
-/**
- * Ekstrak pesan error dari response BE maupun network error.
- * Selalu mengembalikan string yang siap ditampilkan ke user.
- */
+
 export function parseUserError(error: unknown): string {
   if (error instanceof AxiosError) {
     const data = error.response?.data as ApiErrorResponse | undefined;
 
     if (data?.message) return data.message;
 
-    // Fallback berdasarkan HTTP status
     switch (error.response?.status) {
       case 401:
         return "Sesi tidak valid. Silakan login ulang.";
@@ -49,12 +40,9 @@ export function parseUserError(error: unknown): string {
   return "Terjadi kesalahan tidak diketahui.";
 }
 
-// ── Service methods ───────────────────────────────────────────────────────
 
 export const userService = {
-  /**
-   * Ambil semua user.
-   */
+  
   async getAll(params?: {
     search?: string;
     role?: string;
@@ -69,9 +57,7 @@ export const userService = {
     }
   },
 
-  /**
-   * Ambil user berdasarkan ID.
-   */
+  
   async getById(id: number): Promise<User> {
     try {
       return await usersApi.get(id);
@@ -80,9 +66,7 @@ export const userService = {
     }
   },
 
-  /**
-   * Buat user baru dengan detail.
-   */
+  
   async create(payload: CreateUserPayload): Promise<UserMutationResult> {
     try {
       const response = await usersApi.create(payload);
@@ -95,9 +79,7 @@ export const userService = {
     }
   },
 
-  /**
-   * Update user (role + detail fields).
-   */
+  
   async update(id: number, payload: UpdateUserPayload): Promise<UserMutationResult> {
     try {
       const response = await usersApi.update(id, payload);
@@ -110,10 +92,7 @@ export const userService = {
     }
   },
 
-  /**
-   * Hapus user.
-   * Melempar error jika user masih punya relasi atau ada masalah constraint.
-   */
+  
   async delete(id: number): Promise<string> {
     try {
       return await usersApi.delete(id);
@@ -122,9 +101,7 @@ export const userService = {
     }
   },
 
-  /**
-   * Update credit user.
-   */
+  
   async updateCredit(
     id: number,
     payload: UpdateUserCreditPayload,

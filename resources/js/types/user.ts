@@ -1,7 +1,7 @@
-// ─────────────────────────────────────────────
-// types/user.ts
-// Semua type yang berhubungan dengan user domain
-// ─────────────────────────────────────────────
+
+
+
+
 
 export interface UserDetail {
   nik: string;
@@ -55,7 +55,7 @@ export interface UserResponse {
   data: User;
 }
 
-// types/user.ts - ADD this
+
 export interface PaginatedUsersResponse {
   data: User[];
   meta: {

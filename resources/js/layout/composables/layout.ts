@@ -57,15 +57,15 @@ export function useLayout() {
   };
 
   const toggleDarkMode = () => {
-    // document.startViewTransition is an experimental API — guard for availability
+    
     if (!("startViewTransition" in document)) {
       executeDarkModeToggle();
       return;
     }
 
-    // startViewTransition takes a callback — do not pass an undefined event
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore - startViewTransition is experimental and may not be typed in DOM lib
+    
+    
+    
     document.startViewTransition(() => executeDarkModeToggle());
   };
 

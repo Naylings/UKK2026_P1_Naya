@@ -17,7 +17,7 @@ class UserResource extends JsonResource
             'credit_score'  => $this->credit_score,
             'is_restricted' => (bool) $this->is_restricted,
             'created_at'    => $this->created_at?->toIso8601String(),
-            // User details
+            
             'details' => $this->detail ? [
                 'nik'           => $this->detail->nik,
                 'name'          => $this->detail->name,

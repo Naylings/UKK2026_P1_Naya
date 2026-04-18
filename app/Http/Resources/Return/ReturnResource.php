@@ -17,9 +17,6 @@ class ReturnResource extends JsonResource
 
             'created_at' => $this->created_at,
 
-            // =========================================
-            // EMPLOYEE (PETUGAS YANG VALIDASI RETURN)
-            // =========================================
             'employee' => $this->whenLoaded('employee', fn() => [
                 'id' => $this->employee->id,
                 'email' => $this->employee->email,
@@ -30,9 +27,6 @@ class ReturnResource extends JsonResource
                 ] : null,
             ]),
 
-            // =========================================
-            // LOAN INFO (CONTEXT PENGEMBALIAN)
-            // =========================================
             'loan' => $this->whenLoaded('loan', fn() => [
                 'id' => $this->loan->id,
                 'status' => $this->loan->status,
@@ -63,7 +57,7 @@ class ReturnResource extends JsonResource
                             'name' => $bc->tool?->name,
                             'qty' => $bc->qty,
                             'code' => $bc->tool?->code_slug,
-                            'price' => $bc->tool?->price, // 🔥 Added price for calculation
+                            'price' => $bc->tool?->price, 
                         ]) : null,                ],
 
                 'unit' => [

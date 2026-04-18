@@ -15,7 +15,7 @@ class SettlementResource extends JsonResource
             'settled_at' => $this->settled_at?->toIso8601String(),
             'description' => $this->description,
 
-            // Employee
+            
             'employee' => $this->whenLoaded('employee', fn() => [
                 'id' => $this->employee->id,
                 'email' => $this->employee->email,
@@ -25,7 +25,7 @@ class SettlementResource extends JsonResource
                 ] : null,
             ]),
 
-            // Violation + User (penting)
+            
             'violation' => $this->whenLoaded('violation', fn() => [
                 'id' => $this->violation->id,
                 'type' => $this->violation->type,

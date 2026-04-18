@@ -22,9 +22,9 @@ class ToolUnitResource extends JsonResource
             'notes'             => $this->notes,
             'created_at'        => $this->created_at?->toIso8601String(),
 
-            // ─────────────────────────────────────────────────────────────────
-            // Latest condition (kondisi terkini unit)
-            // ─────────────────────────────────────────────────────────────────
+            
+            
+            
             'latest_condition'  => $this->whenLoaded('latestCondition', fn() => $this->latestCondition ? [
                 'id'           => $this->latestCondition->id,
                 'conditions'   => $this->latestCondition->conditions,
@@ -32,9 +32,9 @@ class ToolUnitResource extends JsonResource
                 'recorded_at'  => $this->latestCondition->recorded_at?->toIso8601String(),
             ] : null),
 
-            // ─────────────────────────────────────────────────────────────────
-            // Metadata untuk frontend
-            // ─────────────────────────────────────────────────────────────────
+            
+            
+            
             'is_available'      => $this->status === 'available',
             'is_lent'           => $this->status === 'lent',
             'is_nonactive'      => $this->status === 'nonactive',

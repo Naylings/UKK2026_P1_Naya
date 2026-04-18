@@ -26,34 +26,25 @@ class Tool extends Model
         'created_at' => 'datetime',
     ];
 
-    // -------------------------------------------------------------------------
-    // Relations
-    // -------------------------------------------------------------------------
+    
+    
+    
 
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }
 
-    /** Unit-unit fisik dari tool template ini */
     public function units(): HasMany
     {
         return $this->hasMany(ToolUnit::class);
     }
 
-    /**
-     * Jika tool ini adalah bundle, relasi ini mengembalikan
-     * sub-tool (bundle_tool) yang ada di dalamnya via pivot bundle_tools.
-     */
     public function bundleComponents(): HasMany
     {
         return $this->hasMany(BundleTool::class, 'bundle_id');
     }
 
-    /**
-     * Jika tool ini adalah bundle_tool, relasi ini mengembalikan
-     * bundle mana saja yang memuat tool ini.
-     */
     public function bundles(): HasMany
     {
         return $this->hasMany(BundleTool::class, 'tool_id');
@@ -64,9 +55,9 @@ class Tool extends Model
         return $this->hasMany(Loan::class);
     }
 
-    // -------------------------------------------------------------------------
-    // Helpers
-    // -------------------------------------------------------------------------
+    
+    
+    
 
     public function isSingle(): bool
     {

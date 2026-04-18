@@ -6,9 +6,6 @@ namespace App\Exceptions;
 class ToolException extends ApiException
 {
 
-    // -------------------------------------------------------------------------
-    // Named constructors — satu tempat untuk semua skenario error alat
-    // -------------------------------------------------------------------------
     public static function notFound(): self
     {
         return new self(

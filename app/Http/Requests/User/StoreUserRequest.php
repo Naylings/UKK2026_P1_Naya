@@ -15,12 +15,10 @@ class StoreUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // User fields
             'email'    => ['required', 'string', 'email', 'unique:users,email'],
             'password' => ['required', 'string', 'min:6'],
             'role'     => ['required', 'string', Rule::in(['Admin', 'Employee', 'User'])],
             
-            // UserDetail fields
             'nik'        => ['required', 'string', 'size:16', 'unique:user_details,nik'],
             'name'       => ['required', 'string', 'max:255'],
             'no_hp'      => ['required', 'string', 'max:15'],

@@ -1,15 +1,9 @@
-// ─────────────────────────────────────────────
-// services/appConfigService.ts
-// Business logic untuk app config — orchestration, transform, validation
-// ─────────────────────────────────────────────
 
 import { appConfigApi } from "@/api/appconfig";
 import type { AppConfig, UpdateAppConfigPayload } from "@/types/appconfig";
 
 export const appConfigService = {
-  /**
-   * Fetch app config dari API
-   */
+  
   async fetchConfig(): Promise<AppConfig> {
     try {
       const config = await appConfigApi.get();
@@ -20,9 +14,7 @@ export const appConfigService = {
     }
   },
 
-  /**
-   * Update app config
-   */
+  
   async updateConfig(payload: UpdateAppConfigPayload): Promise<AppConfig> {
     try {
       const response = await appConfigApi.update(payload);
@@ -33,9 +25,7 @@ export const appConfigService = {
     }
   },
 
-  /**
-   * Validate app config payload
-   */
+  
   validatePayload(payload: Partial<UpdateAppConfigPayload>): string[] {
     const errors: string[] = [];
 

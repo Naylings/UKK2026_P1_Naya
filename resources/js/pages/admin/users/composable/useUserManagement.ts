@@ -1,7 +1,3 @@
-// ─────────────────────────────────────────────
-// pages/admin/users/composables/useUserManagement.ts
-// Logic untuk user management page
-// ─────────────────────────────────────────────
 
 import { ref, computed } from "vue";
 import { useUserStore } from "@/stores/user";
@@ -23,14 +19,12 @@ export function useUserManagement() {
     const toast = useToast();
     const confirm = useConfirm();
 
-    // ── Dialog state ──────────────────────────────────────────────────────────
 
     const formVisible = ref(false);
     const detailVisible = ref(false);
     const creditVisible = ref(false);
     const isEditMode = ref(false);
 
-    // ── Form data ─────────────────────────────────────────────────────────────
 
     const form = ref<Partial<UserForm>>({
         email: "",
@@ -47,19 +41,16 @@ export function useUserManagement() {
         credit_score: 0,
     });
 
-    // ── Selected user ─────────────────────────────────────────────────────────
 
     const selectedUser = ref<User | null>(null);
     const selectedUserId = ref<number | null>(null);
 
-    // ── Filters ───────────────────────────────────────────────────────────────
 
     const filters = ref({
         role: "",
         search: "",
     });
 
-    // ── Computed ──────────────────────────────────────────────────────────────
 
     const dialogTitle = computed(() =>
         isEditMode.value ? "Edit User" : "Tambah User Baru",
@@ -69,11 +60,8 @@ export function useUserManagement() {
         isEditMode.value ? "Update" : "Buat User",
     );
 
-    // ── Actions ───────────────────────────────────────────────────────────────
 
-    /**
-     * Pagination handler
-     */
+    
 
     async function onPageChange(event: any) {
         const page = event.page;
@@ -81,9 +69,7 @@ export function useUserManagement() {
         await loadUsers({ page, per_page: perPage });
     }
 
-    /**
-     * Muat semua users
-     */
+    
     async function loadUsers(params?: { page?: number; per_page?: number }) {
         const success = await userStore.fetchUsers({
             page: params?.page ?? userStore.currentPage,
@@ -102,18 +88,14 @@ export function useUserManagement() {
         }
     }
 
-    /**
-     * Buka dialog create
-     */
+    
     function openCreateDialog() {
         isEditMode.value = false;
         resetForm();
         formVisible.value = true;
     }
 
-    /**
-     * Buka dialog edit
-     */
+    
     function openEditDialog(user: User) {
         isEditMode.value = true;
         selectedUser.value = user;
@@ -133,9 +115,7 @@ export function useUserManagement() {
         formVisible.value = true;
     }
 
-    /**
-     * Submit form (create atau update)
-     */
+    
     async function submitForm() {
         if (!form.value) return;
 
@@ -149,7 +129,6 @@ export function useUserManagement() {
             return `${year}-${month}-${day}`;
         };
 
-        // Tentukan pesan konfirmasi
         const action = isEditMode.value ? "update" : "buat";
         const userName = form.value.name || form.value.email || "";
         const confirmMessage = `Apakah Anda yakin ingin ${action} user "${userName}"?`;
@@ -228,9 +207,7 @@ export function useUserManagement() {
         });
     }
 
-    /**
-     * Buka dialog detail user
-     */
+    
     function openDetailDialog(user: User) {
         selectedUser.value = user;
         detailVisible.value = true;
@@ -245,18 +222,14 @@ export function useUserManagement() {
         if (action === "delete") confirmDelete(user);
     }
 
-    /**
-     * Buka dialog update credit
-     */
+    
     function openCreditDialog(user: User) {
         selectedUserId.value = user.id;
         creditForm.value.credit_score = user.credit_score;
         creditVisible.value = true;
     }
 
-    /**
-     * Submit update credit
-     */
+    
     async function submitCreditForm() {
         if (!selectedUserId.value) return;
 
@@ -296,9 +269,7 @@ export function useUserManagement() {
         });
     }
 
-    /**
-     * Konfirmasi delete
-     */
+    
     function confirmDelete(user: User) {
         confirm.require({
             message: `Apakah Anda yakin ingin menghapus user "${user.details?.name || user.email}"?`,
@@ -326,9 +297,7 @@ export function useUserManagement() {
         });
     }
 
-    /**
-     * Reset form
-     */
+    
     function resetForm() {
         form.value = {
             email: null,
@@ -343,9 +312,7 @@ export function useUserManagement() {
         selectedUser.value = null;
     }
 
-    /**
-     * Clear filter
-     */
+    
     function clearFilter() {
         filters.value = {
             role: "",

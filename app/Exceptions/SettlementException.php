@@ -4,10 +4,7 @@ namespace App\Exceptions;
 
 class SettlementException extends ApiException
 {
-    // ─────────────────────────────────────────────
-    // BASIC
-    // ─────────────────────────────────────────────
-
+    
     public static function notFound(): self
     {
         return new self(
@@ -26,10 +23,7 @@ class SettlementException extends ApiException
         );
     }
 
-    // ─────────────────────────────────────────────
-    // BUSINESS RULES
-    // ─────────────────────────────────────────────
-
+    
     public static function alreadySettled(): self
     {
         return new self(
@@ -57,10 +51,7 @@ class SettlementException extends ApiException
         );
     }
 
-    // ─────────────────────────────────────────────
-    // AUTHORIZATION
-    // ─────────────────────────────────────────────
-
+    
     public static function notAllowed(): self
     {
         return new self(
@@ -70,10 +61,7 @@ class SettlementException extends ApiException
         );
     }
 
-    // ─────────────────────────────────────────────
-    // SYSTEM ERROR
-    // ─────────────────────────────────────────────
-
+    
     public static function createFailed(string $reason = ''): self
     {
         return new self(

@@ -23,7 +23,6 @@ const emit = defineEmits<{
 
 const globalFilter = ref("");
 
-// debounce search
 let timeout: any;
 watch(globalFilter, (val) => {
   clearTimeout(timeout);
@@ -74,7 +73,6 @@ function getViolationTag(violation: any) {
   <div class="card">
     <div class="font-semibold text-xl mb-4">Riwayat Peminjaman</div>
 
-    <!-- FILTER -->
     <div class="flex flex-col md:flex-row gap-3 mb-5">
       <InputText v-model="globalFilter" placeholder="Cari..." />
 
@@ -92,7 +90,6 @@ function getViolationTag(violation: any) {
       <Button label="Reset" outlined @click="$emit('reset')" />
     </div>
 
-    <!-- TABLE -->
     <DataTable
       :value="loans"
       :loading="loading"

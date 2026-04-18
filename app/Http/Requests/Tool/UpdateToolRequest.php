@@ -29,7 +29,6 @@ class UpdateToolRequest extends FormRequest
         $itemType = $this->input('item_type', $tool?->item_type);
 
         return [
-            // Tool fields
             'category_id'       => ['sometimes', 'exists:categories,id'],
             'name'              => ['sometimes', 'string', 'max:255', Rule::unique('tools', 'name')->ignore($tool->id)],
             'item_type'         => ['sometimes', 'string', Rule::in(['single', 'bundle', 'bundle_tool'])],

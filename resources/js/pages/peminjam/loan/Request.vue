@@ -12,7 +12,6 @@ import UnitConditionHistoryModal from "@/components/dialogs/details/UnitConditio
 const route = useRoute();
 const router = useRouter();
 
-// ── Loan composable (domain utama)
 const {
   toolId,
   dueDate,
@@ -32,16 +31,13 @@ const {
   loadTool,
 } = useLoanRequest();
 
-// ── Tool unit domain (history only)
 const toolUnits = useToolUnits(computed(() => toolId.value));
 const { conditionHistory, loadConditionHistory, loading: historyLoading } =
   toolUnits;
 
-// ── UI state
 const detailVisible = ref(false);
 const selectedDetailUnit = ref<ToolUnit | null>(null);
 
-// ── init
 onMounted(async () => {
   const id = Number(route.params.toolId);
 
@@ -54,13 +50,11 @@ onMounted(async () => {
   await loadTool(id);
 });
 
-// ── validation
 const isInvalidDateRange = computed(() => {
   if (!loanDate.value || !dueDate.value) return true;
   return new Date(loanDate.value) > new Date(dueDate.value);
 });
 
-// ── actions
 async function openDetail(unit: ToolUnit) {
   selectedDetailUnit.value = unit;
   detailVisible.value = true;
@@ -74,7 +68,6 @@ async function openDetail(unit: ToolUnit) {
 <template>
     <div class="max-w-5xl mx-auto">
         <div class="card space-y-8">
-            <!-- Header -->
             <div class="flex items-center gap-3">
                 <Button
                     icon="pi pi-arrow-left"
@@ -90,7 +83,6 @@ async function openDetail(unit: ToolUnit) {
                 </div>
             </div>
 
-            <!-- Tool Info -->
             <div
                 v-if="!loading"
                 class="p-5 rounded-2xl bg-linear-to-r from-blue-50 to-indigo-50 border border-blue-100 flex items-center gap-4"
@@ -109,9 +101,7 @@ async function openDetail(unit: ToolUnit) {
                 </div>
             </div>
 
-            <!-- FORM SECTION -->
             <div class="space-y-6">
-                <!-- Date Section -->
                 <div
                     class="bg-white p-6 rounded-2xl shadow-sm border space-y-5"
                 >
@@ -163,7 +153,6 @@ async function openDetail(unit: ToolUnit) {
                     </div>
                 </div>
 
-                <!-- Reason -->
                 <div class="bg-white p-6 rounded-2xl shadow-sm border">
                     <label
                         class="text-sm font-semibold text-gray-700 block mb-3"
@@ -186,12 +175,10 @@ async function openDetail(unit: ToolUnit) {
                     </div>
                 </div>
 
-                <!-- Error -->
                 <Message v-if="error" severity="error" class="w-full">
                     {{ error }}
                 </Message>
 
-                <!-- Results -->
                 <div class="bg-white p-6 rounded-2xl shadow-sm border">
                     <div class="flex items-center justify-between mb-4">
                         <div class="font-semibold text-gray-800">
@@ -309,7 +296,6 @@ async function openDetail(unit: ToolUnit) {
                 </div>
             </div>
 
-            <!-- Submit -->
             <div class="flex items-center justify-between pt-4">
                 <div
                     v-if="selectedUnit"

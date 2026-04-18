@@ -4,7 +4,6 @@ import type { ItemType, BundleComponentPayload } from "@/types/tool";
 import type { ToolFormData } from "@/pages/admin/tools/composable/useToolManagement";
 import { useCategoryStore } from "@/stores/category";
 
-// ── Props & Emits ─────────────────────────────────────────────────────────
 
 interface Props {
   visible: boolean;
@@ -38,7 +37,6 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emits>();
 
-// ── Category store ────────────────────────────────────────────────────────
 
 const categoryStore = useCategoryStore();
 
@@ -46,12 +44,10 @@ const categoryOptions = computed(() =>
   categoryStore.categories.map((c) => ({ label: c.name, value: c.id })),
 );
 
-// Pastikan categories ter-load
 if (!categoryStore.hasCategories) {
   categoryStore.fetchCategories();
 }
 
-// ── Local form state ──────────────────────────────────────────────────────
 
 const localName = ref(props.form.name);
 const localCategoryId = ref<number | null>(props.form.category_id);
@@ -61,7 +57,6 @@ const localMinCredit = ref(props.form.min_credit_score);
 const localCodeSlug = ref(props.form.code_slug);
 const localDescription = ref(props.form.description);
 
-// Sync ke bawah: saat form prop berubah (dialog dibuka dengan data baru)
 watch(
   () => props.form,
   (newForm) => {
@@ -76,8 +71,6 @@ watch(
   { deep: true, immediate: true },
 );
 
-// Sync ke atas: saat local state berubah, emit update:form
-// Ini agar composable di parent tetap punya data terkini
 function emitFormUpdate() {
   emit("update:form", {
     ...props.form,
@@ -98,17 +91,11 @@ watch(localMinCredit, emitFormUpdate);
 watch(localCodeSlug, emitFormUpdate);
 watch(localDescription, emitFormUpdate);
 
-// item_type punya handler tersendiri
 function onItemTypeChange(value: ItemType) {
   localItemType.value = value;
   emit("item-type-change", value);
 }
 
-// ── Storage URL helper ────────────────────────────────────────────────────
-//
-// Laravel storage:link membuat symlink public/storage → storage/app/public.
-// Path dari BE: "tools/foto.jpg" → URL: "/storage/tools/foto.jpg"
-//
 function storageUrl(path: string | null): string | null {
   if (!path) return null;
   if (
@@ -124,11 +111,9 @@ function storageUrl(path: string | null): string | null {
 const resolvedPhotoPreview = computed(() => {
   return localPhotoPreview.value || storageUrl(props.photoPreview);
 });
-// ── Item types ────────────────────────────────────────────────────────────
 
 const itemTypes: ItemType[] = ["single", "bundle"];
 
-// ── Event handlers ────────────────────────────────────────────────────────
 
 const onUpdateVisible = (value: boolean) => emit("update:visible", value);
 const onCancel = () => {
@@ -275,7 +260,6 @@ watch(
         </Divider>
 
         <div class="flex items-start gap-4">
-          <!-- Preview -->
           <div>
             <div
               v-if="resolvedPhotoPreview"
@@ -304,7 +288,6 @@ watch(
             </div>
           </div>
 
-          <!-- Upload -->
           <div class="flex flex-col justify-center gap-2">
             <FileUpload
               mode="basic"
@@ -323,7 +306,6 @@ watch(
         </div>
       </div>
 
-      <!-- Bundle Components Section -->
       <template v-if="props.isBundle">
         <div class="md:col-span-2 space-y-1">
           <Divider align="left">
@@ -343,7 +325,6 @@ watch(
       </template>
     </div>
 
-    <!-- Footer -->
     <template #footer>
       <Button
         label="Batal"

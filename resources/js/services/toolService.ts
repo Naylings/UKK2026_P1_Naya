@@ -1,7 +1,3 @@
-// ─────────────────────────────────────────────
-// services/toolService.ts
-// Business logic FE: parsing response, error handling
-// ─────────────────────────────────────────────
 
 import { AxiosError } from "axios";
 import { toolsApi } from "@/api/tools";
@@ -13,12 +9,8 @@ interface ToolMutationResult {
   message: string;
 }
 
-// ── Error helper ──────────────────────────────────────────────────────────
 
-/**
- * Ekstrak pesan error dari response BE maupun network error.
- * Selalu mengembalikan string yang siap ditampilkan ke user.
- */
+
 export function parseToolError(error: unknown): string {
   if (error instanceof AxiosError) {
     const data = error.response?.data as ApiErrorResponse | undefined;
@@ -42,12 +34,9 @@ export function parseToolError(error: unknown): string {
   return "Terjadi kesalahan tidak diketahui.";
 }
 
-// ── Service methods ───────────────────────────────────────────────────────
 
 export const toolService = {
-  /**
-   * Ambil semua tool dengan pagination, search, dan filter kategori.
-   */
+  
   async getAll(params?: {
     search?: string;
     category?: string | number;
@@ -67,9 +56,7 @@ export const toolService = {
     }
   },
 
-  /**
-   * Ambil tool berdasarkan ID.
-   */
+  
   async getById(id: number): Promise<Tool> {
     try {
       return await toolsApi.get(id);
@@ -78,9 +65,7 @@ export const toolService = {
     }
   },
 
-  /**
-   * Buat tool baru.
-   */
+  
   async create(payload: FormData): Promise<ToolMutationResult> {
     try {
       const response = await toolsApi.create(payload);
@@ -93,9 +78,7 @@ export const toolService = {
     }
   },
 
-  /**
-   * Update tool.
-   */
+  
   async update(
     id: number,
     payload: FormData,
@@ -111,9 +94,7 @@ export const toolService = {
     }
   },
 
-  /**
-   * Hapus tool.
-   */
+  
   async delete(id: number): Promise<string> {
     try {
       const response = await toolsApi.delete(id);

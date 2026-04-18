@@ -8,10 +8,7 @@ import type {
 } from "@/types/return";
 
 export const returnApi = {
-  /**
-   * POST /api/returns/{loanId}
-   * Submit return request (User)
-   */
+  
   createReturn: async (
     loanId: number,
     payload: CreateReturnPayload,
@@ -36,10 +33,7 @@ export const returnApi = {
     return res.data;
   },
 
-  /**
-   * GET /api/returns
-   * List returns (Petugas/Admin)
-   */
+  
   getReturns: async (params?: {
     status?: string;
     search?: string;
@@ -53,10 +47,7 @@ export const returnApi = {
     return res.data;
   },
 
-  /**
-   * GET /api/returns/{id}
-   * Get return detail
-   */
+  
   getReturnById: async (
     returnId: number,
   ): Promise<{ data: ReturnResponse }> => {
@@ -64,10 +55,7 @@ export const returnApi = {
     return res.data;
   },
 
-  /**
-   * POST /api/returns/{loanId}/confirm
-   * Confirm/Review return (Employee)
-   */
+  
   confirmReturn: async (
     loanId: number,
     payload: ReviewReturnPayload,

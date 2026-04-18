@@ -25,6 +25,6 @@ class AppConfig extends Model
         'updated_at' => 'datetime',
     ];
 
-    // AppConfig tidak memiliki relasi ke tabel lain.
-    // Diakses oleh Service layer sebagai konfigurasi global aplikasi.
+    
+    
 }

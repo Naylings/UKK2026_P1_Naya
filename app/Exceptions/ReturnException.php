@@ -6,10 +6,7 @@ use App\Exceptions\ApiException;
 
 class ReturnException extends ApiException
 {
-    // -------------------------------------------------------------------------
-    // Named constructors — semua skenario error pengembalian
-    // -------------------------------------------------------------------------
-
+    
     public static function notApproved(): self
     {
         return new self(

@@ -4,9 +4,6 @@ namespace App\Exceptions;
 
 class ToolUnitException extends ApiException
 {
-    // -------------------------------------------------------------------------
-    // Named constructors — semua skenario error Tool Unit
-    // -------------------------------------------------------------------------
 
     public static function notFound(): self
     {

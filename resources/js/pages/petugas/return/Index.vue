@@ -21,7 +21,6 @@ const {
   submitReview,
   config,
 
-  // Detail
   detailLoan,
   showDetailModal,
   openDetailModal,

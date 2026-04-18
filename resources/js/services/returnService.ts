@@ -9,9 +9,7 @@ import type {
 } from "@/types/return";
 
 export const returnService = {
-  /**
-   * Submit return request (User)
-   */
+  
   async createReturn(
     loanId: number,
     payload: CreateReturnPayload,
@@ -23,9 +21,7 @@ export const returnService = {
     }
   },
 
-  /**
-   * Get all returns (Employee/Admin)
-   */
+  
   async getReturns(params?: any): Promise<ReturnListResponse> {
     try {
       return await returnApi.getReturns(params);
@@ -34,9 +30,7 @@ export const returnService = {
     }
   },
 
-  /**
-   * Get return detail by ID
-   */
+  
   async getReturnById(id: number): Promise<ReturnResponse> {
     try {
       const res = await returnApi.getReturnById(id);
@@ -46,9 +40,7 @@ export const returnService = {
     }
   },
 
-  /**
-   * Confirm and review return (Employee)
-   */
+  
   async confirmReturn(
     loanId: number,
     payload: ReviewReturnPayload,

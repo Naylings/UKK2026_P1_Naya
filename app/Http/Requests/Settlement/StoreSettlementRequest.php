@@ -8,7 +8,7 @@ class StoreSettlementRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true; // bisa tambahkan role check kalau perlu
+        return true; 
     }
 
     public function rules(): array

@@ -18,14 +18,12 @@ const emit = defineEmits<{
 
 const { formatDate, storageUrl, formatCurrency } = useFormatter();
 
-// ── UI State ──────────────────────────────────────────────
 const activeTab = ref("0");
 const reviewType = ref<"aman" | "bermasalah">("aman");
 const selectedViolation = ref<"damaged" | "lost" | "late" | "other" | null>(
   null,
 );
 
-// Input manual untuk tipe pelanggaran 'Lainnya'
 
 const form = ref<ReviewReturnPayload>({
   condition: "good",
@@ -36,19 +34,15 @@ const form = ref<ReviewReturnPayload>({
   description: "",
 });
 
-// ── Logic Tanggal (Day.js) ──────────────────────────────────────────────
 const isLate = computed(() => {
   const dueDate = props.selectedReturn?.loan?.due_date;
   const returnDate = props.selectedReturn?.return_date;
   if (!dueDate || !returnDate) return false;
 
-  // Bandingkan hari (mengabaikan jam/menit agar akurat)
   return dayjs(returnDate).isAfter(dayjs(dueDate), "day");
 });
 
-// ── Computed Perhitungan ──────────────────────────────────────────────
 const violationOptions = computed(() => {
-  // Explicitly type the array using your existing violation types
   const options: {
     label: string;
     value: "damaged" | "lost" | "late" | "other";
@@ -89,7 +83,6 @@ const calculatedFine = computed(() => {
   if (selectedViolation.value === "other") return manualFine.value;
 
   const cfg = violationConfig.value[selectedViolation.value];
-  // Perhitungan langsung tanpa Qty (karena unit selalu 1)
   return Math.round((basePrice.value * (cfg?.percent || 0)) / 100);
 });
 
@@ -100,7 +93,6 @@ const calculatedScore = computed(() => {
   return violationConfig.value[selectedViolation.value]?.score || 0;
 });
 
-// ── Watchers ──────────────────────────────────────────────
 
 watch(
   () => props.visible,
@@ -124,11 +116,9 @@ watch(reviewType, (val) => {
   }
 });
 
-// -- UI State --
 const manualFine = ref(0);
 const manualScore = ref(0);
 
-// -- Logic Perhitungan Default --
 const defaultFine = computed(() => {
   if (
     !selectedViolation.value ||
@@ -150,8 +140,6 @@ const defaultScore = computed(() => {
   return violationConfig.value[selectedViolation.value]?.score || 0;
 });
 
-// -- Watchers untuk Sync Input --
-// Ketika jenis pelanggaran berubah, isi input manual dengan nilai default dari config
 watch(selectedViolation, (newVal) => {
   if (newVal && newVal !== "other") {
     manualFine.value = defaultFine.value;
@@ -162,7 +150,6 @@ watch(selectedViolation, (newVal) => {
   }
 });
 
-// Sync ke payload form yang akan dikirim ke backend
 watch([manualFine, manualScore, selectedViolation], () => {
   form.value.violation_type = selectedViolation.value;
   form.value.fine = manualFine.value;

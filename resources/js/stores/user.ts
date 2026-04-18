@@ -1,7 +1,7 @@
-// ─────────────────────────────────────────────
-// stores/user.ts
-// Pinia store untuk user management — state, getters, actions
-// ─────────────────────────────────────────────
+
+
+
+
 
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
@@ -14,7 +14,7 @@ import type {
 } from "@/types/user";
 
 export const useUserStore = defineStore("user", () => {
-  // ── State ──────────────────────────────────────────────────────────────
+  
 
   const users = ref<User[]>([]);
   const currentUser = ref<User | null>(null);
@@ -22,23 +22,21 @@ export const useUserStore = defineStore("user", () => {
   const error = ref<string | null>(null);
   const successMessage = ref<string | null>(null);
 
-  // ── Pagination ────────────────────────────────────────────────────────────
+  
 
   const currentPage = ref(1);
   const lastPage = ref(1);
   const total = ref(0);
   const perPage = ref(10);
 
-  // ── Getters ────────────────────────────────────────────────────────────
+  
 
   const userCount = computed(() => users.value.length);
   const hasUsers = computed(() => users.value.length > 0);
 
-  // ── Actions ────────────────────────────────────────────────────────────
+  
 
-  /**
-   * Ambil list semua user.
-   */
+  
   async function fetchUsers(params?: {
     search?: string;
     role?: string;
@@ -68,9 +66,7 @@ export const useUserStore = defineStore("user", () => {
     }
   }
 
-  /**
-   * Ambil detail user tertentu.
-   */
+  
   async function fetchUserById(id: number): Promise<boolean> {
     loading.value = true;
     error.value = null;
@@ -86,9 +82,7 @@ export const useUserStore = defineStore("user", () => {
     }
   }
 
-  /**
-   * Buat user baru.
-   */
+  
   async function createUser(payload: CreateUserPayload): Promise<boolean> {
     loading.value = true;
     error.value = null;
@@ -107,9 +101,7 @@ export const useUserStore = defineStore("user", () => {
     }
   }
 
-  /**
-   * Update user.
-   */
+  
   async function updateUser(
     id: number,
     payload: UpdateUserPayload,
@@ -123,13 +115,13 @@ export const useUserStore = defineStore("user", () => {
       const updated = result.user;
       successMessage.value = result.message;
 
-      // Update di local list
+      
       const index = users.value.findIndex((u) => u.id === id);
       if (index !== -1) {
         users.value[index] = updated;
       }
 
-      // Update currentUser jika sedang diedit
+      
       if (currentUser.value?.id === id) {
         currentUser.value = updated;
       }
@@ -143,9 +135,7 @@ export const useUserStore = defineStore("user", () => {
     }
   }
 
-  /**
-   * Hapus user.
-   */
+  
   async function deleteUser(id: number): Promise<boolean> {
     loading.value = true;
     error.value = null;
@@ -154,10 +144,10 @@ export const useUserStore = defineStore("user", () => {
     try {
       successMessage.value = await userService.delete(id);
 
-      // Hapus dari list
+      
       users.value = users.value.filter((u) => u.id !== id);
 
-      // Clear currentUser jika yang dihapus sedang dilihat
+      
       if (currentUser.value?.id === id) {
         currentUser.value = null;
       }
@@ -171,9 +161,7 @@ export const useUserStore = defineStore("user", () => {
     }
   }
 
-  /**
-   * Update credit user.
-   */
+  
   async function updateUserCredit(
     id: number,
     payload: UpdateUserCreditPayload,
@@ -186,13 +174,13 @@ export const useUserStore = defineStore("user", () => {
       const updated = await userService.updateCredit(id, payload);
       successMessage.value = "Credit berhasil diupdate.";
 
-      // Update di local list
+      
       const index = users.value.findIndex((u) => u.id === id);
       if (index !== -1) {
         users.value[index] = updated;
       }
 
-      // Update currentUser jika sedang diedit
+      
       if (currentUser.value?.id === id) {
         currentUser.value = updated;
       }
@@ -206,16 +194,12 @@ export const useUserStore = defineStore("user", () => {
     }
   }
 
-  /**
-   * Bersihkan error dari state.
-   */
+  
   function clearError(): void {
     error.value = null;
   }
 
-  /**
-   * Bersihkan semua state.
-   */
+  
   function reset(): void {
     users.value = [];
     currentUser.value = null;
@@ -228,16 +212,16 @@ export const useUserStore = defineStore("user", () => {
     perPage,
     lastPage,
     total,
-    // state
+    
     users,
     currentUser,
     loading,
     error,
     successMessage,
-    // getters
+    
     userCount,
     hasUsers,
-    // actions
+    
     fetchUsers,
     fetchUserById,
     createUser,
@@ -246,5 +230,18 @@ export const useUserStore = defineStore("user", () => {
     updateUserCredit,
     clearError,
     reset,
+
+    
+    $reset() {
+      users.value = [];
+      currentUser.value = null;
+      loading.value = false;
+      error.value = null;
+      successMessage.value = null;
+      currentPage.value = 1;
+      lastPage.value = 1;
+      total.value = 0;
+      perPage.value = 10;
+    },
   };
 });

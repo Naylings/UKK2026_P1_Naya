@@ -1,7 +1,7 @@
-// ─────────────────────────────────────────────
-// types/tool.ts
-// Semua type yang berhubungan dengan tool domain
-// ─────────────────────────────────────────────
+
+
+
+
 
 export type ItemType = "single" | "bundle" | "bundle_tool";
 
@@ -43,9 +43,9 @@ export interface Tool {
   bundle_components?: BundleComponent[];
   created_at: string;
 
-  // ─────────────────────────────────────────────────────────────────
-  // Metadata untuk UI decision making
-  // ─────────────────────────────────────────────────────────────────
+  
+  
+  
   has_units: boolean;
   units_count: number;
   available_units: number;
@@ -56,26 +56,26 @@ export interface Tool {
   can_delete: boolean;
 }
 
-// ─────────────────────────────────────────────
-// Create Payloads
-// ─────────────────────────────────────────────
 
-// Tambahkan di tool.ts
+
+
+
+
 export interface CreateToolPayloadFormData extends Omit<
   CreateToolPayload,
   "photo_path"
 > {
-  photo?: File; // File upload instead of photo_path string
+  photo?: File; 
 }
 
-// Update BundleComponentPayload jika bundle components juga perlu photo upload
+
 export interface BundleComponentPayload {
   name: string;
   price: number;
   qty: number;
   description?: string | null;
-  photo?: File; // Support file upload
-  photo_path?: string | null; // Keep for backward compatibility
+  photo?: File; 
+  photo_path?: string | null; 
 }
 
 export interface CreateToolPayload {
@@ -90,9 +90,9 @@ export interface CreateToolPayload {
   bundle_components?: BundleComponentPayload[] | null;
 }
 
-// ─────────────────────────────────────────────
-// Update Payloads
-// ─────────────────────────────────────────────
+
+
+
 
 export interface UpdateBundleComponentPayload {
   name?: string;
@@ -118,9 +118,9 @@ export interface UpdateToolPayload {
   bundle_components?: BundleComponentPayload[] | null;
 }
 
-// ─────────────────────────────────────────────
-// Response Interfaces
-// ─────────────────────────────────────────────
+
+
+
 
 export interface ToolResponse {
   data: Tool;
@@ -149,9 +149,9 @@ export interface PaginatedToolsResponse {
   };
 }
 
-// ─────────────────────────────────────────────
-// Query Parameters
-// ─────────────────────────────────────────────
+
+
+
 
 export interface ToolQueryParams {
   per_page?: number;

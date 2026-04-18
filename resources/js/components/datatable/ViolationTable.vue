@@ -20,7 +20,6 @@ const emit = defineEmits<{
 
 const globalFilter = ref("");
 
-// Debounce search agar tidak terlalu sering hit API
 let timeout: any;
 watch(globalFilter, (val) => {
   clearTimeout(timeout);

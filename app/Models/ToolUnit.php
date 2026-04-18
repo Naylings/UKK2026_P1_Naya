@@ -9,9 +9,6 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class ToolUnit extends Model
 {
-    /**
-     * Primary key adalah kode string (contoh: LPT-001, SET-PK-001).
-     */
     protected $primaryKey = 'code';
     public $incrementing  = false;
     protected $keyType    = 'string';
@@ -30,9 +27,9 @@ class ToolUnit extends Model
         'created_at' => 'datetime',
     ];
 
-    // -------------------------------------------------------------------------
-    // Relations
-    // -------------------------------------------------------------------------
+    
+    
+    
 
     public function tool(): BelongsTo
     {
@@ -44,7 +41,6 @@ class ToolUnit extends Model
         return $this->hasMany(UnitCondition::class, 'unit_code', 'code');
     }
 
-    /** Kondisi terkini berdasarkan recorded_at terbaru */
     public function latestCondition(): HasOne
     {
         return $this->hasOne(UnitCondition::class, 'unit_code', 'code')
@@ -56,9 +52,9 @@ class ToolUnit extends Model
         return $this->hasMany(Loan::class, 'unit_code', 'code');
     }
 
-    // -------------------------------------------------------------------------
-    // Helpers
-    // -------------------------------------------------------------------------
+    
+    
+    
 
     public function isAvailable(): bool
     {

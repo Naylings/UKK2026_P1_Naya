@@ -3,7 +3,6 @@ import { loanRequestService } from "@/services/loanService";
 import type { LoanFilters, LoanResponse } from "@/types/loan";
 
 export function useLoanList() {
-  // ── State ──────────────────────────────────────────────
 
   const loans = ref<LoanResponse[]>([]);
   const loading = ref(false);
@@ -18,7 +17,6 @@ const filters = ref<LoanFilters>({
 
   const meta = ref<any>(null);
 
-  // ── Actions ────────────────────────────────────────────
 
 async function loadMyLoans(params?: any) {
     loading.value = true;
@@ -74,7 +72,6 @@ function onPageChange(event: any) {
     loadMyLoans();
   }
 
-  // ── Detail Modal ──────────────────────────────────────────────
   const detailLoan = ref<LoanResponse | null>(null);
   const showDetailModal = ref(false);
 
@@ -101,7 +98,6 @@ function onPageChange(event: any) {
     setFilters,
     setSearch,
 
-    // Detail Modal
     detailLoan,
     showDetailModal,
     openDetailModal,

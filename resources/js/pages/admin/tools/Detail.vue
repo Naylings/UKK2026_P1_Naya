@@ -41,7 +41,6 @@ onMounted(() => {
     init(fetchUnits);
 });
 
-// Auto-fetch unit condition history when detail modal opens
 watch(showDetailModal, async (newVal) => {
     if (newVal && selectedDetailUnit.value) {
         await loadConditionHistory(selectedDetailUnit.value.code);
@@ -73,7 +72,6 @@ async function handleCreateUnit(payload: any) {
 
 <template>
     <div class="card">
-        <!-- Header -->
         <div class="flex items-center gap-3 mb-6">
             <Button
                 icon="pi pi-arrow-left"
@@ -86,16 +84,12 @@ async function handleCreateUnit(payload: any) {
             <h1 class="text-2xl font-bold">Detail Tool</h1>
         </div>
 
-        <!-- Loading State -->
         <div v-if="loading" class="flex justify-center py-12">
             <ProgressSpinner />
         </div>
 
-        <!-- Content -->
         <div v-else-if="tool" class="space-y-6">
-            <!-- Main Info Card -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Photo -->
                 <div class="lg:col-span-1">
                     <div
                         class="rounded-xl overflow-hidden border border-surface-200 bg-surface-50 aspect-square"
@@ -122,9 +116,7 @@ async function handleCreateUnit(payload: any) {
                     </div>
                 </div>
 
-                <!-- Details -->
                 <div class="lg:col-span-2 space-y-4">
-                    <!-- Name & Category -->
                     <div>
                         <label
                             class="text-xs font-semibold text-surface-500 uppercase tracking-wide"
@@ -135,7 +127,6 @@ async function handleCreateUnit(payload: any) {
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
-                        <!-- Kategori -->
                         <div>
                             <label
                                 class="text-xs font-semibold text-surface-500 uppercase tracking-wide"
@@ -147,7 +138,6 @@ async function handleCreateUnit(payload: any) {
                             </p>
                         </div>
 
-                        <!-- Tipe -->
                         <div>
                             <label
                                 class="text-xs font-semibold text-surface-500 uppercase tracking-wide"
@@ -170,7 +160,6 @@ async function handleCreateUnit(payload: any) {
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
-                        <!-- Harga -->
                         <div>
                             <label
                                 class="text-xs font-semibold text-surface-500 uppercase tracking-wide"
@@ -182,7 +171,6 @@ async function handleCreateUnit(payload: any) {
                             </p>
                         </div>
 
-                        <!-- Min Credit Score -->
                         <div>
                             <label
                                 class="text-xs font-semibold text-surface-500 uppercase tracking-wide"
@@ -195,7 +183,6 @@ async function handleCreateUnit(payload: any) {
                         </div>
                     </div>
 
-                    <!-- Kode Slug -->
                     <div>
                         <label
                             class="text-xs font-semibold text-surface-500 uppercase tracking-wide"
@@ -209,7 +196,6 @@ async function handleCreateUnit(payload: any) {
                         </code>
                     </div>
 
-                    <!-- Deskripsi -->
                     <div>
                         <label
                             class="text-xs font-semibold text-surface-500 uppercase tracking-wide"
@@ -225,7 +211,6 @@ async function handleCreateUnit(payload: any) {
                 </div>
             </div>
 
-            <!-- Units Info Summary -->
             <Divider />
             <div class="grid grid-cols-4 gap-4">
                 <div class="border border-surface-200 rounded-lg p-4">
@@ -270,7 +255,6 @@ async function handleCreateUnit(payload: any) {
                 </div>
             </div>
 
-            <!-- Bundle Components -->
             <div v-if="isBundle" class="space-y-4">
                 <Divider />
                 <div>
@@ -340,7 +324,6 @@ async function handleCreateUnit(payload: any) {
                 </div>
             </div>
 
-            <!-- Unit Management Section -->
             <Divider />
             <div class="space-y-4">
                 <ToolUnitsTable
@@ -359,7 +342,6 @@ async function handleCreateUnit(payload: any) {
                 />
             </div>
 
-            <!-- Tool Actions -->
             <Divider />
             <div class="flex gap-3 justify-end">
                 <Button
@@ -372,16 +354,13 @@ async function handleCreateUnit(payload: any) {
             </div>
         </div>
 
-        <!-- Empty State -->
         <div v-else class="text-center py-12 text-surface-400">
             <i class="pi pi-inbox text-4xl mb-3 block" />
             <p>Tool tidak ditemukan</p>
         </div>
     </div>
 
-    <!-- Unit Modals -->
 
-    <!-- Create/Edit Unit Modal -->
     <ToolUnitFormModal
         :visible="showUnitFormModal"
         :tool-id="tool?.id"
@@ -390,7 +369,6 @@ async function handleCreateUnit(payload: any) {
         @submit="handleCreateUnit"
     />
 
-    <!-- Unit Detail & Condition History Modal -->
     <UnitConditionHistoryModal
         :visible="showDetailModal"
         :unit="selectedDetailUnit"
@@ -407,7 +385,6 @@ async function handleCreateUnit(payload: any) {
         :mode="'admin'" 
     />
 
-    <!-- Record Condition Modal -->
     <RecordConditionModal
         :visible="showRecordConditionModal"
         :unit-code="selectedConditionUnit?.code"
