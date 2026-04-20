@@ -30,8 +30,9 @@ class AppealService
         app(ActivityLogService::class)->log(
             'appeal.created',
             'appeals',
-            "User mengajukan appeal
-            ['appeal_id' => $appeal->id]
+            "User mengajukan appeal: " . json_encode([
+                'appeal_id' => $appeal->id
+            ])
         );
 
         return $appeal->fresh(['user']);
@@ -114,12 +115,12 @@ class AppealService
             app(ActivityLogService::class)->log(
                 $action,
                 'appeals',
-                "Admin {$reviewer->email} " . ($status === 'approved' ? 'menyetujui' : 'menolak') . " appeal
-                [
+                "Admin {$reviewer->email} " . ($status === 'approved' ? 'menyetujui' : 'menolak') . " appeal: " .
+                json_encode([
                     'appeal_id' => $appeal->id,
                     'status' => $status,
                     'credit_changed' => $updateData['credit_changed'] ?? null,
-                ]
+                ])
             );
 
             return $appeal->fresh(['user', 'reviewer']);
